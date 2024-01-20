@@ -22,7 +22,7 @@ import json
 app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
 MainWindow.setObjectName("MainWindow")
-MainWindow.setWindowTitle("oxxo.studio")
+MainWindow.setWindowTitle("TYAI car")
 MainWindow.resize(720, 505)
 
 label = QtWidgets.QLabel(MainWindow)    
