@@ -69,6 +69,8 @@ try:
         datumYvalue.setText(str(data["middlePointY"]))
 except FileNotFoundError:
     data = {"middlePointX": 0, "middlePointY": 0}
+    datumXvalue.setText(str(0))
+    datumYvalue.setText(str(0))
     with open("setting.json", 'w') as file:
         json.dump(data, file)
 except Exception as e:
