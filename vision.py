@@ -25,8 +25,8 @@ MainWindow.setObjectName("MainWindow")
 MainWindow.setWindowTitle("oxxo.studio")
 MainWindow.resize(720, 505)
 
-label = QtWidgets.QLabel(MainWindow)    # 建立 QLabel
-label.setGeometry(0,0,720,405)          # 設定 QLabel 位置尺寸
+label = QtWidgets.QLabel(MainWindow)    
+label.setGeometry(0,0,720,405)          
 datumXslider = QtWidgets.QSlider(MainWindow)
 datumXslider.setGeometry(110, 430, 500, 30)
 datumXslider.setOrientation(QtCore.Qt.Horizontal)
@@ -91,12 +91,12 @@ def datumYsliderValue(value):
     datumYvalue.setText(str(data["middlePointY"]))
 datumYslider.valueChanged.connect(datumYsliderValue)
 
-ocv = True             # 設定全域變數，讓關閉視窗時 OpenCV 也會跟著關閉
+ocv = True            
 def closeOpenCV():
     global ocv
-    ocv = False        # 關閉視窗時，將 ocv 設為 False
+    ocv = False        
 
-MainWindow.closeEvent = closeOpenCV  # 設定關閉視窗的動作
+MainWindow.closeEvent = closeOpenCV  
 
 def getEdge(pr):
     global data
@@ -125,8 +125,22 @@ def save():
 shortcut1 = QtWidgets.QShortcut(QKeySequence("Ctrl+S"), MainWindow)
 shortcut1.activated.connect(save)
 
+def putInformation(frame):
+    global data, edge
+    height, width, channel = frame.shape
+    frame = cv2.circle(frame, (data["middlePointX"], data["middlePointY"]), radius=5, color=(255,255,255), thickness=10)
+    frame = cv2.line(frame, (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]-edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
+    frame = cv2.line(frame, (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]+edge["offsetRight"], data["middlePointY"]), (255,255,255), 4)
+    if data["middlePointY"] <= height/2:
+        textOffset = 65
+    else:
+        textOffset = -20
+    frame = cv2.putText(frame, str(edge["offsetLeft"]),(data["middlePointX"]-int(edge["offsetLeft"]/2)-60, data["middlePointY"]+textOffset), cv2.FONT_HERSHEY_SIMPLEX,
+  2, (255, 255, 255), 8, cv2.LINE_AA)
+    frame = cv2.putText(frame, str(edge["offsetRight"]),(data["middlePointX"]+int(edge["offsetRight"]/2)-60, data["middlePointY"]+textOffset), cv2.FONT_HERSHEY_SIMPLEX,
+  2, (255, 255, 255), 8, cv2.LINE_AA)
 
-    # cv2.imshow("Predict ", predictImage)
+    return frame
 class DeeplabV3(object):
     _defaults = {
         #-------------------------------------------------------------------#
@@ -197,20 +211,6 @@ class DeeplabV3(object):
                                 backbone = self.backbone, downsample_factor = self.downsample_factor)
 
         self.model.load_weights(self.model_path)
-        # coremlModel = coremltools.convert(self.model)
-        # coremlModel = coremltools.convert(self.model, 
-        #                                   inputs=[coremltools.ImageType(shape=(1, 512, 512, 3), color_layout=coremltools.colorlayout.RGB)])
-        # coremlModel = coremltools.convert(
-        #     self.model,
-        #     inputs=[coremltools.ImageType(
-        #         # name='image',
-        #         shape=(1, self.input_shape[0], self.input_shape[1], 3), 
-        #         scale=1/255.0, 
-        #         # bias=[-1,-1,-1], 
-        #         color_layout='RGB'
-        #     )]
-        # )
-        # coremlModel.save("TYAIroadModel_pixelBuffer.mlpackage")
         print('{} model loaded.'.format(self.model_path))
         
     @tf.function
@@ -331,34 +331,20 @@ def opencv():
     fps = 0.0
     while(ocv):
         t1 = time.time()
-        # 读取某一帧
         ref, frame = capture.read()
         if not ref:
             break
-        # 格式转变，BGRtoRGB
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-        # 转变成Image
         frame = Image.fromarray(np.uint8(frame))
-        # 进行检测
         frame = np.array(deeplab.detect_image(frame))
-        frame = cv2.circle(frame, (data["middlePointX"], data["middlePointY"]), radius=5, color=(255,255,255), thickness=10)
-        frame = cv2.line(frame , (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]-edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
-        frame = cv2.line(frame , (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]+edge["offsetRight"], data["middlePointY"]), (255,255,255), 4)
+        frame = putInformation(frame)
         frame = cv2.resize(frame, (720, 405))
         height, width, channel = frame.shape
         bytesPerline = channel * width
 
         img = QImage(frame, width, height, bytesPerline, QImage.Format_RGB888)
         label.setPixmap(QPixmap.fromImage(img))
-        
-        # # RGBtoBGR满足opencv显示格式
-        # frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
-        
-        # fps  = ( fps + (1./(time.time()-t1)) ) / 2
-        # # print("fps= %.2f"%(fps))
-        # frame = cv2.putText(frame, "fps= %.2f"%(fps), (0, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        
-        # cv2.imshow("video",frame)
+
         c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
             out.write(frame)
@@ -372,10 +358,3 @@ video.start()
 
 MainWindow.show()
 sys.exit(app.exec_())
-
-# print("Video Detection Done!")
-# capture.release()
-# if video_save_path!="":
-#     print("Save processed video to the path :" + video_save_path)
-#     out.release()
-# cv2.destroyAllWindows()
