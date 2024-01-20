@@ -311,7 +311,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_9590.MOV"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_9522.MOV"
 video_save_path = ""
 video_fps       = 60.0
 
@@ -344,6 +344,9 @@ def opencv():
 
         img = QImage(frame, width, height, bytesPerline, QImage.Format_RGB888)
         label.setPixmap(QPixmap.fromImage(img))
+
+        fps  = ( fps + (1./(time.time()-t1)) ) / 2
+        print("fps= %.2f"%(fps), end='\r')
 
         c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
