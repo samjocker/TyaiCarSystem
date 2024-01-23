@@ -18,7 +18,16 @@ app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
 MainWindow.setObjectName("MainWindow")
 MainWindow.setWindowTitle("TYAI car")
-MainWindow.resize(720, 505)
+MainWindow.resize(720, 565)
+
+TrapezoidWindow = QtWidgets.QMainWindow()
+TrapezoidWindow.setObjectName("TrapezoidWindow")
+TrapezoidWindow.setWindowTitle("Test")
+TrapezoidWindow.resize(720, 435)
+
+TestLabel = QtWidgets.QLabel(TrapezoidWindow)    
+TestLabel.setGeometry(0,0,720,405)
+
 
 label = QtWidgets.QLabel(MainWindow)    
 label.setGeometry(0,0,720,405)          
@@ -55,17 +64,66 @@ font = QFont()
 font.setPointSize(18)
 datumYvalue.setText("555")
 datumYvalue.setFont(font)
+
+trapezoidXvalue = QtWidgets.QSlider(MainWindow)
+trapezoidXvalue.setGeometry(110, 490, 500, 30)
+trapezoidXvalue.setOrientation(QtCore.Qt.Horizontal)
+trapezoidXvalue.setMaximum(960)
+trapezoidXtitle = QtWidgets.QLabel(MainWindow)
+trapezoidXtitle.setGeometry(70, 487, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+trapezoidXtitle.setText("梯X")
+trapezoidXtitle.setFont(font)
+trapezoidXnum = QtWidgets.QLabel(MainWindow)
+trapezoidXnum.setGeometry(620, 487, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+trapezoidXnum.setText("555")
+trapezoidXnum.setFont(font)
+
+trapezoidYvalue = QtWidgets.QSlider(MainWindow)
+trapezoidYvalue.setGeometry(110, 520, 500, 30)
+trapezoidYvalue.setOrientation(QtCore.Qt.Horizontal)
+trapezoidYvalue.setMaximum(540)
+trapezoidYtitle = QtWidgets.QLabel(MainWindow)
+trapezoidYtitle.setGeometry(70, 517, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+trapezoidYtitle.setText("梯Y")
+trapezoidYtitle.setFont(font)
+trapezoidYnum = QtWidgets.QLabel(MainWindow)
+trapezoidYnum.setGeometry(620, 517, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+trapezoidYnum.setText("555")
+trapezoidYnum.setFont(font)
+
 try:
     with open("setting.json", 'r') as file:
         data = json.load(file)
         datumXslider.setValue(data["middlePointX"])
         datumYslider.setValue(data["middlePointY"])
+        trapezoidXvalue.setValue(data["trapezoidXvalue"])
+        trapezoidYvalue.setValue(data["trapezoidYvalue"])
         datumXvalue.setText(str(data["middlePointX"]))
         datumYvalue.setText(str(data["middlePointY"]))
+        trapezoidXnum.setText(str(data["trapezoidXvalue"]))
+        trapezoidYnum.setText(str(data["trapezoidYvalue"]))
 except FileNotFoundError:
-    data = {"middlePointX": 0, "middlePointY": 0}
+    data = {"middlePointX": 0, "middlePointY": 0, "trapezoidXvalue": 0, "trapezoidYvalue": 0}
     datumXvalue.setText(str(0))
     datumYvalue.setText(str(0))
+    trapezoidXnum.setText(str(0))
+    trapezoidYnum.setText(str(0))
+    with open("setting.json", 'w') as file:
+        json.dump(data, file)
+except KeyError:
+    data = {"middlePointX": 0, "middlePointY": 0, "trapezoidXvalue": 0, "trapezoidYvalue": 0}
+    datumXvalue.setText(str(0))
+    datumYvalue.setText(str(0))
+    trapezoidXnum.setText(str(0))
+    trapezoidYnum.setText(str(0))
     with open("setting.json", 'w') as file:
         json.dump(data, file)
 except Exception as e:
@@ -85,6 +143,16 @@ def datumYsliderValue(value):
     data["middlePointY"] = value
     datumYvalue.setText(str(data["middlePointY"]))
 datumYslider.valueChanged.connect(datumYsliderValue)
+
+def trapezoidXvalueChange(value):
+    data["trapezoidXvalue"] = value
+    trapezoidXnum.setText(str(value))
+trapezoidXvalue.valueChanged.connect(trapezoidXvalueChange)
+
+def trapezoidYvalueChange(value):
+    data["trapezoidYvalue"] = value
+    trapezoidYnum.setText(str(value))
+trapezoidYvalue.valueChanged.connect(trapezoidYvalueChange)
 
 ocv = True            
 def closeOpenCV():
@@ -113,7 +181,7 @@ def getEdge(pr):
 
 def save():
     global data
-    data = {"middlePointX": data["middlePointX"], "middlePointY": data["middlePointY"]}
+    # data = {"middlePointX": data["middlePointX"], "middlePointY": data["middlePointY"]}
     with open("setting.json", 'w') as file:
         json.dump(data, file)
     print("saved")
@@ -123,7 +191,19 @@ shortcut1.activated.connect(save)
 def putInformation(frame):
     global data, edge
     height, width, channel = frame.shape
+
+    srcPts = np.float32([[0,1079], [1919,1079], [data["trapezoidXvalue"], data["trapezoidYvalue"]], [1919-data["trapezoidXvalue"], data["trapezoidYvalue"]]])
+    dstPts = np.float32([[0, 1079], [1919, 1079], [0, 0], [1919, 0]])
+    perspective_matrix = cv2.getPerspectiveTransform(srcPts, dstPts)
+    testFrame = cv2.warpPerspective(frame, perspective_matrix, (1920, 1080))
+    testFrame = cv2.resize(testFrame, (720, 405))
+    img = QImage(testFrame, 720, 405, 720*3, QImage.Format_RGB888)
+    TestLabel.setPixmap(QPixmap.fromImage(img))
+
     frame = cv2.circle(frame, (data["middlePointX"], data["middlePointY"]), radius=5, color=(255,255,255), thickness=10)
+    frame = cv2.line(frame, (0,1079), (data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
+    frame = cv2.line(frame, (1919,1079), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
+    frame = cv2.line(frame, (data["trapezoidXvalue"], data["trapezoidYvalue"]), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
     frame = cv2.line(frame, (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]-edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
     frame = cv2.line(frame, (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]+edge["offsetRight"], data["middlePointY"]), (255,255,255), 4)
     if data["middlePointY"] <= height/2:
@@ -143,7 +223,7 @@ colors = [ (0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128
                             (128, 64, 12)]
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/ep084-loss0.216-val_loss0.116.h5',
+        "model_path"        : 'model/ep098-loss0.220-val_loss0.099.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
         "input_shape"       : [512, 512],
@@ -246,12 +326,13 @@ deeplab = DeeplabV3()
 
 video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_9590.MOV"
 video_save_path = ""
-video_fps       = 60.0
+video_fps       = 30.0
 
 def opencv():
     global ocv,video_path,video_save_path,video_fps
     
     capture=cv2.VideoCapture(video_path)
+    # capture=cv2.VideoCapture(0)
     if video_save_path!="":
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         size = (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)), int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
@@ -293,4 +374,5 @@ video = threading.Thread(target=opencv)
 video.start()
 
 MainWindow.show()
+TrapezoidWindow.show()
 sys.exit(app.exec_())
