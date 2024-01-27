@@ -15,7 +15,7 @@ from PyQt5.QtGui import *
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-openSerial = True
+openSerial = False
 
 if openSerial:
     print("Wait connect")
@@ -362,11 +362,7 @@ class DeeplabV3(object):
             image   = Image.blend(old_img, image, 0.7)
 
         elif self.mix_type == 1:
-            # seg_img = np.zeros((np.shape(pr)[0], np.shape(pr)[1], 3))
-            # for c in range(self.num_classes):
-            #     seg_img[:, :, 0] += ((pr[:, :] == c ) * self.colors[c][0]).astype('uint8')
-            #     seg_img[:, :, 1] += ((pr[:, :] == c ) * self.colors[c][1]).astype('uint8')
-            #     seg_img[:, :, 2] += ((pr[:, :] == c ) * self.colors[c][2]).astype('uint8')
+            
             seg_img = np.reshape(np.array(self.colors, np.uint8)[np.reshape(pr, [-1])], [orininal_h, orininal_w, -1])
 
             image   = Image.fromarray(np.uint8(seg_img))
@@ -432,7 +428,8 @@ def opencv():
             value = edge["offsetLeft"]-data["sideDistValue"]
             # mapValue = [data["sideDistValue"]*-1, data["middlePointX"]-data["sideDistValue"]]
             mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-        print("fps= %.2f, dist= %4d"%(fps, map(value, mapValue[0], mapValue[1], -135, 135)+135), end='\r')
+        mapNum = map(value, mapValue[0], mapValue[1], -135, 135)+135
+        print("fps= %.2f, dist= %4d"%(fps, min(mapNum, 270)), end='\r')
         if openSerial:
             global ser
             ser.write(int(map(value, mapValue[0], mapValue[1], -135, 135)+135))
