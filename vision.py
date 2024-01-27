@@ -7,12 +7,24 @@ import colorsys
 import copy
 import time, sys, json
 import threading
+import serial
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import *
 
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
+
+openSerial = True
+
+if openSerial:
+    print("Wait connect")
+    COM_PORT = '/dev/cu.usbmodem113101'
+    BAUD_RATES = 9600
+    ser = serial.Serial(COM_PORT, BAUD_RATES)
+    print("Connect successfuly")
+    time.sleep(2)
+    print("start!")
 
 app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
@@ -233,6 +245,9 @@ def save():
 shortcut1 = QtWidgets.QShortcut(QKeySequence("Ctrl+S"), MainWindow)
 shortcut1.activated.connect(save)
 
+def map(value, from_low, from_high, to_low, to_high):
+    return (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
+
 def putInformation(frame):
     global data, edge, sideButtonState
     height, width, channel = frame.shape
@@ -376,7 +391,7 @@ video_save_path = ""
 video_fps       = 30.0
 
 def opencv():
-    global ocv,video_path,video_save_path,video_fps
+    global ocv,video_path,video_save_path,video_fps, sideButtonState, openSerial
     
     capture=cv2.VideoCapture(video_path)
     # capture=cv2.VideoCapture(0)
@@ -407,7 +422,20 @@ def opencv():
         label.setPixmap(QPixmap.fromImage(img))
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
-        print("fps= %.2f"%(fps), end='\r')
+        value = 0
+        mapValue = [0, 0]
+        if sideButtonState:
+            value = edge["offsetRight"]-data["sideDistValue"]
+            # mapValue = [data["middlePointX"]-(data["middlePointX"]+data["sideDistValue"]), 1920-data["sideDistValue"]-data["middlePointX"]]
+            mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
+        else:
+            value = edge["offsetLeft"]-data["sideDistValue"]
+            # mapValue = [data["sideDistValue"]*-1, data["middlePointX"]-data["sideDistValue"]]
+            mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
+        print("fps= %.2f, dist= %4d"%(fps, map(value, mapValue[0], mapValue[1], -135, 135)+135), end='\r')
+        if openSerial:
+            global ser
+            ser.write(int(map(value, mapValue[0], mapValue[1], -135, 135)+135))
 
         c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
