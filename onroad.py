@@ -1,3 +1,4 @@
+from io import BytesIO
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -33,6 +34,46 @@ colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128,
           (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128),
           (64, 128, 128), (192, 128, 128), (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128),
           (128, 64, 12)]
+
+
+def getEdge(pr):
+    global data, colors
+    leftOffset = 0
+    rightOffset = 0
+    
+    # if np.all(pr[data["middlePointX"]-x] == list(colors[1])):
+
+    xCount = 0
+    startType = 'none'
+
+    if np.all(pr[0] == list(colors[1])):
+        startType = 'road'
+
+    lastType = startType
+    lastX = 0
+    highRange = [0,0]
+    currentRange = [0, 0]
+
+    for x in range(len(pr)):
+        nowType = 'none'
+        
+        if np.all(pr[x] == list(colors[1])):
+            nowType = 'road'
+
+        if nowType == 'road':
+            if currentRange[1] == 0:
+                currentRange[0] = x
+            currentRange[1] = x
+
+            if currentRange[1] - currentRange[0] > highRange[1] - highRange[0]:
+                highRange = currentRange
+        else:
+            currentRange = [0, 0] 
+    print(f"最長範圍：{highRange}         ",end='\r')
+
+    return highRange
+
+
 
 class DeeplabV3(object):
     _defaults = {
@@ -103,18 +144,29 @@ class DeeplabV3(object):
         seg_img_class1 = (np.expand_dims(pr == 1, -1) * np.array(old_img, np.float32)).astype('uint8')
         image2 = Image.fromarray(np.uint8(seg_img_class1))
 
-        return image, pr, image2
+        seg_img3 = np.reshape(np.array(self.colors, np.uint8)[np.reshape(pr, [-1])], [orininal_h, orininal_w, -1])
+        image3   = Image.fromarray(np.uint8(seg_img3))
+        image3_pil = Image.fromarray(np.uint8(seg_img3))
+        modelOutput = seg_img3
+        # # Convert PIL Image to bitmap (BytesIO)
+        # image3_bytesio = BytesIO()
+        # image3_pil.save(image3_bytesio, format='BMP')
+        # image3_bytesio.seek(0)
+
+
+
+        return image, pr, image2, modelOutput
 
 
 deeplab = DeeplabV3()
 
-video_path = "D:\\Data\\project\\tyaiCar\\TyaiCarSystem\\test5.mp4"
+video_path = "D:\\Data\\project\\tyaiCar\\TyaiCarSystem\\VID_20240127_001513.mp4"
 video_save_path = ""
 video_fps = 30.0
 
 def perspective_correction(image):
     # 定義原始四邊形的四個點
-    original_points = np.float32([[-400, 480], [1120, 480], [200, 280], [520, 280]])
+    original_points = np.float32([[-400, 480], [1120, 480],[200, 300], [520, 300]])
 
     # 定義梯形校正後的四個點
     corrected_points = np.float32([[200, 480], [520, 480], [200, 0], [520, 0]])
@@ -133,9 +185,20 @@ trapezoid_label.setGeometry(440, 0, 250, 160)
 trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
 trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
+useCam = False
+CamID = 0
 
 def opencv():
-    capture = cv2.VideoCapture(video_path)
+    
+    if useCam:
+        capture = cv2.VideoCapture(CamID)
+    else:
+        capture = cv2.VideoCapture(video_path)
+
+    #to 480p
+    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 854)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
     if video_save_path != "":
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         size = (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)), int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
@@ -159,19 +222,26 @@ def opencv():
         frame = Image.fromarray(np.uint8(frame))
 
         deeplab.mix_type = 0
-        result_img_blend, rd,result_img_trapezoid2 = deeplab.detect_image(frame)
+        result_img_blend, rd,result_img_trapezoid2 , modelOutput = deeplab.detect_image(frame)
+
+        #print(modelOutput[400])
+        y0,y1 = getEdge(modelOutput[400])
+
         # print(type(result_img_trapezoid2))
         # deeplab.mix_type = 1
         # result_img_no_blend, _ = deeplab.detect_image(frame)
 
         height, width, channel = 405, 720, 3
 
-        # 上方混合模式結果
+       # 上方混合模式結果
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
-        bytesPerline_blend = channel * width
-        img_blend = QImage(frame_blend, width, height, bytesPerline_blend, QImage.Format_RGB888)
-        label.setPixmap(QPixmap.fromImage(img_blend))
+        frame_blend = cv2.circle(frame_blend, (y0,400), radius=5, color=(255, 0,0))
+        frame_blend = cv2.circle(frame_blend, (y1,400), radius=5, color=(255, 0,0))
 
+        bytesPerline_blend = channel * width
+        img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
+        label.setPixmap(QPixmap.fromImage(img_blend))
+        
 
         # 开始绘制
         painter = QPainter(label.pixmap())
@@ -184,20 +254,6 @@ def opencv():
 
         # 结束绘制
         painter.end()
-
-        # gray_image = ImageOps.grayscale(result_img_trapezoid2)
-
-        # # 使用邊緣檢測算法，例如Canny
-        # edge_image = gray_image.filter(ImageFilter.FIND_EDGES)
-
-
-        # # 下方不混合模式結果
-        # result_img_no_blend_np = np.array(edge_image.resize((200, 160), Image.BICUBIC))
-        # bytesPerline_no_blend = 3 * result_img_no_blend_np.shape[1]
-        # result_img_no_blend_qt = QImage(result_img_no_blend_np.data, result_img_no_blend_np.shape[1],
-        #                                 result_img_no_blend_np.shape[0], bytesPerline_no_blend, QImage.Format_RGB888)
-        # result_label.setPixmap(QPixmap.fromImage(result_img_no_blend_qt))
-
 
         # 梯形校正
         result_img_trapezoid_corrected = perspective_correction(np.array(result_img_trapezoid2))
@@ -216,7 +272,7 @@ def opencv():
 
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
-        print("fps= %.2f"%(fps), end='\r')
+        #print("fps= %.2f"%(fps), end='\r')
 
         if video_save_path != "":
             out.write(frame)
