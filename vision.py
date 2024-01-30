@@ -81,7 +81,7 @@ datumYvalue.setFont(font)
 sideDistSlider = QtWidgets.QSlider(MainWindow)
 sideDistSlider.setGeometry(110, 490, 380, 30)
 sideDistSlider.setOrientation(QtCore.Qt.Horizontal)
-sideDistSlider.setMaximum(960)
+sideDistSlider.setMaximum(1919)
 sideDistTitle = QtWidgets.QLabel(MainWindow)
 sideDistTitle.setGeometry(70, 487, 80, 30)
 font = QFont() 
@@ -291,12 +291,7 @@ def putInformation(frame):
     TestLabel.setPixmap(QPixmap.fromImage(img))
 
     frame = cv2.circle(frame, (data["middlePointX"], data["middlePointY"]), radius=5, color=(255,255,255), thickness=10)
-    sideCdn = ()
-    if sideButtonState:
-        sideCdn = (data["sideDistValue"]+data["middlePointX"], data["middlePointY"])
-    else:
-        sideCdn = (data["middlePointX"]-data["sideDistValue"], data["middlePointY"])
-    frame = cv2.circle(frame, sideCdn, radius=5, color=(250,149,55), thickness=20)
+    frame = cv2.circle(frame, (data["sideDistValue"], data["middlePointY"]), radius=5, color=(250,149,55), thickness=20)
     frame = cv2.line(frame, (0,1079), (data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
     frame = cv2.line(frame, (1919,1079), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
     frame = cv2.line(frame, (data["trapezoidXvalue"], data["trapezoidYvalue"]), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
@@ -456,13 +451,13 @@ def opencv():
         if sideButtonState:
             value = edge["offsetRight"]-data["sideDistValue"]
             # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-            mapValue = [int(1919-data["middlePointX"]-data["sideDistValue"])*-1, int(data["sideDistValue"])]
-            mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
+            mapValue = [-960, 960]
+            mapNum = max(min(map(value, mapValue[0], mapValue[1], 90, -90)+90, 180), 0)
         else:
             value = edge["offsetLeft"]-data["sideDistValue"]
             # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-            mapValue = [int(data["middlePointX"]-data["sideDistValue"])*-1, int(data["sideDistValue"])]
-            mapNum = max(min(map(value, mapValue[0], mapValue[1], 90, -90)+90, 180), 0)
+            mapValue = [-960, 960]
+            mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
 
         print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
         if openSerial:
