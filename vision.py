@@ -15,12 +15,12 @@ from PyQt5.QtGui import *
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-openSerial = False
-cameraUse = False
+openSerial = True
+cameraUse = True
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem1101'
+    COM_PORT = '/dev/cu.usbmodem13101'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -444,7 +444,7 @@ def opencv():
         print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
         if openSerial:
             global ser
-            ser.write((str(mapNum)+'\n').encode())
+            ser.write((str(int(mapNum))+'\n').encode())
 
         c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
