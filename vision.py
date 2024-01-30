@@ -412,7 +412,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Volumes/YihuanMiSSD/test6.mp4"
+video_path      = "D:\\Data\\project\\tyaiCar\\TyaiCarSystem\\VID_20240127_001513.mp4"
 video_save_path = ""
 video_fps       = 30.0
 
