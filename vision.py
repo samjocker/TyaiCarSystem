@@ -223,19 +223,40 @@ def getEdge(pr):
     global data, colors
     leftOffset = 0
     rightOffset = 0
-    for x in range(data["middlePointX"]):
-        if np.all(pr[data["middlePointX"]-x] == list(colors[1])):
-            leftOffset += 1
+    
+    # if np.all(pr[data["middlePointX"]-x] == list(colors[1])):
+
+    xCount = 0
+    startType = 'none'
+
+    if np.all(pr[0] == list(colors[1])):
+        startType = 'road'
+
+    lastType = startType
+    lastX = 0
+    highRange = [0,0]
+    currentRange = [0, 0]
+
+    for x in range(len(pr)):
+        nowType = 'none'
+        
+        if np.all(pr[x] == list(colors[1])):
+            nowType = 'road'
+
+        if nowType == 'road':
+            if currentRange[1] == 0:
+                currentRange[0] = x
+            currentRange[1] = x
+
+            if currentRange[1] - currentRange[0] > highRange[1] - highRange[0]:
+                highRange = currentRange
         else:
-            break
-    prLong = len(pr)
-    for x in range(prLong-data["middlePointX"]):
-        if np.all(pr[x+data["middlePointX"]-1] == list(colors[1])):
-            rightOffset += 1
-        else:
-            break
-    edge["offsetLeft"] = leftOffset
-    edge["offsetRight"] = rightOffset
+            currentRange = [0, 0] 
+    #print("最長範圍：", highRange,end='\r')
+
+
+    edge["offsetLeft"] = highRange[0]
+    edge["offsetRight"] = highRange[1]
 
 def save():
     global data
@@ -391,7 +412,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_9590.MOV"
+video_path      = "/Volumes/YihuanMiSSD/test6.mp4"
 video_save_path = ""
 video_fps       = 30.0
 
@@ -431,6 +452,7 @@ def opencv():
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         value = 0
         mapValue = [0, 0]
+
         if sideButtonState:
             value = edge["offsetRight"]-data["sideDistValue"]
             # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
@@ -441,10 +463,11 @@ def opencv():
             # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
             mapValue = [int(data["middlePointX"]-data["sideDistValue"])*-1, int(data["sideDistValue"])]
             mapNum = max(min(map(value, mapValue[0], mapValue[1], 90, -90)+90, 180), 0)
+
         print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
         if openSerial:
             global ser
-            ser.write((str(mapNum)+'\n').encode())
+            ser.write((str(int(mapNum))+'\n').encode())
 
         c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
