@@ -16,10 +16,11 @@ from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
 openSerial = False
+cameraUse = False
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem113101'
+    COM_PORT = '/dev/cu.usbmodem1101'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -245,6 +246,14 @@ def save():
 shortcut1 = QtWidgets.QShortcut(QKeySequence("Ctrl+S"), MainWindow)
 shortcut1.activated.connect(save)
 
+def servoChange():
+    global ser, openSerial
+    if openSerial:
+        ser.write("300".encode())
+        print("servo change \n")
+shortcut2 = QtWidgets.QShortcut(QKeySequence("Ctrl+D"), MainWindow)
+shortcut2.activated.connect(servoChange)
+
 def map(value, from_low, from_high, to_low, to_high):
     return (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
 
@@ -389,8 +398,10 @@ video_fps       = 30.0
 def opencv():
     global ocv,video_path,video_save_path,video_fps, sideButtonState, openSerial
     
-    capture=cv2.VideoCapture(video_path)
-    # capture=cv2.VideoCapture(0)
+    if not cameraUse:
+        capture=cv2.VideoCapture(video_path)
+    else:
+        capture=cv2.VideoCapture(0)
     if video_save_path!="":
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         size = (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)), int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
@@ -422,17 +433,18 @@ def opencv():
         mapValue = [0, 0]
         if sideButtonState:
             value = edge["offsetRight"]-data["sideDistValue"]
-            # mapValue = [data["middlePointX"]-(data["middlePointX"]+data["sideDistValue"]), 1920-data["sideDistValue"]-data["middlePointX"]]
-            mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
+            # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
+            mapValue = [int(1919-data["middlePointX"]-data["sideDistValue"])*-1, int(data["sideDistValue"])]
+            mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
         else:
             value = edge["offsetLeft"]-data["sideDistValue"]
-            # mapValue = [data["sideDistValue"]*-1, data["middlePointX"]-data["sideDistValue"]]
-            mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-        mapNum = map(value, mapValue[0], mapValue[1], -135, 135)+135
-        print("fps= %.2f, dist= %4d"%(fps, min(mapNum, 270)), end='\r')
+            # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
+            mapValue = [int(data["middlePointX"]-data["sideDistValue"])*-1, int(data["sideDistValue"])]
+            mapNum = max(min(map(value, mapValue[0], mapValue[1], 90, -90)+90, 180), 0)
+        print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
         if openSerial:
             global ser
-            ser.write(int(map(value, mapValue[0], mapValue[1], -135, 135)+135))
+            ser.write((str(mapNum)+'\n').encode())
 
         c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
