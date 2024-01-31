@@ -200,11 +200,10 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-<<<<<<< HEAD
-video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\test5.mp4"
-=======
-video_path = r"/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1286.MOV"
->>>>>>> c71059648558887bdc736945018e4cbb89e1a808
+#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\test5.mp4"
+#on yihuan mac
+video_path = r"/Volumes/YihuanMiSSD/test8.MOV"    
+
 video_save_path = ""
 video_fps = 30.0
 
@@ -245,7 +244,7 @@ trapezoid_label.setGeometry(440, 0, 250, 160)
 trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
 trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
-useCam = False
+useCam = True
 CamID = 0
 
 
@@ -320,20 +319,21 @@ def opencv():
         offset1 = sum(offsetList[:int(len(takePoint)/2)])/len(offsetList[:int(len(takePoint)/2)])
         offset2 = sum(offsetList[int(len(takePoint)/2):])/len(offsetList[int(len(takePoint)/2):])
         
-        frame_blend = cv2.line(frame_blend, (int(offset1),280), ( int(offset2) ,450), (255, 255, 255), 2)
+        # frame_blend = cv2.line(frame_blend, (int(offset1),280), ( int(offset2) ,450), (255, 255, 255), 2)
 
-        angle = calculate_angle((offset,250), ( 360 ,480))
+        # angle = calculate_angle((int(offset1),280), ( int(offset2) ,450))
+
+        frame_blend = cv2.line(frame_blend, (offset,280), ( 360 ,450), (255, 255, 255), 2)
+        angle = calculate_angle((offset,280), ( 360 ,450))
+
         cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
-<<<<<<< HEAD
-        finalAngle = angle
 
 
-=======
 
         if openSerial:
             global ser
             ser.write((str(int(angle))+'\n').encode())
->>>>>>> c71059648558887bdc736945018e4cbb89e1a808
+
 
         bytesPerline_blend = channel * width
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
@@ -370,10 +370,6 @@ def opencv():
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         #print("fps= %.2f"%(fps), end='\r')
-
-        #把序列埠+在這裡
-        #用變數 finalAngle
-
 
         if video_save_path != "":
             out.write(frame)
