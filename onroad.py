@@ -165,7 +165,7 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\VID_20240127_001513.mp4"
+video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\test5.mp4"
 video_save_path = ""
 video_fps = 30.0
 
@@ -285,7 +285,7 @@ def opencv():
 
         angle = calculate_angle((offset,250), ( 360 ,480))
         cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
-
+        finalAngle = angle
 
 
 
@@ -324,6 +324,10 @@ def opencv():
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         #print("fps= %.2f"%(fps), end='\r')
+
+        #把序列埠+在這裡
+        #用變數 finalAngle
+
 
         if video_save_path != "":
             out.write(frame)
