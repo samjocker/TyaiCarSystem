@@ -16,6 +16,8 @@ from PyQt5.QtGui import *
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
+import math
+
 app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
 MainWindow.setObjectName("MainWindow")
@@ -37,6 +39,9 @@ colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128,
 
 
 def getEdge(pr):
+
+    #print(len(pr))
+
     global data, colors
     leftOffset = 0
     rightOffset = 0
@@ -160,11 +165,27 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_9573.MOV"
+video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\VID_20240127_001513.mp4"
 video_save_path = ""
 video_fps = 30.0
 
+def calculate_angle(point1, point2):
+    # point1 和 point2 是包含兩個座標值的元組 (x, y)
+    
+    # 計算差值
+    delta_x = point2[0] - point1[0]
+    delta_y = point2[1] - point1[1]
+
+    # 計算反正切值，注意要將結果轉換為度數
+    angle_rad = math.atan2(delta_y, delta_x)
+    angle_deg = math.degrees(angle_rad)
+
+    return angle_deg
+
 def perspective_correction(image):
+
+
+
     # 定義原始四邊形的四個點
     original_points = np.float32([[-400, 480], [1120, 480],[200, 280], [520, 280]])
 
@@ -215,7 +236,6 @@ def opencv():
             ref, frame = capture.read()
 
         frame = cv2.resize(frame, (864, 480))
-        print(frame.shape)
 
 
         if not ref:
@@ -227,24 +247,31 @@ def opencv():
         result_img_blend, rd,result_img_trapezoid2 , modelOutput = deeplab.detect_image(frame)
 
         #print(modelOutput[400])
-        y0,y1 = getEdge(modelOutput[350])
-
-        # print(type(result_img_trapezoid2))
-        # deeplab.mix_type = 1
-        # result_img_no_blend, _ = deeplab.detect_image(frame)
-
-        height, width, channel = 405, 720, 3
-
-        y0 = int(y0 * (3/4))-120
-        y1 = int(y1 * (3/4))-120
-
-
-        
-       # 上方混合模式結果
+        height, width, channel = 480, 864, 3
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
-        frame_blend = cv2.circle(frame_blend, (y0,300), radius=5, color=(255, 0,0))
-        frame_blend = cv2.circle(frame_blend, (y1,300), radius=5, color=(255, 0,0))
-        frame_blend = cv2.line(frame_blend, (y0,300), (y1,300), (255, 0, 0), 2)
+
+        offsetSum = 0
+
+        for Ty in [350,400]:
+
+            x0,x1 = getEdge(modelOutput[Ty])
+
+            frame_blend = cv2.circle(frame_blend, (x0,Ty), radius=5, color=(0, 255,0))
+            frame_blend = cv2.circle(frame_blend, (x1,Ty), radius=5, color=(0, 255,0))
+            cv2.putText(frame_blend, f"{x1 - x0}", (int((x0 + x1) / 2), Ty), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
+            offsetSum += int((x0 + x1) / 2)
+
+            frame_blend = cv2.line(frame_blend, (x0,Ty), (x1,Ty), (255, 255, 255), 2)
+
+        offset = int(offsetSum / 2)
+
+        frame_blend = cv2.line(frame_blend, (offset,250), ( 360 ,480), (255, 255, 255), 2)
+
+        angle = calculate_angle((offset,250), ( 360 ,480))
+        cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
+
+
+
 
         bytesPerline_blend = channel * width
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
