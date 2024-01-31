@@ -77,7 +77,7 @@ def getEdge(pr):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path": 'model\\ep100-loss0.153-val_loss0.047.h5',
+        "model_path": 'model/3_0.h5',
         "num_classes": 7,
         "backbone": "mobilenet",
         "input_shape": [512, 512],
@@ -160,7 +160,7 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = "D:\\Data\\project\\tyaiCar\\TyaiCarSystem\\VID_20240127_001513.mp4"
+video_path = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_9573.MOV"
 video_save_path = ""
 video_fps = 30.0
 
@@ -211,9 +211,8 @@ def opencv():
     fps = 0.0
     while True:
         t1 = time.time()
-        ref, frame = capture.read()
-        ref, frame = capture.read()
-        ref, frame = capture.read()
+        for i in range(10):
+            ref, frame = capture.read()
 
         frame = cv2.resize(frame, (864, 480))
         print(frame.shape)

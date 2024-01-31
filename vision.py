@@ -20,7 +20,7 @@ cameraUse = False
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem1101'
+    COM_PORT = '/dev/cu.usbmodem13101'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -81,7 +81,7 @@ datumYvalue.setFont(font)
 sideDistSlider = QtWidgets.QSlider(MainWindow)
 sideDistSlider.setGeometry(110, 490, 380, 30)
 sideDistSlider.setOrientation(QtCore.Qt.Horizontal)
-sideDistSlider.setMaximum(960)
+sideDistSlider.setMaximum(1919)
 sideDistTitle = QtWidgets.QLabel(MainWindow)
 sideDistTitle.setGeometry(70, 487, 80, 30)
 font = QFont() 
@@ -291,17 +291,11 @@ def putInformation(frame):
     TestLabel.setPixmap(QPixmap.fromImage(img))
 
     frame = cv2.circle(frame, (data["middlePointX"], data["middlePointY"]), radius=5, color=(255,255,255), thickness=10)
-    sideCdn = ()
-    if sideButtonState:
-        sideCdn = (data["sideDistValue"]+data["middlePointX"], data["middlePointY"])
-    else:
-        sideCdn = (data["middlePointX"]-data["sideDistValue"], data["middlePointY"])
-    frame = cv2.circle(frame, sideCdn, radius=5, color=(250,149,55), thickness=20)
+    frame = cv2.circle(frame, (data["sideDistValue"], data["middlePointY"]), radius=5, color=(250,149,55), thickness=20)
     frame = cv2.line(frame, (0,1079), (data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
     frame = cv2.line(frame, (1919,1079), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
     frame = cv2.line(frame, (data["trapezoidXvalue"], data["trapezoidYvalue"]), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
-    frame = cv2.line(frame, (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]-edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
-    frame = cv2.line(frame, (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]+edge["offsetRight"], data["middlePointY"]), (255,255,255), 4)
+    frame = cv2.line(frame, (edge["offsetRight"], data["middlePointY"]), (edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
     if data["middlePointY"] <= height/2:
         textOffset = 65
     else:
@@ -315,12 +309,12 @@ def putInformation(frame):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/ep100-loss0.153-val_loss0.047.h5',
+        "model_path"        : 'model/3_0.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
         "input_shape"       : [512, 512],
         "downsample_factor" : 16,
-        "mix_type"          : 1,
+        "mix_type"          : 0,
     }
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
@@ -412,7 +406,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "D:\\Data\\project\\tyaiCar\\TyaiCarSystem\\VID_20240127_001513.mp4"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1286.MOV"
 video_save_path = ""
 video_fps       = 30.0
 
@@ -434,10 +428,11 @@ def opencv():
 
     fps = 0.0
     while(ocv):
-        t1 = time.time()
-        ref, frame = capture.read()
-        if not ref:
-            break
+        for i in range(9):
+            t1 = time.time()
+            ref, frame = capture.read()
+            if not ref:
+                break
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
         frame = Image.fromarray(np.uint8(frame))
         frame = np.array(deeplab.detect_image(frame))
@@ -456,13 +451,13 @@ def opencv():
         if sideButtonState:
             value = edge["offsetRight"]-data["sideDistValue"]
             # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-            mapValue = [int(1919-data["middlePointX"]-data["sideDistValue"])*-1, int(data["sideDistValue"])]
-            mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
+            mapValue = [-960, 960]
+            mapNum = max(min(map(value, mapValue[0], mapValue[1], 90, -90)+90, 180), 0)
         else:
             value = edge["offsetLeft"]-data["sideDistValue"]
             # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-            mapValue = [int(data["middlePointX"]-data["sideDistValue"])*-1, int(data["sideDistValue"])]
-            mapNum = max(min(map(value, mapValue[0], mapValue[1], 90, -90)+90, 180), 0)
+            mapValue = [-960, 960]
+            mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
 
         print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
         if openSerial:
