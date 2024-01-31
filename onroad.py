@@ -19,7 +19,7 @@ from utils.utils import cvtColor, preprocess_input, resize_image
 import math, os
 import serial
 
-openSerial = False
+openSerial = True
 
 def animate_rocket():
   distance_from_top = 20
@@ -37,7 +37,7 @@ def animate_rocket():
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem13101'
+    COM_PORT = '/dev/cu.usbmodem1101'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -52,6 +52,10 @@ if openSerial:
         print(text, end='\r')
         time.sleep(0.1)
     print("Auto Pilot start!!!")
+    ser.write((str(90)+'\n').encode())
+    print("servo 90 degress")
+    # time.sleep(5)
+    # print("servoFree!!!")
 
 app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
@@ -241,7 +245,7 @@ trapezoid_label.setGeometry(440, 0, 250, 160)
 trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
 trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
-useCam = False
+useCam = True
 CamID = 0
 
 
@@ -269,7 +273,7 @@ def opencv():
     fps = 0.0
     while True:
         t1 = time.time()
-        for i in range(10):
+        for i in range(1):
             ref, frame = capture.read()
 
         frame = cv2.resize(frame, (864, 480))
