@@ -166,7 +166,7 @@ video_fps = 30.0
 
 def perspective_correction(image):
     # 定義原始四邊形的四個點
-    original_points = np.float32([[-400, 480], [1120, 480],[200, 300], [520, 300]])
+    original_points = np.float32([[-400, 480], [1120, 480],[200, 280], [520, 280]])
 
     # 定義梯形校正後的四個點
     corrected_points = np.float32([[200, 480], [520, 480], [200, 0], [520, 0]])
@@ -215,6 +215,9 @@ def opencv():
         ref, frame = capture.read()
         ref, frame = capture.read()
 
+        frame = cv2.resize(frame, (864, 480))
+        print(frame.shape)
+
 
         if not ref:
             break
@@ -225,7 +228,7 @@ def opencv():
         result_img_blend, rd,result_img_trapezoid2 , modelOutput = deeplab.detect_image(frame)
 
         #print(modelOutput[400])
-        y0,y1 = getEdge(modelOutput[400])
+        y0,y1 = getEdge(modelOutput[350])
 
         # print(type(result_img_trapezoid2))
         # deeplab.mix_type = 1
@@ -233,10 +236,16 @@ def opencv():
 
         height, width, channel = 405, 720, 3
 
+        y0 = int(y0 * (3/4))-120
+        y1 = int(y1 * (3/4))-120
+
+
+        
        # 上方混合模式結果
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
-        frame_blend = cv2.circle(frame_blend, (y0,400), radius=5, color=(255, 0,0))
-        frame_blend = cv2.circle(frame_blend, (y1,400), radius=5, color=(255, 0,0))
+        frame_blend = cv2.circle(frame_blend, (y0,300), radius=5, color=(255, 0,0))
+        frame_blend = cv2.circle(frame_blend, (y1,300), radius=5, color=(255, 0,0))
+        frame_blend = cv2.line(frame_blend, (y0,300), (y1,300), (255, 0, 0), 2)
 
         bytesPerline_blend = channel * width
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
