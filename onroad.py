@@ -74,7 +74,7 @@ def getEdge(pr):
                 highRange = currentRange
         else:
             currentRange = [0, 0] 
-    print(f"最長範圍：{highRange}         ",end='\r')
+    #print(f"最長範圍：{highRange}         ",end='\r')
 
     return highRange
 
@@ -209,6 +209,8 @@ trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 useCam = False
 CamID = 0
 
+
+
 def opencv():
     
     if useCam:
@@ -251,21 +253,35 @@ def opencv():
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
 
         offsetSum = 0
+        offsetList = []
+        takePoint = [300,320,340,360,380,400,420,440,460]
+        lastx0 = 0
+        lastx1 = 0
+        lastTy = 0
 
-        for Ty in [350,400]:
+        for Ty in takePoint:
 
             x0,x1 = getEdge(modelOutput[Ty])
 
             frame_blend = cv2.circle(frame_blend, (x0,Ty), radius=5, color=(0, 255,0))
             frame_blend = cv2.circle(frame_blend, (x1,Ty), radius=5, color=(0, 255,0))
-            cv2.putText(frame_blend, f"{x1 - x0}", (int((x0 + x1) / 2), Ty), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
+            #cv2.putText(frame_blend, f"{x1 - x0}", (int((x0 + x1) / 2), Ty-15), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.3, color=(255, 0, 0), thickness=1)
             offsetSum += int((x0 + x1) / 2)
+            offsetList.append(int((x0 + x1) / 2))
 
-            frame_blend = cv2.line(frame_blend, (x0,Ty), (x1,Ty), (255, 255, 255), 2)
+            if lastx0 != 0 and lastx1 != 0 and lastTy != 0:
+                frame_blend = cv2.line(frame_blend, (lastx0,lastTy), (x0,Ty), (0, 255, 0), 2)
+                frame_blend = cv2.line(frame_blend, (lastx1,lastTy), (x1,Ty), (0, 255, 0), 2)
 
-        offset = int(offsetSum / 2)
+            lastx0 = x0
+            lastx1 = x1
+            lastTy = Ty
 
-        frame_blend = cv2.line(frame_blend, (offset,250), ( 360 ,480), (255, 255, 255), 2)
+        offset = int(offsetSum / len(takePoint))
+        offset1 = sum(offsetList[:int(len(takePoint)/2)])/len(offsetList[:int(len(takePoint)/2)])
+        offset2 = sum(offsetList[int(len(takePoint)/2):])/len(offsetList[int(len(takePoint)/2):])
+        
+        frame_blend = cv2.line(frame_blend, (int(offset1),280), ( int(offset2) ,450), (255, 255, 255), 2)
 
         angle = calculate_angle((offset,250), ( 360 ,480))
         cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
