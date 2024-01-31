@@ -15,8 +15,8 @@ from PyQt5.QtGui import *
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-openSerial = True
-cameraUse = True
+openSerial = False
+cameraUse = False
 
 if openSerial:
     print("Wait connect")
@@ -295,8 +295,7 @@ def putInformation(frame):
     frame = cv2.line(frame, (0,1079), (data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
     frame = cv2.line(frame, (1919,1079), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
     frame = cv2.line(frame, (data["trapezoidXvalue"], data["trapezoidYvalue"]), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
-    frame = cv2.line(frame, (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]-edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
-    frame = cv2.line(frame, (data["middlePointX"], data["middlePointY"]), (data["middlePointX"]+edge["offsetRight"], data["middlePointY"]), (255,255,255), 4)
+    frame = cv2.line(frame, (edge["offsetRight"], data["middlePointY"]), (edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
     if data["middlePointY"] <= height/2:
         textOffset = 65
     else:
@@ -310,12 +309,12 @@ def putInformation(frame):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/ep100-loss0.153-val_loss0.047.h5',
+        "model_path"        : 'model/3_0.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
         "input_shape"       : [512, 512],
         "downsample_factor" : 16,
-        "mix_type"          : 1,
+        "mix_type"          : 0,
     }
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
@@ -407,7 +406,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "D:\\Data\\project\\tyaiCar\\TyaiCarSystem\\VID_20240127_001513.mp4"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1286.MOV"
 video_save_path = ""
 video_fps       = 30.0
 
@@ -429,10 +428,11 @@ def opencv():
 
     fps = 0.0
     while(ocv):
-        t1 = time.time()
-        ref, frame = capture.read()
-        if not ref:
-            break
+        for i in range(9):
+            t1 = time.time()
+            ref, frame = capture.read()
+            if not ref:
+                break
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
         frame = Image.fromarray(np.uint8(frame))
         frame = np.array(deeplab.detect_image(frame))

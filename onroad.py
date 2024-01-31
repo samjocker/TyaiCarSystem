@@ -77,7 +77,7 @@ def getEdge(pr):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path": 'model\\ep100-loss0.153-val_loss0.047.h5',
+        "model_path": 'model/3_0.h5',
         "num_classes": 7,
         "backbone": "mobilenet",
         "input_shape": [512, 512],
@@ -160,7 +160,7 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = "D:\\Data\\project\\tyaiCar\\TyaiCarSystem\\VID_20240127_001513.mp4"
+video_path = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_8986.MOV"
 video_save_path = ""
 video_fps = 30.0
 
