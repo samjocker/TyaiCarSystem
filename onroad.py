@@ -16,7 +16,42 @@ from PyQt5.QtGui import *
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-import math
+import math, os
+import serial
+
+openSerial = False
+
+def animate_rocket():
+  distance_from_top = 20
+  for i in range(20):
+    print("\n" * distance_from_top)
+    print("          /\        ")
+    print("          ||        ")
+    print("          ||        ")
+    print("         /||\        ")
+    time.sleep(0.2)
+    os.system('clear')  
+    distance_from_top -= 1
+    if distance_from_top < 0:
+      distance_from_top = 20
+
+if openSerial:
+    print("Wait connect")
+    COM_PORT = '/dev/cu.usbmodem13101'
+    BAUD_RATES = 9600
+    ser = serial.Serial(COM_PORT, BAUD_RATES)
+    print("Connect successfuly")
+    symbols = ['⣾', '⣷', '⣯', '⣟', '⡿', '⢿', '⣻', '⣽']
+    for i in range(20):
+        text = "<"
+        for j in range(i):
+            text += symbols[i%8]
+        for j in range(20-i):
+            text += " "
+        text += ">"
+        print(text, end='\r')
+        time.sleep(0.1)
+    print("Auto Pilot start!!!")
 
 app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
@@ -165,7 +200,11 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
+<<<<<<< HEAD
 video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\test5.mp4"
+=======
+video_path = r"/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1286.MOV"
+>>>>>>> c71059648558887bdc736945018e4cbb89e1a808
 video_save_path = ""
 video_fps = 30.0
 
@@ -285,9 +324,16 @@ def opencv():
 
         angle = calculate_angle((offset,250), ( 360 ,480))
         cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
+<<<<<<< HEAD
         finalAngle = angle
 
 
+=======
+
+        if openSerial:
+            global ser
+            ser.write((str(int(angle))+'\n').encode())
+>>>>>>> c71059648558887bdc736945018e4cbb89e1a808
 
         bytesPerline_blend = channel * width
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)

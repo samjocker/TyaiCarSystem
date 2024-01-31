@@ -296,6 +296,8 @@ def putInformation(frame):
     frame = cv2.line(frame, (1919,1079), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
     frame = cv2.line(frame, (data["trapezoidXvalue"], data["trapezoidYvalue"]), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
     frame = cv2.line(frame, (edge["offsetRight"], data["middlePointY"]), (edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
+    rectY = (int(data["middlePointY"]/45)+1)*45
+    frame = cv2.rectangle(frame, ((int(edge["offsetLeft"]/32)-1)*32, rectY), ((int(edge["offsetLeft"]/32)+1)*32, rectY-45), (0, 200, 0), 2, cv2.LINE_AA)
     if data["middlePointY"] <= height/2:
         textOffset = 65
     else:
@@ -306,6 +308,22 @@ def putInformation(frame):
   2, (255, 255, 255), 8, cv2.LINE_AA)
 
     return frame
+
+def perspective_correction(image):
+    global data
+    # 定義原始四邊形的四個點
+    original_points = np.float32([[-800, 1079], [2700, 1079],[400, 600], [1200, 600]])
+
+    # 定義梯形校正後的四個點
+    corrected_points = np.float32([[400, 1079], [1040, 1079], [420, 0], [1210, 0]])
+
+    # 計算透視變換矩陣
+    perspective_matrix = cv2.getPerspectiveTransform(original_points, corrected_points)
+
+    # 執行透視變換
+    result = cv2.warpPerspective(image, perspective_matrix, (1920, 1080))
+
+    return result
 
 class DeeplabV3(object):
     _defaults = {
@@ -436,6 +454,12 @@ def opencv():
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
         frame = Image.fromarray(np.uint8(frame))
         frame = np.array(deeplab.detect_image(frame))
+
+        testFrame = perspective_correction(frame)
+        testFrame = cv2.resize(testFrame, (720, 405))
+        testImg = QImage(testFrame, 702, 405, 720*3, QImage.Format_RGB888)
+        TestLabel.setPixmap(QPixmap.fromImage(testImg))
+
         frame = putInformation(frame)
         height, width, channel = 405, 720, 3
         frame = cv2.resize(frame, (width, height))
@@ -476,5 +500,5 @@ video = threading.Thread(target=opencv)
 video.start()
 
 MainWindow.show()
-# TrapezoidWindow.show()
+TrapezoidWindow.show()
 sys.exit(app.exec_())
