@@ -160,7 +160,7 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_8986.MOV"
+video_path = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_9573.MOV"
 video_save_path = ""
 video_fps = 30.0
 
@@ -211,9 +211,8 @@ def opencv():
     fps = 0.0
     while True:
         t1 = time.time()
-        ref, frame = capture.read()
-        ref, frame = capture.read()
-        ref, frame = capture.read()
+        for i in range(10):
+            ref, frame = capture.read()
 
 
         if not ref:
