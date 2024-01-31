@@ -204,7 +204,14 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
+<<<<<<< HEAD
 video_path = r"/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1286.MOV"
+=======
+#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\test5.mp4"
+#on yihuan mac
+video_path = r"/Volumes/YihuanMiSSD/test8.MOV"    
+
+>>>>>>> f38c1557ca782a908f516f5be65346c856ec5cbd
 video_save_path = ""
 video_fps = 30.0
 
@@ -320,14 +327,30 @@ def opencv():
         offset1 = sum(offsetList[:int(len(takePoint)/2)])/len(offsetList[:int(len(takePoint)/2)])
         offset2 = sum(offsetList[int(len(takePoint)/2):])/len(offsetList[int(len(takePoint)/2):])
         
-        frame_blend = cv2.line(frame_blend, (int(offset1),280), ( int(offset2) ,450), (255, 255, 255), 2)
+        # frame_blend = cv2.line(frame_blend, (int(offset1),280), ( int(offset2) ,450), (255, 255, 255), 2)
 
+        # angle = calculate_angle((int(offset1),280), ( int(offset2) ,450))
+
+        frame_blend = cv2.line(frame_blend, (offset,280), ( 360 ,450), (255, 255, 255), 2)
+        angle = calculate_angle((offset,280), ( 360 ,450))
+
+<<<<<<< HEAD
         angle = calculate_angle((offset1,250), ( offset2 ,480))
         cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
 
         if openSerial:
             global ser
             ser.write((str(int(angle)+'\n')).encode())
+=======
+        cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
+
+
+
+        if openSerial:
+            global ser
+            ser.write((str(int(angle))+'\n').encode())
+
+>>>>>>> f38c1557ca782a908f516f5be65346c856ec5cbd
 
         bytesPerline_blend = channel * width
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
