@@ -15,8 +15,8 @@ from PyQt5.QtGui import *
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-openSerial = True
-cameraUse = True
+openSerial = False
+cameraUse = False
 
 if openSerial:
     print("Wait connect")
@@ -48,6 +48,7 @@ datumXslider = QtWidgets.QSlider(MainWindow)
 datumXslider.setGeometry(110, 430, 500, 30)
 datumXslider.setOrientation(QtCore.Qt.Horizontal)
 datumXslider.setMaximum(1920)
+datumXslider.setMinimum(-1920)
 datumXtitle = QtWidgets.QLabel(MainWindow)
 datumXtitle.setGeometry(70, 427, 80, 30)
 font = QFont() 
@@ -103,7 +104,8 @@ sideButtonState = True
 trapezoidXvalue = QtWidgets.QSlider(MainWindow)
 trapezoidXvalue.setGeometry(110, 520, 500, 30)
 trapezoidXvalue.setOrientation(QtCore.Qt.Horizontal)
-trapezoidXvalue.setMaximum(960)
+trapezoidXvalue.setMaximum(10000)
+trapezoidXvalue.setMinimum(0)
 trapezoidXtitle = QtWidgets.QLabel(MainWindow)
 trapezoidXtitle.setGeometry(70, 517, 80, 30)
 font = QFont() 
@@ -120,7 +122,7 @@ trapezoidXnum.setFont(font)
 trapezoidYvalue = QtWidgets.QSlider(MainWindow)
 trapezoidYvalue.setGeometry(110, 550, 500, 30)
 trapezoidYvalue.setOrientation(QtCore.Qt.Horizontal)
-trapezoidYvalue.setMaximum(540)
+trapezoidYvalue.setMaximum(1080)
 trapezoidYtitle = QtWidgets.QLabel(MainWindow)
 trapezoidYtitle.setGeometry(70, 547, 80, 30)
 font = QFont() 
@@ -134,7 +136,7 @@ font.setPointSize(18)
 trapezoidYnum.setText("555")
 trapezoidYnum.setFont(font)
 
-colors = [ (255, 255, 255), (150, 150, 150), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128), 
+colors = [ (150, 150, 150), (255, 255, 255), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128), 
                             (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128), 
                             (64, 128, 128), (192, 128, 128), (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128), 
                             (128, 64, 12)]
@@ -285,19 +287,26 @@ def putInformation(frame):
     srcPts = np.float32([[0,1079], [1919,1079], [data["trapezoidXvalue"], data["trapezoidYvalue"]], [1919-data["trapezoidXvalue"], data["trapezoidYvalue"]]])
     dstPts = np.float32([[0, 1079], [1919, 1079], [0, 0], [1919, 0]])
     perspective_matrix = cv2.getPerspectiveTransform(srcPts, dstPts)
-    testFrame = cv2.warpPerspective(frame, perspective_matrix, (1920, 1080))
-    testFrame = cv2.resize(testFrame, (720, 405))
-    img = QImage(testFrame, 720, 405, 720*3, QImage.Format_RGB888)
-    TestLabel.setPixmap(QPixmap.fromImage(img))
+    # testFrame = cv2.warpPerspective(frame, perspective_matrix, (1920, 1080))
+    # testFrame = cv2.resize(testFrame, (720, 405))
+    # img = QImage(testFrame, 720, 405, 720*3, QImage.Format_RGB888)
+    # TestLabel.setPixmap(QPixmap.fromImage(img))
+
+    rectY = (int(data["middlePointY"]/45)+1)*45
+    frame = cv2.rectangle(frame, ((int(edge["offsetLeft"]/32)-1)*32, rectY), ((int(edge["offsetLeft"]/32)+1)*32, rectY-45), (0, 200, 0), 2, cv2.LINE_AA)
+    x1, y1, x2, y2 = (int(edge["offsetLeft"]/32))*32, rectY-45, (int(edge["offsetLeft"]/32)+1)*32, rectY
+    leftWindow = frame[y1:y2, x1:x2]
+    matchPixel = np.sum(np.all(leftWindow == np.array([255, 255, 255]), axis=-1))
+    total_pixels = leftWindow.size // 3  # 除以3是因為我們只考慮一個通道
+    percentage_target_color = (matchPixel / total_pixels) * 100
+    print("pixel persant is: ",percentage_target_color, "%")
 
     frame = cv2.circle(frame, (data["middlePointX"], data["middlePointY"]), radius=5, color=(255,255,255), thickness=10)
     frame = cv2.circle(frame, (data["sideDistValue"], data["middlePointY"]), radius=5, color=(250,149,55), thickness=20)
-    frame = cv2.line(frame, (0,1079), (data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
-    frame = cv2.line(frame, (1919,1079), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
-    frame = cv2.line(frame, (data["trapezoidXvalue"], data["trapezoidYvalue"]), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (255,255,255), 2)
+    frame = cv2.line(frame, (0,1079), (data["trapezoidXvalue"], data["trapezoidYvalue"]), (4, 51, 96), 2)
+    frame = cv2.line(frame, (1919,1079), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (4, 51, 96), 2)
+    frame = cv2.line(frame, (data["trapezoidXvalue"], data["trapezoidYvalue"]), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (4, 51, 96), 2)
     frame = cv2.line(frame, (edge["offsetRight"], data["middlePointY"]), (edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
-    rectY = (int(data["middlePointY"]/45)+1)*45
-    frame = cv2.rectangle(frame, ((int(edge["offsetLeft"]/32)-1)*32, rectY), ((int(edge["offsetLeft"]/32)+1)*32, rectY-45), (0, 200, 0), 2, cv2.LINE_AA)
     if data["middlePointY"] <= height/2:
         textOffset = 65
     else:
@@ -311,11 +320,20 @@ def putInformation(frame):
 
 def perspective_correction(image):
     global data
+
+    # image = cv2.resize(image, (864, 480))
+
     # 定義原始四邊形的四個點
-    original_points = np.float32([[-800, 1079], [2700, 1079],[400, 600], [1200, 600]])
+    original_points = np.float32([[data["middlePointX"], data["trapezoidYvalue"]], [1920-data["middlePointX"], data["trapezoidYvalue"]], [data["trapezoidXvalue"]*-1, 1079], [data["trapezoidXvalue"]+1920, 1079]])
 
     # 定義梯形校正後的四個點
-    corrected_points = np.float32([[400, 1079], [1040, 1079], [420, 0], [1210, 0]])
+    corrected_points = np.float32([[0, 0], [1919, 0], [0, 1079], [1919, 1079]])
+
+    #  # 定義原始四邊形的四個點
+    # original_points = np.float32([[0, 500], [0, 1420], [1079, 0], [1079, 1919]])
+
+    # # 定義梯形校正後的四個點
+    # corrected_points = np.float32([[0, 0], [0, 1919], [1079, 0], [1079, 1919]])
 
     # 計算透視變換矩陣
     perspective_matrix = cv2.getPerspectiveTransform(original_points, corrected_points)
@@ -327,12 +345,12 @@ def perspective_correction(image):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/3_0.h5',
+        "model_path"        : 'model/3_2.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
-        "input_shape"       : [512, 512],
+        "input_shape"       : [387, 688],
         "downsample_factor" : 16,
-        "mix_type"          : 0,
+        "mix_type"          : 1,
     }
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
@@ -401,7 +419,7 @@ class DeeplabV3(object):
             getEdge(seg_img[data["middlePointY"]])
             image   = Image.fromarray(np.uint8(seg_img))
 
-            image   = Image.blend(old_img, image, 0.7)
+            image   = Image.blend(old_img, image, 0.5)
 
         elif self.mix_type == 1:
             
@@ -424,7 +442,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1286.MOV"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1309.MOV"
 video_save_path = ""
 video_fps       = 30.0
 
@@ -450,6 +468,8 @@ def opencv():
             t1 = time.time()
             ref, frame = capture.read()
             if not ref:
+                ocv = False
+                capture.release()
                 break
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
         frame = Image.fromarray(np.uint8(frame))
@@ -483,7 +503,7 @@ def opencv():
             mapValue = [-960, 960]
             mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
 
-        print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
+        # print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
         if openSerial:
             global ser
             ser.write((str(int(mapNum))+'\n').encode())

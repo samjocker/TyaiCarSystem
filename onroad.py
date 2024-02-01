@@ -19,7 +19,7 @@ from utils.utils import cvtColor, preprocess_input, resize_image
 import math, os
 import serial
 
-openSerial = True
+openSerial = False
 
 def animate_rocket():
   distance_from_top = 20
@@ -37,7 +37,7 @@ def animate_rocket():
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem1101'
+    COM_PORT = '/dev/cu.usbmodem13101'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -121,10 +121,10 @@ def getEdge(pr):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path": 'model/3_0.h5',
+        "model_path": 'model/3_2.h5',
         "num_classes": 7,
         "backbone": "mobilenet",
-        "input_shape": [512, 512],
+        "input_shape": [387, 688],
         "downsample_factor": 16,
         "mix_type": 0,
     }
@@ -224,7 +224,6 @@ def calculate_angle(point1, point2):
 def perspective_correction(image):
 
 
-
     # 定義原始四邊形的四個點
     original_points = np.float32([[-400, 480], [1120, 480],[200, 280], [520, 280]])
 
@@ -245,7 +244,7 @@ trapezoid_label.setGeometry(440, 0, 250, 160)
 trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
 trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
-useCam = True
+useCam = False
 CamID = 0
 
 
@@ -273,7 +272,7 @@ def opencv():
     fps = 0.0
     while True:
         t1 = time.time()
-        for i in range(1):
+        for i in range(9):
             ref, frame = capture.read()
 
         frame = cv2.resize(frame, (864, 480))
