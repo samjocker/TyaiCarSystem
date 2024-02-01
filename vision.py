@@ -285,10 +285,10 @@ def putInformation(frame):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/ep100-loss0.153-val_loss0.047.h5',
+        "model_path"        : 'model/3_2.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
-        "input_shape"       : [512, 512],
+        "input_shape"       : [377, 688],
         "downsample_factor" : 16,
         "mix_type"          : 1,
     }
