@@ -280,18 +280,7 @@ shortcut2.activated.connect(servoChange)
 def map(value, from_low, from_high, to_low, to_high):
     return (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
 
-def putInformation(frame):
-    global data, edge, sideButtonState
-    height, width, channel = frame.shape
-
-    # srcPts = np.float32([[0,1079], [1919,1079], [data["trapezoidXvalue"], data["trapezoidYvalue"]], [1919-data["trapezoidXvalue"], data["trapezoidYvalue"]]])
-    # dstPts = np.float32([[0, 1079], [1919, 1079], [0, 0], [1919, 0]])
-    # perspective_matrix = cv2.getPerspectiveTransform(srcPts, dstPts)
-    # testFrame = cv2.warpPerspective(frame, perspective_matrix, (1920, 1080))
-    # testFrame = cv2.resize(testFrame, (720, 405))
-    # img = QImage(testFrame, 720, 405, 720*3, QImage.Format_RGB888)
-    # TestLabel.setPixmap(QPixmap.fromImage(img))
-
+def findLine(frame):
     # 定義特定顏色 (以BGR格式為例)
     color = np.array([255, 255, 255])
 
@@ -319,15 +308,28 @@ def putInformation(frame):
     x, y = contour_array[:, 0], contour_array[:, 1]
 
     # 使用 NumPy 的濾波函數進行平滑處理
-    smoothed_x = np.convolve(x, np.ones(10)/10, mode='valid')
-    smoothed_y = np.convolve(y, np.ones(10)/10, mode='valid')
+    smoothed_x = np.convolve(x, np.ones(1)/1, mode='valid')
+    smoothed_y = np.convolve(y, np.ones(1)/1, mode='valid')
 
     # 將平滑後的座標組合回去
     smoothed_contour = np.column_stack((smoothed_x, smoothed_y))
 
     # 在原始圖片上畫出平滑後的線條
     smoothed_contour = smoothed_contour.astype(int)
-    cv2.polylines(frame, [smoothed_contour], isClosed=True, color=(123, 222, 245), thickness=8)
+    cv2.polylines(frame, [smoothed_contour], isClosed=True, color=(123, 222, 245), thickness=20)
+    return frame
+
+def putInformation(frame):
+    global data, edge, sideButtonState
+    height, width, channel = frame.shape
+
+    # srcPts = np.float32([[0,1079], [1919,1079], [data["trapezoidXvalue"], data["trapezoidYvalue"]], [1919-data["trapezoidXvalue"], data["trapezoidYvalue"]]])
+    # dstPts = np.float32([[0, 1079], [1919, 1079], [0, 0], [1919, 0]])
+    # perspective_matrix = cv2.getPerspectiveTransform(srcPts, dstPts)
+    # testFrame = cv2.warpPerspective(frame, perspective_matrix, (1920, 1080))
+    # testFrame = cv2.resize(testFrame, (720, 405))
+    # img = QImage(testFrame, 720, 405, 720*3, QImage.Format_RGB888)
+    # TestLabel.setPixmap(QPixmap.fromImage(img))
 
     # rectY = (int(data["middlePointY"]/45)+1)*45
     # frame = cv2.rectangle(frame, ((int(edge["offsetLeft"]/32)-1)*32, rectY), ((int(edge["offsetLeft"]/32)+1)*32, rectY-45), (0, 200, 0), 2, cv2.LINE_AA)
@@ -381,7 +383,7 @@ class DeeplabV3(object):
         "backbone"          : "mobilenet",
         "input_shape"       : [387, 688],
         "downsample_factor" : 16,
-        "mix_type"          : 1,
+        "mix_type"          : 0,
     }
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
@@ -448,6 +450,7 @@ class DeeplabV3(object):
             # seg_img = cv2.dilate(seg_img,kernel,iterations = 5)
             # seg_img = cv2.erode(seg_img,kernel,iterations = 5)
             getEdge(seg_img[data["middlePointY"]])
+            findLine(seg_img)
             image   = Image.fromarray(np.uint8(seg_img))
 
             image   = Image.blend(old_img, image, 0.5)
