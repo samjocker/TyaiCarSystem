@@ -123,10 +123,10 @@ def map_range(x, in_min, in_max, out_min, out_max):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path": 'model/3_0.h5',
+        "model_path": 'model/3_2.h5',
         "num_classes": 7,
         "backbone": "mobilenet",
-        "input_shape": [512, 512],
+        "input_shape": [387, 688],
         "downsample_factor": 16,
         "mix_type": 0,
     }
