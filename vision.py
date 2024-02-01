@@ -304,19 +304,19 @@ def findLine(frame):
     # for point in contour_array:
     #     cv2.circle(frame, tuple(point), 3, (0, 0, 255), 5)
 
-    # 抓取 x 和 y 座標
-    x, y = contour_array[:, 0], contour_array[:, 1]
+    # # 抓取 x 和 y 座標
+    # x, y = contour_array[:, 0], contour_array[:, 1]
 
-    # 使用 NumPy 的濾波函數進行平滑處理
-    smoothed_x = np.convolve(x, np.ones(1)/1, mode='valid')
-    smoothed_y = np.convolve(y, np.ones(1)/1, mode='valid')
+    # # 使用 NumPy 的濾波函數進行平滑處理
+    # smoothed_x = np.convolve(x, np.ones(1)/1, mode='valid')
+    # smoothed_y = np.convolve(y, np.ones(1)/1, mode='valid')
 
-    # 將平滑後的座標組合回去
-    smoothed_contour = np.column_stack((smoothed_x, smoothed_y))
+    # # 將平滑後的座標組合回去
+    # smoothed_contour = np.column_stack((smoothed_x, smoothed_y))
 
     # 在原始圖片上畫出平滑後的線條
-    smoothed_contour = smoothed_contour.astype(int)
-    cv2.polylines(frame, [smoothed_contour], isClosed=True, color=(123, 222, 245), thickness=20)
+    # smoothed_contour = smoothed_contour.astype(int)
+    cv2.polylines(frame, [contour_array], isClosed=True, color=(123, 222, 245), thickness=20)
     return frame
 
 def putInformation(frame):
@@ -476,7 +476,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1309.MOV"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1319.MOV"
 video_save_path = ""
 video_fps       = 30.0
 
@@ -537,7 +537,7 @@ def opencv():
             mapValue = [-960, 960]
             mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
 
-        # print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
+        print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
         if openSerial:
             global ser
             ser.write((str(int(mapNum))+'\n').encode())
