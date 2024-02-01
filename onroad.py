@@ -117,6 +117,8 @@ def getEdge(pr):
 
     return highRange
 
+def map_range(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 
 class DeeplabV3(object):
@@ -204,7 +206,9 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\VID_20240127_001513.mp4"
+#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\VID_20240127_001513.mp4"
+video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
+
 video_save_path = ""
 video_fps = 30.0
 
@@ -301,7 +305,7 @@ def opencv():
 
         offsetSum = 0
         offsetList = []
-        takePoint = [300,320,340,360,380,400,420,440,460]
+        takePoint = [320,335,350,365,380,395,410,425,440,455,470]
         lastx0 = 0
         lastx1 = 0
         lastTy = 0
@@ -312,6 +316,7 @@ def opencv():
         for Ty in takePoint:
 
             x0,x1 = getEdge(modelOutput[Ty])
+
             rightOffset.append(x0)
             leftOffset.append(x1)
             
@@ -329,12 +334,18 @@ def opencv():
             lastx1 = x1
             lastTy = Ty
 
+        for i,p in enumerate(takePoint):
+            takePoint[i] = int(p/3)
+        for i,p in enumerate(rightOffset):
+            rightOffset[i] = int(p/4)
+        for i,p in enumerate(leftOffset):
+            leftOffset[i] = int(p/4)
 
         if len(rightOffset) >= 2:
             right_coefficients = np.polyfit(takePoint, rightOffset, 2)
             right_curve = np.poly1d(right_coefficients)
             right_curve_points = np.column_stack((right_curve(takePoint), takePoint)).astype(int)
-            cv2.polylines(frame_blend, [right_curve_points], isClosed=False, color=(255, 255, 255), thickness=2)
+            cv2.polylines(frame_blend, [right_curve_points], isClosed=False, color=(255, 255,255), thickness=2)
 
         if len(leftOffset) >= 2:
             left_coefficients = np.polyfit(takePoint, leftOffset, 2)
@@ -342,9 +353,10 @@ def opencv():
             left_curve_points = np.column_stack((left_curve(takePoint), takePoint)).astype(int)
             cv2.polylines(frame_blend, [left_curve_points], isClosed=False, color=(255, 255,255), thickness=2)
 
-        # 梯形校正路線
-        
+        displayY = map_range(datumYslider.value(), 0, 863, 30, 200)
 
+        frame_blend = cv2.line(frame_blend, (displayY+10,130), (displayY+25,155), (0, 255, 0), 2)
+        frame_blend = cv2.line(frame_blend, (displayY-10,130), (displayY-20,155), (0, 255, 0), 2)
 
         offset = int(offsetSum / len(takePoint))
         offset1 = sum(offsetList[:int(len(takePoint)/2)])/len(offsetList[:int(len(takePoint)/2)])
@@ -362,10 +374,12 @@ def opencv():
         cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
 
         roadType = "Line"
-
-        if openSerial:
-            global ser
-            ser.write((str(int(angle))+'\n').encode())
+        if angle > 130:
+            roadType = "Left"
+        elif angle < 50:
+            roadType = "Right"
+        else:
+            roadType = "Line"
 
 
         bytesPerline_blend = channel * width
@@ -387,7 +401,7 @@ def opencv():
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
         painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
         painter.drawText(20, 60, f"Road: {roadType}")
-        painter.drawText(20, 210, f"Park on: {setSide}")
+        painter.drawText(20, 210, f"Drive on: {setSide}")
 
 
         # 结束绘制
@@ -412,8 +426,17 @@ def opencv():
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         #print("fps= %.2f"%(fps), end='\r')
 
-        if video_save_path != "":
+        if openSerial:
+            global ser
+            ser.write((str(int(angle))+'\n').encode())
+
+        c= cv2.waitKey(1) & 0xff 
+        if video_save_path!="":
             out.write(frame)
+
+        if c==27:
+            capture.release()
+            break
 
 video = threading.Thread(target=opencv)
 video.start()
