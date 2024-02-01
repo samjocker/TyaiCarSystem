@@ -19,7 +19,7 @@ from utils.utils import cvtColor, preprocess_input, resize_image
 import math, os
 import serial
 
-openSerial = True
+openSerial = False
 
 def animate_rocket():
   distance_from_top = 20
@@ -61,15 +61,15 @@ app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
 MainWindow.setObjectName("MainWindow")
 MainWindow.setWindowTitle("TYAI car")
-MainWindow.resize(700, 500)
+MainWindow.resize(864, 550)
 
 label = QtWidgets.QLabel(MainWindow)
-label.setGeometry(0, 0, 720, 405)
+label.setGeometry(0, 0, 864, 480)
 
-result_label = QtWidgets.QLabel(MainWindow)
-result_label.setGeometry(520, 405, 250, 160)
-result_label.setStyleSheet("QLabel { background-color : white; color : black; }")
-result_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+# result_label = QtWidgets.QLabel(MainWindow)
+# result_label.setGeometry(520, 405, 250, 160)
+# result_label.setStyleSheet("QLabel { background-color : white; color : black; }")
+# result_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
 colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128),
           (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128),
@@ -204,7 +204,7 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = r"/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1286.MOV"
+video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\VID_20240127_001513.mp4"
 video_save_path = ""
 video_fps = 30.0
 
@@ -240,12 +240,20 @@ def perspective_correction(image):
     return result
 
 
+datumYslider = QtWidgets.QSlider(MainWindow)
+datumYslider.setGeometry(0,490, 864, 30)
+datumYslider.setOrientation(QtCore.Qt.Horizontal)
+datumYslider.setMaximum(864)
+datumYslider.setMinimum(0)
+datumYslider.setValue(432)
+
+
 trapezoid_label = QtWidgets.QLabel(MainWindow)
-trapezoid_label.setGeometry(440, 0, 250, 160)
+trapezoid_label.setGeometry(550, 0, 250, 160)
 trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
 trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
-useCam = True
+useCam = False
 CamID = 0
 
 
@@ -273,7 +281,7 @@ def opencv():
     fps = 0.0
     while True:
         t1 = time.time()
-        for i in range(1):
+        for i in range(5):
             ref, frame = capture.read()
 
         frame = cv2.resize(frame, (864, 480))
@@ -298,10 +306,15 @@ def opencv():
         lastx1 = 0
         lastTy = 0
 
+        rightOffset = []
+        leftOffset = []
+
         for Ty in takePoint:
 
             x0,x1 = getEdge(modelOutput[Ty])
-
+            rightOffset.append(x0)
+            leftOffset.append(x1)
+            
             frame_blend = cv2.circle(frame_blend, (x0,Ty), radius=5, color=(0, 255,0))
             frame_blend = cv2.circle(frame_blend, (x1,Ty), radius=5, color=(0, 255,0))
             #cv2.putText(frame_blend, f"{x1 - x0}", (int((x0 + x1) / 2), Ty-15), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.3, color=(255, 0, 0), thickness=1)
@@ -316,6 +329,23 @@ def opencv():
             lastx1 = x1
             lastTy = Ty
 
+
+        if len(rightOffset) >= 2:
+            right_coefficients = np.polyfit(takePoint, rightOffset, 2)
+            right_curve = np.poly1d(right_coefficients)
+            right_curve_points = np.column_stack((right_curve(takePoint), takePoint)).astype(int)
+            cv2.polylines(frame_blend, [right_curve_points], isClosed=False, color=(255, 255, 255), thickness=2)
+
+        if len(leftOffset) >= 2:
+            left_coefficients = np.polyfit(takePoint, leftOffset, 2)
+            left_curve = np.poly1d(left_coefficients)
+            left_curve_points = np.column_stack((left_curve(takePoint), takePoint)).astype(int)
+            cv2.polylines(frame_blend, [left_curve_points], isClosed=False, color=(255, 255,255), thickness=2)
+
+        # 梯形校正路線
+        
+
+
         offset = int(offsetSum / len(takePoint))
         offset1 = sum(offsetList[:int(len(takePoint)/2)])/len(offsetList[:int(len(takePoint)/2)])
         offset2 = sum(offsetList[int(len(takePoint)/2):])/len(offsetList[int(len(takePoint)/2):])
@@ -324,12 +354,14 @@ def opencv():
 
         # angle = calculate_angle((int(offset1),280), ( int(offset2) ,450))
 
-        frame_blend = cv2.line(frame_blend, (offset,280), ( 360 ,450), (255, 255, 255), 2)
-        angle = calculate_angle((offset,280), ( 360 ,450))
+        xSet = 864-datumYslider.value()
+
+        frame_blend = cv2.line(frame_blend, (offset,380), ( xSet ,450), (255, 255, 255), 2)
+        angle = calculate_angle((offset,380), ( xSet ,450))
 
         cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
 
-
+        roadType = "Line"
 
         if openSerial:
             global ser
@@ -340,6 +372,12 @@ def opencv():
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
         label.setPixmap(QPixmap.fromImage(img_blend))
         
+        if datumYslider.value() == 432:
+            setSide = "Center"
+        elif datumYslider.value() > 432:
+            setSide = "Left+" + str(datumYslider.value() - 432)
+        elif datumYslider.value() < 432:
+            setSide = "Right-" + str(432 - datumYslider.value())
 
         # 开始绘制
         painter = QPainter(label.pixmap())
@@ -348,7 +386,9 @@ def opencv():
         painter.setFont(font)
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
         painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
-        #painter.drawText(20, 50, f"Person:")
+        painter.drawText(20, 60, f"Road: {roadType}")
+        painter.drawText(20, 210, f"Park on: {setSide}")
+
 
         # 结束绘制
         painter.end()
