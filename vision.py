@@ -284,22 +284,53 @@ def putInformation(frame):
     global data, edge, sideButtonState
     height, width, channel = frame.shape
 
-    srcPts = np.float32([[0,1079], [1919,1079], [data["trapezoidXvalue"], data["trapezoidYvalue"]], [1919-data["trapezoidXvalue"], data["trapezoidYvalue"]]])
-    dstPts = np.float32([[0, 1079], [1919, 1079], [0, 0], [1919, 0]])
-    perspective_matrix = cv2.getPerspectiveTransform(srcPts, dstPts)
+    # srcPts = np.float32([[0,1079], [1919,1079], [data["trapezoidXvalue"], data["trapezoidYvalue"]], [1919-data["trapezoidXvalue"], data["trapezoidYvalue"]]])
+    # dstPts = np.float32([[0, 1079], [1919, 1079], [0, 0], [1919, 0]])
+    # perspective_matrix = cv2.getPerspectiveTransform(srcPts, dstPts)
     # testFrame = cv2.warpPerspective(frame, perspective_matrix, (1920, 1080))
     # testFrame = cv2.resize(testFrame, (720, 405))
     # img = QImage(testFrame, 720, 405, 720*3, QImage.Format_RGB888)
     # TestLabel.setPixmap(QPixmap.fromImage(img))
 
-    rectY = (int(data["middlePointY"]/45)+1)*45
-    frame = cv2.rectangle(frame, ((int(edge["offsetLeft"]/32)-1)*32, rectY), ((int(edge["offsetLeft"]/32)+1)*32, rectY-45), (0, 200, 0), 2, cv2.LINE_AA)
-    x1, y1, x2, y2 = (int(edge["offsetLeft"]/32))*32, rectY-45, (int(edge["offsetLeft"]/32)+1)*32, rectY
-    leftWindow = frame[y1:y2, x1:x2]
-    matchPixel = np.sum(np.all(leftWindow == np.array([255, 255, 255]), axis=-1))
-    total_pixels = leftWindow.size // 3  # 除以3是因為我們只考慮一個通道
-    percentage_target_color = (matchPixel / total_pixels) * 100
-    print("pixel persant is: ",percentage_target_color, "%")
+    # 定義特定顏色 (以BGR格式為例)
+    color = np.array([255, 255, 255])
+
+    # 建立遮罩，將特定顏色以外的像素設為黑色，其他設為白色
+    mask = cv2.inRange(frame, color, color)
+
+    # 侵蝕操作，可調整 kernel 的大小
+    kernel_erode = np.ones((15, 15), np.uint8)
+    eroded_mask = cv2.erode(mask, kernel_erode, iterations=4)
+
+    # 膨脹操作，可調整 kernel 的大小
+    kernel_dilate = np.ones((15, 15), np.uint8)
+    dilated_mask = cv2.dilate(eroded_mask, kernel_dilate, iterations=4)
+
+    # 尋找輪廓
+    contours, _ = cv2.findContours(dilated_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # 將輪廓座標轉為numpy array
+    contour_array = np.vstack(contours).squeeze()
+
+    # for point in contour_array:
+    #     cv2.circle(frame, tuple(point), 3, (0, 0, 255), 5)
+
+    # 抓取 x 和 y 座標
+    x, y = contour_array[:, 0], contour_array[:, 1]
+
+    # 使用 NumPy 的濾波函數進行平滑處理
+    smoothed_x = np.convolve(x, np.ones(10)/10, mode='valid')
+    smoothed_y = np.convolve(y, np.ones(10)/10, mode='valid')
+
+    # 將平滑後的座標組合回去
+    smoothed_contour = np.column_stack((smoothed_x, smoothed_y))
+
+    # 在原始圖片上畫出平滑後的線條
+    smoothed_contour = smoothed_contour.astype(int)
+    cv2.polylines(frame, [smoothed_contour], isClosed=True, color=(123, 222, 245), thickness=8)
+
+    # rectY = (int(data["middlePointY"]/45)+1)*45
+    # frame = cv2.rectangle(frame, ((int(edge["offsetLeft"]/32)-1)*32, rectY), ((int(edge["offsetLeft"]/32)+1)*32, rectY-45), (0, 200, 0), 2, cv2.LINE_AA)
 
     frame = cv2.circle(frame, (data["middlePointX"], data["middlePointY"]), radius=5, color=(255,255,255), thickness=10)
     frame = cv2.circle(frame, (data["sideDistValue"], data["middlePointY"]), radius=5, color=(250,149,55), thickness=20)
@@ -520,5 +551,5 @@ video = threading.Thread(target=opencv)
 video.start()
 
 MainWindow.show()
-TrapezoidWindow.show()
+# TrapezoidWindow.show()
 sys.exit(app.exec_())
