@@ -19,6 +19,7 @@ from utils.utils import cvtColor, preprocess_input, resize_image
 import math, os
 import serial
 
+
 openSerial = False
 
 def animate_rocket():
@@ -66,11 +67,6 @@ MainWindow.resize(864, 550)
 label = QtWidgets.QLabel(MainWindow)
 label.setGeometry(0, 0, 864, 480)
 
-# result_label = QtWidgets.QLabel(MainWindow)
-# result_label.setGeometry(520, 405, 250, 160)
-# result_label.setStyleSheet("QLabel { background-color : white; color : black; }")
-# result_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
-
 colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128),
           (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128),
           (64, 128, 128), (192, 128, 128), (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128),
@@ -79,13 +75,10 @@ colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128,
 
 def getEdge(pr):
 
-    #print(len(pr))
 
     global data, colors
     leftOffset = 0
     rightOffset = 0
-    
-    # if np.all(pr[data["middlePointX"]-x] == list(colors[1])):
 
     xCount = 0
     startType = 'none'
@@ -206,8 +199,8 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\VID_20240127_001513.mp4"
-video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
+video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1319.MOV"
+#video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
 
 video_save_path = ""
 video_fps = 30.0
@@ -260,7 +253,8 @@ trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 useCam = False
 CamID = 0
 
-
+from keras.models import load_model
+result = 0
 
 def opencv():
     
@@ -282,10 +276,12 @@ def opencv():
     if not ref:
         raise ValueError("Video source Error")
 
+    cc=0
+
     fps = 0.0
     while True:
         t1 = time.time()
-        for i in range(5):
+        for i in range(20):
             ref, frame = capture.read()
 
         frame = cv2.resize(frame, (864, 480))
@@ -303,23 +299,33 @@ def opencv():
         height, width, channel = 480, 864, 3
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
 
+
         offsetSum = 0
         offsetList = []
-        takePoint = [320,335,350,365,380,395,410,425,440,455,470]
+        takePoint = [290,305,320,335,350,365,380]
         lastx0 = 0
         lastx1 = 0
         lastTy = 0
 
-        rightOffset = []
-        leftOffset = []
+        rightOffsetList = []
+        leftOffsetList = []
+        rightSidePoint = []
+        leftSidePoint = []
 
         for Ty in takePoint:
 
             x0,x1 = getEdge(modelOutput[Ty])
 
-            rightOffset.append(x0)
-            leftOffset.append(x1)
+            rightOffsetList.append(x1)
+            leftOffsetList.append(x0)
+
+            # if abs(x0 - lastx0) < 10:
+            #     leftSidePoint.append(x0)
             
+            # if abs(x1 - lastx1) < 10:
+            #     rightSidePoint.append(x1)
+            
+
             frame_blend = cv2.circle(frame_blend, (x0,Ty), radius=5, color=(0, 255,0))
             frame_blend = cv2.circle(frame_blend, (x1,Ty), radius=5, color=(0, 255,0))
             #cv2.putText(frame_blend, f"{x1 - x0}", (int((x0 + x1) / 2), Ty-15), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.3, color=(255, 0, 0), thickness=1)
@@ -334,86 +340,90 @@ def opencv():
             lastx1 = x1
             lastTy = Ty
 
-        for i,p in enumerate(takePoint):
-            takePoint[i] = int(p/3)
-        for i,p in enumerate(rightOffset):
-            rightOffset[i] = int(p/4)
-        for i,p in enumerate(leftOffset):
-            leftOffset[i] = int(p/4)
 
-        if len(rightOffset) >= 2:
-            right_coefficients = np.polyfit(takePoint, rightOffset, 2)
-            right_curve = np.poly1d(right_coefficients)
-            right_curve_points = np.column_stack((right_curve(takePoint), takePoint)).astype(int)
-            cv2.polylines(frame_blend, [right_curve_points], isClosed=False, color=(255, 255,255), thickness=2)
+        roadType = "straight"
+        # 2,3,4的平均值大於0,5
 
-        if len(leftOffset) >= 2:
-            left_coefficients = np.polyfit(takePoint, leftOffset, 2)
-            left_curve = np.poly1d(left_coefficients)
-            left_curve_points = np.column_stack((left_curve(takePoint), takePoint)).astype(int)
-            cv2.polylines(frame_blend, [left_curve_points], isClosed=False, color=(255, 255,255), thickness=2)
+        rightUp = sum(rightOffsetList[2:5])/3 > rightOffsetList[5]
+        rightDown = sum(rightOffsetList[2:5])/3 > rightOffsetList[0]
 
-        displayY = map_range(datumYslider.value(), 0, 863, 30, 200)
+        leftUp = sum(leftOffsetList[2:5])/3 < leftOffsetList[5]
+        leftDown = sum(leftOffsetList[2:5])/3 < leftOffsetList[0]
 
-        frame_blend = cv2.line(frame_blend, (displayY+10,130), (displayY+25,155), (0, 255, 0), 2)
-        frame_blend = cv2.line(frame_blend, (displayY-10,130), (displayY-20,155), (0, 255, 0), 2)
+        if rightUp and rightDown and leftUp and leftDown:
 
-        offset = int(offsetSum / len(takePoint))
-        offset1 = sum(offsetList[:int(len(takePoint)/2)])/len(offsetList[:int(len(takePoint)/2)])
-        offset2 = sum(offsetList[int(len(takePoint)/2):])/len(offsetList[int(len(takePoint)/2):])
+            roadType = 'crossroads'
+
+        elif rightUp and rightDown and not leftUp and not leftDown:
+
+            roadType = 'right fork road'
         
-        # frame_blend = cv2.line(frame_blend, (int(offset1),280), ( int(offset2) ,450), (255, 255, 255), 2)
+        elif not rightUp and not rightDown and leftUp and leftDown:
 
-        # angle = calculate_angle((int(offset1),280), ( int(offset2) ,450))
+            roadType = 'left fork road'
+        
+        elif rightUp and not rightDown and leftUp and not leftDown:
 
-        xSet = 864-datumYslider.value()
+            roadType = 'T-intersection'
 
-        frame_blend = cv2.line(frame_blend, (offset,380), ( xSet ,450), (255, 255, 255), 2)
-        angle = calculate_angle((offset,380), ( xSet ,450))
+
+
+        tv = 0
+        if 864 - sum(rightOffsetList)/len(rightOffsetList) <60:
+            tv = 864 - sum(rightOffsetList)/len(rightOffsetList)
+        if sum(leftOffsetList)/len(leftOffsetList) <60:
+            tv = -sum(leftOffsetList)/len(leftOffsetList)
+
+        tv = int(tv)
+
+        offset = int((sum(rightOffsetList)/len(rightOffsetList) + sum(leftOffsetList)/len(leftOffsetList))/2)+ int(tv)
+
+        
+
+        #offset = int(sum(rightOffsetList)/len(rightOffsetList))-25
+                
+        runMode = 'straight'
+
+        xSet = datumYslider.value() -432
+
+        frame_blend = cv2.line(frame_blend, (offset+xSet+40,300), ( 432+120 ,450), (255, 255, 255), 2)
+        frame_blend = cv2.line(frame_blend, (offset+xSet-40,300), ( 432-120 ,450), (255, 255, 255), 2)
+
+
+        #角度計算
+        angle = calculate_angle((offset+xSet,380), ( 432 ,450))
 
         cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
 
-        roadType = "Line"
-        if angle > 130:
-            roadType = "Left"
-        elif angle < 50:
-            roadType = "Right"
-        else:
-            roadType = "Line"
 
 
         bytesPerline_blend = channel * width
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
         label.setPixmap(QPixmap.fromImage(img_blend))
         
-        if datumYslider.value() == 432:
-            setSide = "Center"
-        elif datumYslider.value() > 432:
-            setSide = "Left+" + str(datumYslider.value() - 432)
-        elif datumYslider.value() < 432:
-            setSide = "Right-" + str(432 - datumYslider.value())
-
-        # 开始绘制
+        # 數據顯示
         painter = QPainter(label.pixmap())
         font = QFont()
         font.setPointSize(15)
         painter.setFont(font)
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
-        painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
-        painter.drawText(20, 60, f"Road: {roadType}")
-        painter.drawText(20, 210, f"Drive on: {setSide}")
+        painter.drawText(20, 30, f"FPS: {fps}")
+        painter.drawText(20, 60, f"Mode: {runMode}")
+        painter.drawText(20, 90, f"RoadType: {roadType}")
+
+        painter.drawText(20, 180, f"turnV: {tv}")
+        painter.drawText(20, 210, f"rightOffset: {int(sum(rightOffsetList)/len(rightOffsetList))}")
+        painter.drawText(20, 240, f"leftOffset: {int(sum(leftOffsetList)/len(leftOffsetList))}")
 
 
-        # 结束绘制
+
+        # 混合結果
         painter.end()
 
         # 梯形校正
         result_img_trapezoid_corrected = perspective_correction(np.array(result_img_trapezoid2))
 
-        # 下方梯形校正結果
-       #print(type(result_img_trapezoid_corrected))
-
-
+        # 梯形校正結果
         result_img_trapezoid_corrected_pil = Image.fromarray(result_img_trapezoid_corrected)
         result_img_trapezoid_np = np.array(result_img_trapezoid_corrected_pil.resize((250, 160), Image.BICUBIC))
 
@@ -421,6 +431,26 @@ def opencv():
         result_img_trapezoid_qt = QImage(result_img_trapezoid_np.data, result_img_trapezoid_np.shape[1],
                                         result_img_trapezoid_np.shape[0], bytesPerline_trapezoid, QImage.Format_RGB888)
         trapezoid_label.setPixmap(QPixmap.fromImage(result_img_trapezoid_qt))
+
+
+
+        output_folder_path = "road_corrected_images"
+
+        # 確保資料夾存在，如果不存在就創建
+        if not os.path.exists(output_folder_path):
+            os.makedirs(output_folder_path)
+
+        # 指定檔案名稱，這裡使用固定的名稱，你也可以根據需要更改
+        output_file_name = f"images{cc}.jpg"
+        cc += 1
+
+        # 組合完整的檔案路徑
+        output_file_path = os.path.join(output_folder_path, output_file_name)
+
+        # 將校正後的梯形影像儲存到資料夾
+        result_img_trapezoid_corrected_pil.save(output_file_path)
+
+
 
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
@@ -437,6 +467,7 @@ def opencv():
         if c==27:
             capture.release()
             break
+
 
 video = threading.Thread(target=opencv)
 video.start()
