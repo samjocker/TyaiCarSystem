@@ -12,11 +12,6 @@ import threading
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import *
-from PIL import Image, ImageQt
-from PyQt5.QtGui import QPixmap
-
-from PyQt5.QtGui import QImage, QPixmap
-from PIL import Image
 
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
@@ -62,10 +57,68 @@ if openSerial:
     # time.sleep(5)
     # print("servoFree!!!")
 
+app = QtWidgets.QApplication(sys.argv)
+MainWindow = QtWidgets.QMainWindow()
+MainWindow.setObjectName("MainWindow")
+MainWindow.setWindowTitle("TYAI car")
+MainWindow.resize(864, 550)
+
+label = QtWidgets.QLabel(MainWindow)
+label.setGeometry(0, 0, 864, 480)
+
+# result_label = QtWidgets.QLabel(MainWindow)
+# result_label.setGeometry(520, 405, 250, 160)
+# result_label.setStyleSheet("QLabel { background-color : white; color : black; }")
+# result_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+
 colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128),
           (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128),
           (64, 128, 128), (192, 128, 128), (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128),
           (128, 64, 12)]
+
+
+def getEdge(pr):
+
+    #print(len(pr))
+
+    global data, colors
+    leftOffset = 0
+    rightOffset = 0
+    
+    # if np.all(pr[data["middlePointX"]-x] == list(colors[1])):
+
+    xCount = 0
+    startType = 'none'
+
+    if np.all(pr[0] == list(colors[1])):
+        startType = 'road'
+
+    lastType = startType
+    lastX = 0
+    highRange = [0,0]
+    currentRange = [0, 0]
+
+    for x in range(len(pr)):
+        nowType = 'none'
+        
+        if np.all(pr[x] == list(colors[1])):
+            nowType = 'road'
+
+        if nowType == 'road':
+            if currentRange[1] == 0:
+                currentRange[0] = x
+            currentRange[1] = x
+
+            if currentRange[1] - currentRange[0] > highRange[1] - highRange[0]:
+                highRange = currentRange
+        else:
+            currentRange = [0, 0] 
+    #print(f"最長範圍：{highRange}         ",end='\r')
+
+    return highRange
+
+def map_range(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 
 class DeeplabV3(object):
@@ -153,7 +206,7 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1319.MOV"
+#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\VID_20240127_001513.mp4"
 video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
 
 video_save_path = ""
@@ -174,6 +227,8 @@ def calculate_angle(point1, point2):
 
 def perspective_correction(image):
 
+
+
     # 定義原始四邊形的四個點
     original_points = np.float32([[-400, 480], [1120, 480],[200, 280], [520, 280]])
 
@@ -188,61 +243,6 @@ def perspective_correction(image):
 
     return result
 
-def getEdge(pr):
-
-    #print(len(pr))
-
-    global data, colors
-    leftOffset = 0
-    rightOffset = 0
-    
-    # if np.all(pr[data["middlePointX"]-x] == list(colors[1])):
-
-    xCount = 0
-    startType = 'none'
-
-    if np.all(pr[0] == list(colors[1])):
-        startType = 'road'
-
-    lastType = startType
-    lastX = 0
-    highRange = [0,0]
-    currentRange = [0, 0]
-
-    for x in range(len(pr)):
-        nowType = 'none'
-        
-        if np.all(pr[x] == list(colors[1])):
-            nowType = 'road'
-
-        if nowType == 'road':
-            if currentRange[1] == 0:
-                currentRange[0] = x
-            currentRange[1] = x
-
-            if currentRange[1] - currentRange[0] > highRange[1] - highRange[0]:
-                highRange = currentRange
-        else:
-            currentRange = [0, 0] 
-    #print(f"最長範圍：{highRange}         ",end='\r')
-
-    return highRange
-
-def map_range(x, in_min, in_max, out_min, out_max):
-    return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
-
-
-#  opencv set
-
-app = QtWidgets.QApplication(sys.argv)
-MainWindow = QtWidgets.QMainWindow()
-MainWindow.setObjectName("MainWindow")
-MainWindow.setWindowTitle("TYAI car")
-MainWindow.resize(864, 550)
-
-label = QtWidgets.QLabel(MainWindow)
-label.setGeometry(0, 0, 864, 480)
-
 
 datumYslider = QtWidgets.QSlider(MainWindow)
 datumYslider.setGeometry(0,490, 864, 30)
@@ -252,14 +252,11 @@ datumYslider.setMinimum(0)
 datumYslider.setValue(432)
 
 
-# trapezoid_label = QtWidgets.QLabel(MainWindow)
-# trapezoid_label.setGeometry(550, 0, 250, 160)
-# trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
-# trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+trapezoid_label = QtWidgets.QLabel(MainWindow)
+trapezoid_label.setGeometry(550, 0, 250, 160)
+trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
+trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
-
-
-# run
 useCam = False
 CamID = 0
 
@@ -306,49 +303,95 @@ def opencv():
         height, width, channel = 480, 864, 3
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
 
+        offsetSum = 0
+        offsetList = []
+        takePoint = [320,335,350,365,380,395,410,425,440,455,470]
+        lastx0 = 0
+        lastx1 = 0
+        lastTy = 0
 
-        # pilot view
+        rightOffset = []
+        leftOffset = []
 
-        takePointX = [260,300,340,380]
-        rightOffsetx = []
-        leftOffsetx = []
+        for Ty in takePoint:
 
-        for Ty in takePointX:
-            x0, x1 = getEdge(modelOutput[Ty])
+            x0,x1 = getEdge(modelOutput[Ty])
+
+            rightOffset.append(x0)
+            leftOffset.append(x1)
             
-            if x0 != 0 and x1 != 0:
-                rightOffsetx.append([x0, Ty])
-                leftOffsetx.append([x1, Ty])
-                # frame_blend = cv2.circle(frame_blend, (x0, Ty), radius=5, color=(0, 255, 0))
-                # frame_blend = cv2.circle(frame_blend, (x1, Ty), radius=5, color=(0, 255, 0))
+            frame_blend = cv2.circle(frame_blend, (x0,Ty), radius=5, color=(0, 255,0))
+            frame_blend = cv2.circle(frame_blend, (x1,Ty), radius=5, color=(0, 255,0))
+            #cv2.putText(frame_blend, f"{x1 - x0}", (int((x0 + x1) / 2), Ty-15), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.3, color=(255, 0, 0), thickness=1)
+            offsetSum += int((x0 + x1) / 2)
+            offsetList.append(int((x0 + x1) / 2))
 
-            
+            if lastx0 != 0 and lastx1 != 0 and lastTy != 0:
+                frame_blend = cv2.line(frame_blend, (lastx0,lastTy), (x0,Ty), (0, 255, 0), 2)
+                frame_blend = cv2.line(frame_blend, (lastx1,lastTy), (x1,Ty), (0, 255, 0), 2)
 
-        rightOffsetxNp = np.array([rightOffsetx], dtype=np.int32)
-        leftOffsetxNp = np.array([leftOffsetx], dtype=np.int32)
-        frame_blend = cv2.polylines(frame_blend, rightOffsetxNp, isClosed=False, color=(255, 255, 255), thickness=10)
-        frame_blend = cv2.polylines(frame_blend, leftOffsetxNp, isClosed=False, color=(255, 255, 255), thickness=10)
+            lastx0 = x0
+            lastx1 = x1
+            lastTy = Ty
+
+        for i,p in enumerate(takePoint):
+            takePoint[i] = int(p/3)
+        for i,p in enumerate(rightOffset):
+            rightOffset[i] = int(p/4)
+        for i,p in enumerate(leftOffset):
+            leftOffset[i] = int(p/4)
+
+        if len(rightOffset) >= 2:
+            right_coefficients = np.polyfit(takePoint, rightOffset, 2)
+            right_curve = np.poly1d(right_coefficients)
+            right_curve_points = np.column_stack((right_curve(takePoint), takePoint)).astype(int)
+            cv2.polylines(frame_blend, [right_curve_points], isClosed=False, color=(255, 255,255), thickness=2)
+
+        if len(leftOffset) >= 2:
+            left_coefficients = np.polyfit(takePoint, leftOffset, 2)
+            left_curve = np.poly1d(left_coefficients)
+            left_curve_points = np.column_stack((left_curve(takePoint), takePoint)).astype(int)
+            cv2.polylines(frame_blend, [left_curve_points], isClosed=False, color=(255, 255,255), thickness=2)
+
+        displayY = map_range(datumYslider.value(), 0, 863, 30, 200)
+
+        frame_blend = cv2.line(frame_blend, (displayY+10,130), (displayY+25,155), (0, 255, 0), 2)
+        frame_blend = cv2.line(frame_blend, (displayY-10,130), (displayY-20,155), (0, 255, 0), 2)
+
+        offset = int(offsetSum / len(takePoint))
+        offset1 = sum(offsetList[:int(len(takePoint)/2)])/len(offsetList[:int(len(takePoint)/2)])
+        offset2 = sum(offsetList[int(len(takePoint)/2):])/len(offsetList[int(len(takePoint)/2):])
+        
+        # frame_blend = cv2.line(frame_blend, (int(offset1),280), ( int(offset2) ,450), (255, 255, 255), 2)
+
+        # angle = calculate_angle((int(offset1),280), ( int(offset2) ,450))
+
+        xSet = 864-datumYslider.value()
+
+        frame_blend = cv2.line(frame_blend, (offset,380), ( xSet ,450), (255, 255, 255), 2)
+        angle = calculate_angle((offset,380), ( xSet ,450))
+
+        cv2.putText(frame_blend, f"{int(angle)}", (360,440), cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, color=(255, 0, 0), thickness=2)
+
+        roadType = "Line"
+        if angle > 130:
+            roadType = "Left"
+        elif angle < 50:
+            roadType = "Right"
+        else:
+            roadType = "Line"
 
 
-
-        # angle
-
-
-        rightOffsetT = sum([x[0] for x in rightOffsetx])/len(rightOffsetx)
-        leftOffsetT = sum([x[0] for x in leftOffsetx])/len(leftOffsetx)
-
-        OffsetM = int((rightOffsetT+leftOffsetT)/2)
-
-        angle = 180 + calculate_angle((432,480),(OffsetM,200))
-    
-
-        frame_blend = cv2.line(frame_blend, (432+150, 480), (OffsetM+30, 330), (0, 255, 255), 5)
-        frame_blend = cv2.line(frame_blend, (432-150, 480), (OffsetM-30, 330), (0, 255, 255), 5)
-
-        # open cv
         bytesPerline_blend = channel * width
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
         label.setPixmap(QPixmap.fromImage(img_blend))
+        
+        if datumYslider.value() == 432:
+            setSide = "Center"
+        elif datumYslider.value() > 432:
+            setSide = "Left+" + str(datumYslider.value() - 432)
+        elif datumYslider.value() < 432:
+            setSide = "Right-" + str(432 - datumYslider.value())
 
         # 开始绘制
         painter = QPainter(label.pixmap())
@@ -357,17 +400,27 @@ def opencv():
         painter.setFont(font)
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
         painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
-        painter.drawText(20, 60, f"Road: {0}")
-        painter.drawText(20, 90, f"Angle: {angle}")
-        painter.drawText(20, 120, f"Right: {rightOffsetT}")
-        painter.drawText(20, 150, f"Left: {leftOffsetT}")
-        painter.drawText(20, 180, f"Middle: {OffsetM}")
+        painter.drawText(20, 60, f"Road: {roadType}")
+        painter.drawText(20, 210, f"Drive on: {setSide}")
 
 
         # 结束绘制
         painter.end()
 
+        # 梯形校正
+        result_img_trapezoid_corrected = perspective_correction(np.array(result_img_trapezoid2))
 
+        # 下方梯形校正結果
+       #print(type(result_img_trapezoid_corrected))
+
+
+        result_img_trapezoid_corrected_pil = Image.fromarray(result_img_trapezoid_corrected)
+        result_img_trapezoid_np = np.array(result_img_trapezoid_corrected_pil.resize((250, 160), Image.BICUBIC))
+
+        bytesPerline_trapezoid = 3 * result_img_trapezoid_np.shape[1]
+        result_img_trapezoid_qt = QImage(result_img_trapezoid_np.data, result_img_trapezoid_np.shape[1],
+                                        result_img_trapezoid_np.shape[0], bytesPerline_trapezoid, QImage.Format_RGB888)
+        trapezoid_label.setPixmap(QPixmap.fromImage(result_img_trapezoid_qt))
 
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
@@ -375,7 +428,7 @@ def opencv():
 
         if openSerial:
             global ser
-            ser.write((str(int(00))+'\n').encode())
+            ser.write((str(int(angle))+'\n').encode())
 
         c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
