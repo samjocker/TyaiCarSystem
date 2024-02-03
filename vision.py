@@ -15,8 +15,8 @@ from PyQt5.QtGui import *
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-openSerial = False
-cameraUse = False
+openSerial = True
+cameraUse = True
 
 if openSerial:
     print("Wait connect")
@@ -343,7 +343,7 @@ shortcut1.activated.connect(save)
 def servoChange():
     global ser, openSerial
     if openSerial:
-        ser.write("300".encode())
+        ser.write("300\n".encode())
         print("servo change \n")
 shortcut2 = QtWidgets.QShortcut(QKeySequence("Ctrl+D"), MainWindow)
 shortcut2.activated.connect(servoChange)
@@ -547,7 +547,7 @@ def slidingWindow(frame):
 
                         # print(f'顏色佔比: {percentage}%')
 
-            # cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
+            cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
         cdnY -= rectHeight
         rectWidth -= adjustNum
         rectWidth = max(rectWidth, 0)
