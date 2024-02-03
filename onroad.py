@@ -344,7 +344,7 @@ datumYslider.setValue(432)
 
 
 # run
-useCam = False
+useCam = True
 CamID = 0
 
 

@@ -87,6 +87,3135 @@
       "longitude": 24.9090909,
       "site": "154.0970916748047",
       "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:50:24",
+      "開始": "開始紀錄"
+    },
+    {
+      "log_time": "2024-02-03 20:51:11",
+      "開始": "開始紀錄"
+    },
+    {
+      "log_time": "2024-02-03 20:51:28",
+      "開始": "開始紀錄"
+    },
+    {
+      "log_time": "2024-02-03 20:52:19",
+      "開始": "開始紀錄"
+    },
+    {
+      "log_time": "2024-02-03 20:52:24",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "264.026611328125",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "264.026611328125",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:26",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "265.0351257324219",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:52:27",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "266.0796813964844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:52:39",
+      "開始": "開始紀錄"
+    },
+    {
+      "log_time": "2024-02-03 20:52:43",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:45",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:46",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:47",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:48",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:49",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:49",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:50",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:51",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:52",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:53",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:54",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:55",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:56",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:57",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:57",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:58",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:52:59",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "278.4658508300781",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:00",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:01",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:02",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:02",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:03",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:04",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:05",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:06",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:07",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:08",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:09",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:10",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:11",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.9925842285156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:11",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "279.0201721191406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:12",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "285.3980712890625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:13",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "294.4375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:14",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "303.4952087402344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:15",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "318.7483825683594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:16",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "325.507080078125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:17",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "332.0931701660156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:18",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "339.9231872558594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:19",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.025634765625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:19",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "344.195556640625",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:21",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "347.2539978027344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:21",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "347.2539978027344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:22",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "347.2539978027344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:23",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "347.2539978027344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:24",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "348.2674865722656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "348.2674865722656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:26",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "349.3782653808594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:27",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "349.3782653808594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:28",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "350.54345703125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:28",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "350.54345703125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:29",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "349.34771728515625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:30",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "348.3353271484375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:31",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "346.2433166503906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:32",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "345.2171325683594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:33",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "345.2171325683594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:34",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "344.1891784667969",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:34",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "341.8745422363281",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:35",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "336.4740905761719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:36",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "330.9307861328125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:37",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "325.3238525390625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:38",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "318.9405822753906",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:53:39",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "314.5213623046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:40",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "306.0202941894531",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:40",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "295.46868896484375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:41",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "284.7532958984375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:42",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "273.18951416015625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:43",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "262.81475830078125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "258.5107421875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:45",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "257.4853820800781",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:53:58",
+      "開始": "開始紀錄"
+    },
+    {
+      "log_time": "2024-02-03 20:54:02",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "257.4815979003906",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:54:03",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "257.4815979003906",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:54:04",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "257.4815979003906",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:54:04",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "256.3122253417969",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:05",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.24058532714844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:06",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "252.8816375732422",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:08",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "243.0181884765625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:09",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "237.10455322265625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:10",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "232.4363250732422",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:10",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "228.73374938964844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:12",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "226.18789672851562",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:13",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "224.07342529296875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:14",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "227.27842712402344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:15",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "231.82655334472656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:16",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "235.14540100097656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:17",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "242.3458709716797",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:18",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "250.9954071044922",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:19",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "253.2086639404297",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:20",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.2461700439453",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:54:22",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.2461700439453",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:54:23",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.2461700439453",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:54:24",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "254.13560485839844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "252.10047912597656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:26",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.06117248535156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:27",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "249.95228576660156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:28",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "248.92189025878906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:29",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "248.74832153320312",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:30",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "248.74832153320312",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:31",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "249.8428955078125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:32",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "250.89231872558594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:33",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.94398498535156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:33",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.94398498535156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:34",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.94398498535156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:35",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.94398498535156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:36",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.9266815185547",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:37",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.9266815185547",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:37",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.9266815185547",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:38",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "253.02748107910156",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:54:39",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "253.5337677001953",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:40",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "254.5467071533203",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:41",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.69752502441406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:42",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.69752502441406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:43",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.69752502441406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:43",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.00611877441406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "244.9563446044922",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:45",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "230.89102172851562",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:46",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "216.5689697265625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:47",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "200.66580200195312",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:48",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "187.41275024414062",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:48",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "180.90928649902344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:49",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "175.0351104736328",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:50",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "169.56051635742188",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:51",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "168.2373809814453",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:52",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "170.5077667236328",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:53",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "170.5077667236328",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:53",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "171.56724548339844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:54",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "178.1377410888672",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:55",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "187.41036987304688",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:56",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "195.3439178466797",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:57",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "197.4652862548828",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:54:58",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "197.4652862548828",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:54:59",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "193.16795349121094",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:54:59",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "183.32131958007812",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:00",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "169.3747100830078",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:01",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "157.440673828125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:02",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "142.13795471191406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:03",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "130.23912048339844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:03",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "125.99061584472656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:04",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "125.99061584472656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:05",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "130.64242553710938",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:06",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "140.231689453125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:07",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "148.30003356933594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:08",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "156.51905822753906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:08",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.74017333984375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:09",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "163.89718627929688",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:10",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "165.08389282226562",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:11",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "164.67088317871094",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:12",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.35870361328125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:13",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "153.47152709960938",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:13",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "139.61611938476562",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:14",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "125.38267517089844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:15",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "110.30937194824219",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:55:16",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "98.33289337158203",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:17",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "91.33668518066406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:18",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "90.26744079589844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:18",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "96.74681091308594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:19",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "108.83370208740234",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:20",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "124.49607849121094",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:21",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "141.01095581054688",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:22",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "150.30613708496094",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:23",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "158.1484832763672",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:24",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "160.31436157226562",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.5414581298828",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "164.59291076660156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:26",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "164.59291076660156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:27",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "164.59291076660156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:28",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "164.59291076660156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:29",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.52059936523438",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:30",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "163.232666015625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:30",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.2238311767578",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:31",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.0340118408203",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:32",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "159.95721435546875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:33",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "159.95721435546875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:34",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "158.6312255859375",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:55:35",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "160.79864501953125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:36",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.95706176757812",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:36",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "163.04031372070312",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:37",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "164.10089111328125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:38",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "164.10089111328125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:39",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.90577697753906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:41",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.59683227539062",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:42",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.59683227539062",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:42",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.6143798828125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:43",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "163.61805725097656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "163.61805725097656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:45",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.43643188476562",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:46",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.37869262695312",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:47",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "160.32513427734375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:48",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "160.32513427734375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:48",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.4256591796875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:49",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.60939025878906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:50",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.60939025878906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:51",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.54588317871094",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:52",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "160.47293090820312",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:53",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "159.3573760986328",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:55:53",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "158.2759552001953",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:54",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "159.3992156982422",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:55",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.73507690429688",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:56",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.90623474121094",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:57",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "162.86854553222656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:58",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "161.8645477294922",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:55:59",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "160.83302307128906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:00",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "159.70477294921875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:00",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "159.70477294921875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:01",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "158.69371032714844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:02",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "160.83851623535156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:03",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "163.0693359375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:04",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "165.1826171875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:05",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "166.2658233642578",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:06",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "156.21055603027344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:16",
+      "開始": "開始紀錄"
+    },
+    {
+      "log_time": "2024-02-03 20:56:20",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "72.44825744628906",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:56:20",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "73.46334075927734",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:21",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "74.4724349975586",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:22",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "74.4724349975586",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:23",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "74.4724349975586",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:24",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "75.5563735961914",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "75.5563735961914",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:26",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "75.5563735961914",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:26",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "75.5563735961914",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:27",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.62513732910156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:28",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.62513732910156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:29",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.62513732910156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:30",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "77.66777801513672",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:31",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "77.66777801513672",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:32",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.69084167480469",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:32",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.69412231445312",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:33",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.23690795898438",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:34",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.23690795898438",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:35",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.23690795898438",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:36",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "75.06752014160156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:37",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "74.04753875732422",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:38",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "74.04753875732422",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:38",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "73.02330780029297",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:56:39",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "72.89830017089844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:40",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "73.9074935913086",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:41",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "73.9074935913086",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:42",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "75.13611602783203",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:43",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "74.94466400146484",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "74.94466400146484",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "74.94466400146484",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:45",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.05216217041016",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:46",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "77.19347381591797",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:47",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "75.91834259033203",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:48",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "73.7340316772461",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:49",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "74.7537841796875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:50",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "76.1734848022461",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:50",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "72.9167709350586",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:51",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "65.2804183959961",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:52",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "56.050987243652344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:53",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "46.53314208984375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:54",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "35.30052185058594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:55",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "23.740724563598633",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:55",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "5.51956844329834",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:56",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.10748291015625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:57",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "346.1026306152344",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:56:58",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.8999328613281",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:56:59",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.8011779785156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:00",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.9319763183594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:00",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "346.0912780761719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:01",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "346.0912780761719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:02",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "344.9561462402344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:03",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "344.6731262207031",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:04",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.4606628417969",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:05",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "344.5010681152344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:05",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:06",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:07",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:08",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:09",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:10",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:10",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:11",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:12",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:13",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:14",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.3764343261719",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:15",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.7633972167969",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:15",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.7633972167969",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:16",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.7633972167969",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:17",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.7633972167969",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:18",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.7633972167969",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:19",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.7633972167969",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:20",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.7633972167969",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:20",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.77783203125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:21",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "345.970947265625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:22",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "345.970947265625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:23",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "344.9493713378906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:24",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "344.9493713378906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.83099365234375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.8208312988281",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:26",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "342.8208312988281",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:27",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "341.668701171875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:28",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "341.668701171875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:29",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "341.668701171875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:30",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.6954345703125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:31",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "345.3367614746094",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:31",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "346.8063049316406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:32",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "345.7061462402344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:33",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "343.563232421875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:34",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "341.4820556640625",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:35",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "336.9732971191406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:36",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "329.05224609375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:36",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "314.76312255859375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:37",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "294.04595947265625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:38",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "277.61724853515625",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:39",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "262.94573974609375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:40",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "258.5317687988281",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:41",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.4082794189453",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:42",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.3146514892578",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:42",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "256.34613037109375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:43",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.1883087158203",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "254.08714294433594",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:45",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "253.0493927001953",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:46",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "250.9355926513672",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:47",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "249.8514862060547",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:48",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "249.8514862060547",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:49",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "250.8614501953125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:50",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.89186096191406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:50",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.89186096191406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:51",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.89186096191406",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:52",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.89186096191406",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:53",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.89186096191406",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:54",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.89186096191406",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:55",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.89186096191406",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:57:56",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "250.78172302246094",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:56",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "250.78172302246094",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:57",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "250.912841796875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:58",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.9755401611328",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:57:59",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "253.02818298339844",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:00",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "254.15541076660156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:01",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "254.15541076660156",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:01",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "255.1981964111328",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:02",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "254.1732940673828",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:03",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "253.0537567138672",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:04",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "252.02110290527344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:05",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "251.9578399658203",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:06",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "256.6788330078125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:07",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "270.4229431152344",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:07",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "287.33203125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:08",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "304.1299133300781",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:09",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "317.81268310546875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:10",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "332.0407409667969",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:11",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "340.7809753417969",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:12",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "344.1634521484375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:13",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "346.2716369628906",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:14",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "347.2774658203125",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:14",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "348.3157043457031",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:15",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "350.3768615722656",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:16",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "351.41107177734375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:17",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "351.41107177734375",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:18",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:19",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:20",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:21",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:22",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:23",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:24",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:26",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:27",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:28",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:28",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": true
+    },
+    {
+      "log_time": "2024-02-03 20:58:30",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:31",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:32",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:33",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:34",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:34",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:35",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:36",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:37",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:38",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:39",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:40",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:41",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:42",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:43",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:44",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:45",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:46",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:47",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:48",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:49",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:50",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:51",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:52",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:53",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:54",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:54",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:55",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:56",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:57",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:58",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:58:59",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:00",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:01",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:02",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:03",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:03",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:04",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:05",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:06",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:07",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:08",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:09",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:10",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:11",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:11",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:12",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:13",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:14",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:15",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:16",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:17",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:18",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:19",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:20",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:21",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:22",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:23",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:24",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:24",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:25",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:26",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:27",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:28",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:29",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:30",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:31",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:32",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:33",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:34",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:35",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:36",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:37",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:38",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
+    },
+    {
+      "log_time": "2024-02-03 20:59:39",
+      "latitude": 121.565656,
+      "longitude": 24.9090909,
+      "site": "352.432373046875",
+      "loraState": false
     }
   ]
 }
