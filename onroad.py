@@ -199,8 +199,8 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1319.MOV"
-#video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
+#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1319.MOV"
+video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
 
 video_save_path = ""
 video_fps = 30.0
@@ -341,30 +341,30 @@ def opencv():
             lastTy = Ty
 
 
-        roadType = "straight"
-        # 2,3,4的平均值大於0,5
+        # roadType = "straight"
+        # # 2,3,4的平均值大於0,5
 
-        rightUp = sum(rightOffsetList[2:5])/3 > rightOffsetList[5]
-        rightDown = sum(rightOffsetList[2:5])/3 > rightOffsetList[0]
+        # rightUp = sum(rightOffsetList[2:5])/3 > rightOffsetList[5]
+        # rightDown = sum(rightOffsetList[2:5])/3 > rightOffsetList[0]
 
-        leftUp = sum(leftOffsetList[2:5])/3 < leftOffsetList[5]
-        leftDown = sum(leftOffsetList[2:5])/3 < leftOffsetList[0]
+        # leftUp = sum(leftOffsetList[2:5])/3 < leftOffsetList[5]
+        # leftDown = sum(leftOffsetList[2:5])/3 < leftOffsetList[0]
 
-        if rightUp and rightDown and leftUp and leftDown:
+        # if rightUp and rightDown and leftUp and leftDown:
 
-            roadType = 'crossroads'
+        #     roadType = 'crossroads'
 
-        elif rightUp and rightDown and not leftUp and not leftDown:
+        # elif rightUp and rightDown and not leftUp and not leftDown:
 
-            roadType = 'right fork road'
+        #     roadType = 'right fork road'
         
-        elif not rightUp and not rightDown and leftUp and leftDown:
+        # elif not rightUp and not rightDown and leftUp and leftDown:
 
-            roadType = 'left fork road'
+        #     roadType = 'left fork road'
         
-        elif rightUp and not rightDown and leftUp and not leftDown:
+        # elif rightUp and not rightDown and leftUp and not leftDown:
 
-            roadType = 'T-intersection'
+        #     roadType = 'T-intersection'
 
 
 
@@ -376,13 +376,13 @@ def opencv():
 
         tv = int(tv)
 
-        offset = int((sum(rightOffsetList)/len(rightOffsetList) + sum(leftOffsetList)/len(leftOffsetList))/2)+ int(tv)
+        #offset = int((sum(rightOffsetList)/len(rightOffsetList) + sum(leftOffsetList)/len(leftOffsetList))/2)+ int(tv)
 
-        
+        offset = int((sum(rightOffsetList)/len(rightOffsetList))) -150
 
         #offset = int(sum(rightOffsetList)/len(rightOffsetList))-25
                 
-        runMode = 'straight'
+        runMode = 'drive on right'
 
         xSet = datumYslider.value() -432
 
@@ -408,20 +408,23 @@ def opencv():
         painter.setFont(font)
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
         painter.drawText(20, 30, f"FPS: {fps}")
+
         painter.drawText(20, 60, f"Mode: {runMode}")
-        painter.drawText(20, 90, f"RoadType: {roadType}")
+        #painter.drawText(20, 90, f"RoadType: {roadType}")
 
         painter.drawText(20, 180, f"turnV: {tv}")
         painter.drawText(20, 210, f"rightOffset: {int(sum(rightOffsetList)/len(rightOffsetList))}")
         painter.drawText(20, 240, f"leftOffset: {int(sum(leftOffsetList)/len(leftOffsetList))}")
 
+        painter.setPen(QColor(0, 255,0))  # 文字顏色，白色
+        painter.drawText(300, 30, f"Auto Pilot ON")
 
 
         # 混合結果
         painter.end()
 
         # 梯形校正
-        result_img_trapezoid_corrected = perspective_correction(np.array(result_img_trapezoid2))
+        result_img_trapezoid_corrected = perspective_correction(np.array(result_img_blend))
 
         # 梯形校正結果
         result_img_trapezoid_corrected_pil = Image.fromarray(result_img_trapezoid_corrected)
