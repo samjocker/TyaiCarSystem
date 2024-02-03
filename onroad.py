@@ -21,8 +21,91 @@ from PIL import Image
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
+
+
 import math, os
 import serial
+
+import requests
+
+import threading
+
+import datetime
+
+
+
+shared_gps_data = {"latitude": 0, "longitude": 0, "site": "", "loraState": ""}
+gps_data_lock = threading.Lock()
+
+
+
+new_log = {
+            "log_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "開始": "開始紀錄",
+}
+
+# 讀取現有的 JSON 檔案
+with open("gpsLog.json", "r", encoding="utf-8") as json_file:
+    existing_data = json.load(json_file)
+
+ # 將新的 log 資訊加入到現有的資料中
+existing_data["logs"].append(new_log)
+
+# 將更新後的資料寫回 JSON 檔案
+with open("gpsLog.json", "w", encoding="utf-8") as json_file:
+    json.dump(existing_data, json_file, ensure_ascii=False, indent=2)
+
+
+
+
+def update_gps_data():
+    global shared_gps_data
+    while True:
+        # GPS
+        url = "https://3908-60-251-221-219.ngrok-free.app/getData"
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            GPSdata = response.json()
+            latitude = GPSdata['latitude']
+            longitude = GPSdata['longitude']
+            site = GPSdata['site']
+            loraState = GPSdata['loraState']
+        else:
+            latitude = 0
+            longitude = 0
+            site = "None"
+            loraState = "None"
+
+        # 使用互斥鎖保護對 shared_gps_data 的訪問
+        with gps_data_lock:
+            shared_gps_data["latitude"] = latitude
+            shared_gps_data["longitude"] = longitude
+            shared_gps_data["site"] = site 
+            shared_gps_data["loraState"] = loraState
+        
+        new_log = {
+            "log_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "latitude": latitude,
+            "longitude": longitude,
+            "site": site,
+            "loraState": loraState
+        }
+
+        # 讀取現有的 JSON 檔案
+        with open("gpsLog.json", "r", encoding="utf-8") as json_file:
+            existing_data = json.load(json_file)
+
+        # 將新的 log 資訊加入到現有的資料中
+        existing_data["logs"].append(new_log)
+
+        # 將更新後的資料寫回 JSON 檔案
+        with open("gpsLog.json", "w", encoding="utf-8") as json_file:
+            json.dump(existing_data, json_file, ensure_ascii=False, indent=2)
+
+        # 延遲一段時間，以免過於頻繁更新
+        time.sleep(0.5)
+
 
 openSerial = False
 
@@ -154,7 +237,8 @@ class DeeplabV3(object):
 deeplab = DeeplabV3()
 
 #video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1319.MOV"
-video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
+#video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
+video_path = r"D:/IMG_1319.MOV"
 
 video_save_path = ""
 video_fps = 30.0
@@ -264,7 +348,6 @@ useCam = False
 CamID = 0
 
 
-
 def opencv():
     
     if useCam:
@@ -275,7 +358,6 @@ def opencv():
     #to 480p
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 854)
     capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
     if video_save_path != "":
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         size = (int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)), int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
@@ -286,9 +368,21 @@ def opencv():
         raise ValueError("Video source Error")
 
     fps = 0.0
+
+    videoSpeed = 15
+    if useCam:
+        videoSpeed = 1
+
+
+
+    gps_thread = threading.Thread(target=update_gps_data)
+    gps_thread.start()
+
+
     while True:
         t1 = time.time()
-        for i in range(5):
+
+        for i in range(videoSpeed):
             ref, frame = capture.read()
 
         frame = cv2.resize(frame, (864, 480))
@@ -307,48 +401,17 @@ def opencv():
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
 
 
-        # pilot view
-
-        takePointX = [260,300,340,380]
-        rightOffsetx = []
-        leftOffsetx = []
-
-        for Ty in takePointX:
-            x0, x1 = getEdge(modelOutput[Ty])
-            
-            if x0 != 0 and x1 != 0:
-                rightOffsetx.append([x0, Ty])
-                leftOffsetx.append([x1, Ty])
-                # frame_blend = cv2.circle(frame_blend, (x0, Ty), radius=5, color=(0, 255, 0))
-                # frame_blend = cv2.circle(frame_blend, (x1, Ty), radius=5, color=(0, 255, 0))
-
-            
-
-        rightOffsetxNp = np.array([rightOffsetx], dtype=np.int32)
-        leftOffsetxNp = np.array([leftOffsetx], dtype=np.int32)
-        frame_blend = cv2.polylines(frame_blend, rightOffsetxNp, isClosed=False, color=(255, 255, 255), thickness=10)
-        frame_blend = cv2.polylines(frame_blend, leftOffsetxNp, isClosed=False, color=(255, 255, 255), thickness=10)
 
 
 
         # angle
 
 
-        rightOffsetT = sum([x[0] for x in rightOffsetx])/len(rightOffsetx)
-        leftOffsetT = sum([x[0] for x in leftOffsetx])/len(leftOffsetx)
-
-        OffsetM = int((rightOffsetT+leftOffsetT)/2)
-
-        angle = 180 + calculate_angle((432,480),(OffsetM,200))
-    
-
-        frame_blend = cv2.line(frame_blend, (432+150, 480), (OffsetM+30, 330), (0, 255, 255), 5)
-        frame_blend = cv2.line(frame_blend, (432-150, 480), (OffsetM-30, 330), (0, 255, 255), 5)
-
         # open cv
         bytesPerline_blend = channel * width
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
         label.setPixmap(QPixmap.fromImage(img_blend))
+
 
         # 开始绘制
         painter = QPainter(label.pixmap())
@@ -358,14 +421,19 @@ def opencv():
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
         painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
         painter.drawText(20, 60, f"Road: {0}")
-        painter.drawText(20, 90, f"Angle: {angle}")
-        painter.drawText(20, 120, f"Right: {rightOffsetT}")
-        painter.drawText(20, 150, f"Left: {leftOffsetT}")
-        painter.drawText(20, 180, f"Middle: {OffsetM}")
+
+
+        painter.drawText(20, 90, f"Angle: {0}")
+
+        painter.drawText(20, 120, f"Latitude: {shared_gps_data['latitude']}")
+        painter.drawText(20, 150, f"Longitude: {shared_gps_data['longitude']}")
+        painter.drawText(20, 180, f"Site: {shared_gps_data['site']}")
+        painter.drawText(20, 210, f"LoraState: {shared_gps_data['loraState']}")
 
 
         # 结束绘制
         painter.end()
+
 
 
 
