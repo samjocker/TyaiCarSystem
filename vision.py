@@ -31,7 +31,7 @@ app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
 MainWindow.setObjectName("MainWindow")
 MainWindow.setWindowTitle("TYAI car")
-MainWindow.resize(720, 595)
+MainWindow.resize(720, 685)
 
 TrapezoidWindow = QtWidgets.QMainWindow()
 TrapezoidWindow.setObjectName("TrapezoidWindow")
@@ -122,7 +122,7 @@ trapezoidXnum.setFont(font)
 trapezoidYvalue = QtWidgets.QSlider(MainWindow)
 trapezoidYvalue.setGeometry(110, 550, 500, 30)
 trapezoidYvalue.setOrientation(QtCore.Qt.Horizontal)
-trapezoidYvalue.setMaximum(1080)
+trapezoidYvalue.setMaximum(1920)
 trapezoidYtitle = QtWidgets.QLabel(MainWindow)
 trapezoidYtitle.setGeometry(70, 547, 80, 30)
 font = QFont() 
@@ -135,6 +135,63 @@ font = QFont()
 font.setPointSize(18)
 trapezoidYnum.setText("555")
 trapezoidYnum.setFont(font)
+
+rectWidthValue = QtWidgets.QSlider(MainWindow)
+rectWidthValue.setGeometry(110, 580, 500, 30)
+rectWidthValue.setOrientation(QtCore.Qt.Horizontal)
+rectWidthValue.setMaximum(1919)
+rectWidthTitle = QtWidgets.QLabel(MainWindow)
+rectWidthTitle.setGeometry(70, 577, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+rectWidthTitle.setText("方寬")
+rectWidthTitle.setFont(font)
+rectWidthNum = QtWidgets.QLabel(MainWindow)
+rectWidthNum.setGeometry(620, 577, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+rectWidthNum.setText("555")
+rectWidthNum.setFont(font)
+
+rectAdjustValue = QtWidgets.QSlider(MainWindow)
+rectAdjustValue.setGeometry(110, 610, 500, 30)
+rectAdjustValue.setOrientation(QtCore.Qt.Horizontal)
+rectAdjustValue.setMaximum(100)
+rectAdjustTitle = QtWidgets.QLabel(MainWindow)
+rectAdjustTitle.setGeometry(70, 607, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+rectAdjustTitle.setText("微調")
+rectAdjustTitle.setFont(font)
+rectAdjustNum = QtWidgets.QLabel(MainWindow)
+rectAdjustNum.setGeometry(620, 607, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+rectAdjustNum.setText("555")
+rectAdjustNum.setFont(font)
+
+siteValue = QtWidgets.QSlider(MainWindow)
+siteValue.setGeometry(110, 640, 500, 30)
+siteValue.setOrientation(QtCore.Qt.Horizontal)
+siteValue.setMaximum(4)
+siteValue.setTickPosition(3)
+siteValue.setValue(2)
+# siteValue.setTickInterval(20)
+siteTitle = QtWidgets.QLabel(MainWindow)
+siteTitle.setGeometry(70, 637, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+siteTitle.setText("  左")
+siteTitle.setFont(font)
+siteNum = QtWidgets.QLabel(MainWindow)
+siteNum.setGeometry(620, 637, 80, 30)
+font = QFont() 
+font.setPointSize(18)
+siteNum.setText("右")
+siteNum.setFont(font)
+
+site = 2
+
 
 colors = [ (150, 150, 150), (255, 255, 255), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128), 
                             (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128), 
@@ -154,21 +211,28 @@ try:
         sideDistValue.setText(str(data["sideDistValue"]))
         trapezoidXnum.setText(str(data["trapezoidXvalue"]))
         trapezoidYnum.setText(str(data["trapezoidYvalue"]))
+        rectWidthNum.setText(str(data["rectWidth"]))
+        rectAdjustNum.setText(str(data["rectAdjust"]))
 except FileNotFoundError:
-    data = {"middlePointX": 0, "middlePointY": 0, "sideDistValue":0, "trapezoidXvalue": 0, "trapezoidYvalue": 0}
+    data = {"middlePointX": 0, "middlePointY": 0, "sideDistValue":0, "trapezoidXvalue": 0, "trapezoidYvalue": 0, "rectWidth": 0, "rectAdjust": 0}
     datumXvalue.setText(str(0))
     datumYvalue.setText(str(0))
     sideDistValue.setText(str(0))
     trapezoidXnum.setText(str(0))
     trapezoidYnum.setText(str(0))
+    rectWidthNum.setText(str(0))
+    rectAdjustNum.setText(str(0))
     with open("setting.json", 'w') as file:
         json.dump(data, file)
 except KeyError:
-    data = {"middlePointX": 0, "middlePointY": 0, "sideDistValue":0, "trapezoidXvalue": 0, "trapezoidYvalue": 0}
+    data = {"middlePointX": 0, "middlePointY": 0, "sideDistValue":0, "trapezoidXvalue": 0, "trapezoidYvalue": 0, "rectWidth": 0, "rectAdjust": 0}
     datumXvalue.setText(str(0))
     datumYvalue.setText(str(0))
+    sideDistValue.setText(str(0))
     trapezoidXnum.setText(str(0))
     trapezoidYnum.setText(str(0))
+    rectWidthNum.setText(str(0))
+    rectAdjustNum.setText(str(0))
     with open("setting.json", 'w') as file:
         json.dump(data, file)
 except Exception as e:
@@ -182,19 +246,16 @@ def datumXsliderValue(value):
     datumXvalue.setText(str(data["middlePointX"]))
     # print("value: ", f"{value:03d}", end='\r')
 datumXslider.valueChanged.connect(datumXsliderValue)
-
 def datumYsliderValue(value):
     global data
     data["middlePointY"] = value
     datumYvalue.setText(str(data["middlePointY"]))
 datumYslider.valueChanged.connect(datumYsliderValue)
-
 def sideDistSliderValue(value):
     global data
     data["sideDistValue"] = value
     sideDistValue.setText(str(data["sideDistValue"]))
 sideDistSlider.valueChanged.connect(sideDistSliderValue)
-
 def sideButtonClicked():
     global sideButtonState
     if sideButtonState:
@@ -203,16 +264,26 @@ def sideButtonClicked():
         sideButton.setText("Right")
     sideButtonState = not sideButtonState
 sideButton.clicked.connect(sideButtonClicked)
-
 def trapezoidXvalueChange(value):
     data["trapezoidXvalue"] = value
     trapezoidXnum.setText(str(value))
 trapezoidXvalue.valueChanged.connect(trapezoidXvalueChange)
-
 def trapezoidYvalueChange(value):
     data["trapezoidYvalue"] = value
     trapezoidYnum.setText(str(value))
 trapezoidYvalue.valueChanged.connect(trapezoidYvalueChange)
+def rectWidthChange(value):
+    data["rectWidth"] = value
+    rectWidthNum.setText(str(value))
+rectWidthValue.valueChanged.connect(rectWidthChange)
+def rectAdjustChange(value):
+    data["rectAdjust"] = value
+    rectAdjustNum.setText(str(value))
+rectAdjustValue.valueChanged.connect(rectAdjustChange)
+def siteChange(value):
+    global site
+    site = value
+siteValue.valueChanged.connect(siteChange)
 
 ocv = True            
 def closeOpenCV():
@@ -320,7 +391,7 @@ def findLine(frame):
     return frame
 
 def putInformation(frame):
-    global data, edge, sideButtonState
+    global data, edge, sideButtonState, colors
     height, width, channel = frame.shape
 
     # srcPts = np.float32([[0,1079], [1919,1079], [data["trapezoidXvalue"], data["trapezoidYvalue"]], [1919-data["trapezoidXvalue"], data["trapezoidYvalue"]]])
@@ -334,20 +405,175 @@ def putInformation(frame):
     # rectY = (int(data["middlePointY"]/45)+1)*45
     # frame = cv2.rectangle(frame, ((int(edge["offsetLeft"]/32)-1)*32, rectY), ((int(edge["offsetLeft"]/32)+1)*32, rectY-45), (0, 200, 0), 2, cv2.LINE_AA)
 
-    frame = cv2.circle(frame, (data["middlePointX"], data["middlePointY"]), radius=5, color=(255,255,255), thickness=10)
-    frame = cv2.circle(frame, (data["sideDistValue"], data["middlePointY"]), radius=5, color=(250,149,55), thickness=20)
+    # frame = cv2.circle(frame, (data["middlePointX"], data["middlePointY"]), radius=5, color=(255,255,255), thickness=10)
+    # frame = cv2.circle(frame, (data["sideDistValue"], data["middlePointY"]), radius=5, color=(250,149,55), thickness=20)
     frame = cv2.line(frame, (0,1079), (data["trapezoidXvalue"], data["trapezoidYvalue"]), (4, 51, 96), 2)
     frame = cv2.line(frame, (1919,1079), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (4, 51, 96), 2)
     frame = cv2.line(frame, (data["trapezoidXvalue"], data["trapezoidYvalue"]), (1919-data["trapezoidXvalue"], data["trapezoidYvalue"]), (4, 51, 96), 2)
-    frame = cv2.line(frame, (edge["offsetRight"], data["middlePointY"]), (edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
-    if data["middlePointY"] <= height/2:
-        textOffset = 65
-    else:
-        textOffset = -20
-    frame = cv2.putText(frame, str(edge["offsetLeft"]),(data["middlePointX"]-int(edge["offsetLeft"]/2)-60, data["middlePointY"]+textOffset), cv2.FONT_HERSHEY_SIMPLEX,
-  2, (255, 255, 255), 8, cv2.LINE_AA)
-    frame = cv2.putText(frame, str(edge["offsetRight"]),(data["middlePointX"]+int(edge["offsetRight"]/2)-60, data["middlePointY"]+textOffset), cv2.FONT_HERSHEY_SIMPLEX,
-  2, (255, 255, 255), 8, cv2.LINE_AA)
+    # frame = cv2.line(frame, (edge["offsetRight"], data["middlePointY"]), (edge["offsetLeft"], data["middlePointY"]), (255,255,255), 4)
+#     if data["middlePointY"] <= height/2:
+#         textOffset = 65
+#     else:
+#         textOffset = -20
+#     frame = cv2.putText(frame, str(edge["offsetLeft"]),(data["middlePointX"]-int(edge["offsetLeft"]/2)-60, data["middlePointY"]+textOffset), cv2.FONT_HERSHEY_SIMPLEX,
+#   2, (255, 255, 255), 8, cv2.LINE_AA)
+#     frame = cv2.putText(frame, str(edge["offsetRight"]),(data["middlePointX"]+int(edge["offsetRight"]/2)-60, data["middlePointY"]+textOffset), cv2.FONT_HERSHEY_SIMPLEX,
+#   2, (255, 255, 255), 8, cv2.LINE_AA)
+        # rectHeight = int(rectHeight*(data["rectAdjust"]/100))
+
+    return frame
+
+def slidingWindow(frame):
+    global data, colors, site, openSerial
+    rectColor = (0, 200 ,0)
+
+    cdnY = 1079
+    rectHeight = 50
+    rectWidth = int(data["rectWidth"])
+    adjustNum = int(rectWidth*(data["rectAdjust"]/100))
+    suggestSite = True
+    points = [[959, 1079]]
+    while (cdnY-rectHeight >= 0):
+        x1 = int((1919-rectWidth)/2)
+        x2 = x1 + rectWidth
+
+        if rectWidth > 0:
+            block = [[x1,x1+int(rectWidth/2)], [x1+int(rectWidth/2), x1+rectWidth]]
+            blockPercent = [0, 0]
+            keepAdjust = True
+            runTime = 0
+            lastBlock = []
+            while keepAdjust:
+                block = [[x1,x1+int(rectWidth/2)], [x1+int(rectWidth/2), x1+rectWidth]]
+                for b in range(2):
+                    start_row, end_row = cdnY-rectHeight, cdnY
+                    start_col, end_col = block[b][0], block[b][1]
+                    roi = frame[start_row:end_row, start_col:end_col]
+                    target_color = np.array([colors[1][2], colors[1][1], colors[1][0]], dtype=np.uint8)
+                    if roi.size == 0:
+                        pass
+                        # print("區域大小為零，無法計算佔比。")
+                    else:
+                        mask = cv2.inRange(roi, target_color, target_color)
+                        total_pixels = np.count_nonzero(mask)
+                        percentage = int((total_pixels / ((roi.shape[0]-3) *( roi.shape[1]-3))) * 100)
+                        blockPercent[b] = percentage
+
+                runTime += 1
+
+                if site == 0 or site == 1:
+                    addNum = -20
+
+                    if block[0][0] < 0:
+                        if lastBlock != []:
+                            keepAdjust = False
+                            points.append([block[0][1], cdnY-rectHeight])
+                            break
+                        else:
+                            break
+                    elif block[1][0] > 960:
+                        if lastBlock != []:
+                            keepAdjust = False
+                            points.append([block[0][1], cdnY-rectHeight])
+                            break
+                        else:
+                            break
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 8:
+                        if blockPercent[0] != 0:
+                            lastBlock = block
+                        else:
+                            break
+                    elif abs(blockPercent[0]-blockPercent[1]) > 8:
+                        if lastBlock != []:
+                            keepAdjust = False
+                            block = lastBlock
+                            points.append([block[0][1], cdnY-rectHeight])
+                            break
+
+                    x1 += addNum
+
+                elif site == 2:
+                    if abs(blockPercent[0]-blockPercent[1]) <= 5:
+                        if blockPercent[0] != 0:
+                            points.append([block[0][1], cdnY-rectHeight])
+                        keepAdjust = False
+                    else:
+                        addNum = 20
+                        if blockPercent[0] > blockPercent[1]:
+                            suggestSite = False
+                            addNum *= -1
+                        elif blockPercent[0] < blockPercent[1]:
+                            suggestSite = True
+                        elif blockPercent[0] == blockPercent[1]:
+                            if not suggestSite:
+                                addNum *= -1
+                        x1 += addNum
+                elif site == 4 or site == 3:
+                    addNum = 20
+
+                    if block[1][1] > 1919:
+                        if lastBlock != []:
+                            keepAdjust = False
+                            points.append([block[0][1], cdnY-rectHeight])
+                            break
+                        else:
+                            break
+                    elif block[1][0] < 959:
+                        if lastBlock != []:
+                            keepAdjust = False
+                            points.append([block[0][1], cdnY-rectHeight])
+                            break
+                        else:
+                            break
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 8:
+                        if blockPercent[0] != 0:
+                            lastBlock = block
+                        else:
+                            break
+                    elif abs(blockPercent[0]-blockPercent[1]) > 8:
+                        if lastBlock != []:
+                            keepAdjust = False
+                            block = lastBlock
+                            points.append([block[0][1], cdnY-rectHeight])
+                            break
+
+
+                    x1 += addNum
+
+                if runTime >= 150:
+                        keepAdjust = False
+                        print(blockPercent)
+                        print("break")
+
+                        # print(f'顏色佔比: {percentage}%')
+
+            # cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
+        cdnY -= rectHeight
+        rectWidth -= adjustNum
+        rectWidth = max(rectWidth, 0)
+
+    points_array = np.array(points, dtype=np.int32)
+    cv2.polylines(frame, [points_array], isClosed=False, color=(235, 99, 169), thickness=40)
+    cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
+2, (0, 255, 255), 4, cv2.LINE_AA)
+    cv2.putText(frame, str(blockPercent[1]), (block[1][1]+10, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
+2, (0, 255, 255), 4, cv2.LINE_AA)
+    if blockPercent[0]+blockPercent[1] < 10:
+        rectColor = (200, 0, 0)
+    coords = np.array(points)
+    median_coords = np.median(coords, axis=0)
+
+    cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
+
+    point_coords = np.array([959, 1079])
+    relative_coords = point_coords - median_coords
+    angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
+    angle_deg = np.degrees(angle_rad)
+
+    print("fps= %.2f, angle= %4d"%(6, angle_deg), end='\r')
+    if openSerial:
+        global ser
+        ser.write((str(int(angle_deg))+'\n').encode())
 
     return frame
 
@@ -378,7 +604,7 @@ def perspective_correction(image):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/3_2.h5',
+        "model_path"        : 'model/3_3.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
         "input_shape"       : [387, 688],
@@ -449,8 +675,9 @@ class DeeplabV3(object):
             # kernel = np.ones((7,7),np.uint8)
             # seg_img = cv2.dilate(seg_img,kernel,iterations = 5)
             # seg_img = cv2.erode(seg_img,kernel,iterations = 5)
+            slidingWindow(seg_img)
             getEdge(seg_img[data["middlePointY"]])
-            findLine(seg_img)
+            # findLine(seg_img)
             image   = Image.fromarray(np.uint8(seg_img))
 
             image   = Image.blend(old_img, image, 0.5)
@@ -476,7 +703,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1319.MOV"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1285.MOV"
 video_save_path = ""
 video_fps       = 30.0
 
@@ -526,21 +753,21 @@ def opencv():
         value = 0
         mapValue = [0, 0]
 
-        if sideButtonState:
-            value = edge["offsetRight"]-data["sideDistValue"]
-            # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-            mapValue = [-960, 960]
-            mapNum = max(min(map(value, mapValue[0], mapValue[1], 90, -90)+90, 180), 0)
-        else:
-            value = edge["offsetLeft"]-data["sideDistValue"]
-            # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-            mapValue = [-960, 960]
-            mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
+        # if sideButtonState:
+        #     value = edge["offsetRight"]-data["sideDistValue"]
+        #     # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
+        #     mapValue = [-960, 960]
+        #     mapNum = max(min(map(value, mapValue[0], mapValue[1], 90, -90)+90, 180), 0)
+        # else:
+        #     value = edge["offsetLeft"]-data["sideDistValue"]
+        #     # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
+        #     mapValue = [-960, 960]
+        #     mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
 
-        print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
-        if openSerial:
-            global ser
-            ser.write((str(int(mapNum))+'\n').encode())
+        # print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
+        # if openSerial:
+        #     global ser
+        #     ser.write((str(int(mapNum))+'\n').encode())
 
         c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
