@@ -1,60 +1,202 @@
 from io import BytesIO
 import cv2
 import numpy as np
-from PIL import Image
+import tensorflow as tf
+from PIL import Image,ImageOps
+from PIL import ImageFilter
 
+import colorsys
+import copy
 import time, sys, json
 import threading
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import *
+from PIL import Image, ImageQt
+from PyQt5.QtGui import QPixmap
 
-from keras.models import load_model
+from PyQt5.QtGui import QImage, QPixmap
+from PIL import Image
 
+from nets.deeplab import Deeplabv3
+from utils.utils import cvtColor, preprocess_input, resize_image
 
-import math
-
+import math, os
 import serial
-import samAi
 
-from samAi import colors,deeplab
-from serial import openSerial
+openSerial = False
+
+def animate_rocket():
+  distance_from_top = 20
+  for i in range(20):
+    print("\n" * distance_from_top)
+    print("          /\        ")
+    print("          ||        ")
+    print("          ||        ")
+    print("         /||\        ")
+    time.sleep(0.2)
+    os.system('clear')  
+    distance_from_top -= 1
+    if distance_from_top < 0:
+      distance_from_top = 20
+
+if openSerial:
+    print("Wait connect")
+    COM_PORT = '/dev/cu.usbmodem1101'
+    BAUD_RATES = 9600
+    ser = serial.Serial(COM_PORT, BAUD_RATES)
+    print("Connect successfuly")
+    symbols = ['⣾', '⣷', '⣯', '⣟', '⡿', '⢿', '⣻', '⣽']
+    for i in range(20):
+        text = "<"
+        for j in range(i):
+            text += symbols[i%8]
+        for j in range(20-i):
+            text += " "
+        text += ">"
+        print(text, end='\r')
+        time.sleep(0.1)
+    print("Auto Pilot start!!!")
+    ser.write((str(90)).encode())
+    print("servo 90 degress")
+    # time.sleep(5)
+    # print("servoFree!!!")
+
+colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128),
+          (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128),
+          (64, 128, 128), (192, 128, 128), (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128),
+          (128, 64, 12)]
+
+
+class DeeplabV3(object):
+    _defaults = {
+        "model_path": 'model/3_2.h5',
+        "num_classes": 7,
+        "backbone": "mobilenet",
+        "input_shape": [387, 688],
+        "downsample_factor": 16,
+        "mix_type": 0,
+    }
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(self._defaults)
+        for name, value in kwargs.items():
+            setattr(self, name, value)
+
+        if self.num_classes <= 21:
+            self.colors = colors
+        else:
+            hsv_tuples = [(x / self.num_classes, 1., 1.) for x in range(self.num_classes)]
+            self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+            self.colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), self.colors))
+
+        self.generate()
+
+    def generate(self):
+        self.model = Deeplabv3([self.input_shape[0], self.input_shape[1], 3], self.num_classes,
+                               backbone=self.backbone, downsample_factor=self.downsample_factor)
+        self.model.load_weights(self.model_path)
+        print('{} model loaded.'.format(self.model_path))
+
+    @tf.function
+    def get_pred(self, image_data):
+        pr = self.model(image_data, training=False)
+        return pr
+
+    def detect_image(self, image):
+        image = cvtColor(image)
+
+        old_img = copy.deepcopy(image)
+        orininal_h = np.array(image).shape[0]
+        orininal_w = np.array(image).shape[1]
+
+        image_data, nw, nh = resize_image(image, (self.input_shape[1], self.input_shape[0]))
+
+        image_data = np.expand_dims(preprocess_input(np.array(image_data, np.float32)), 0)
+
+        pr = self.get_pred(image_data)[0].numpy()
+
+        pr = pr[int((self.input_shape[0] - nh) // 2): int((self.input_shape[0] - nh) // 2 + nh),
+            int((self.input_shape[1] - nw) // 2): int((self.input_shape[1] - nw) // 2 + nw)]
+
+        pr = cv2.resize(pr, (orininal_w, orininal_h), interpolation=cv2.INTER_LINEAR)
+
+        pr = pr.argmax(axis=-1)
+
+        # Create a mask for class 1
+        mask_class1 = (pr == 1).astype(np.uint8)
+
+        # Apply the mask to the original image
+        seg_img = (np.expand_dims(mask_class1, -1) * np.array(old_img, np.float32)).astype('uint8')
+
+        image = Image.fromarray(np.uint8(seg_img))
+
+        image = Image.blend(old_img, image, 0.7)
+
+        # Create a new image showing only class 1
+        seg_img_class1 = (np.expand_dims(pr == 1, -1) * np.array(old_img, np.float32)).astype('uint8')
+        image2 = Image.fromarray(np.uint8(seg_img_class1))
+
+        seg_img3 = np.reshape(np.array(self.colors, np.uint8)[np.reshape(pr, [-1])], [orininal_h, orininal_w, -1])
+        image3   = Image.fromarray(np.uint8(seg_img3))
+        image3_pil = Image.fromarray(np.uint8(seg_img3))
+        modelOutput = seg_img3
+        # # Convert PIL Image to bitmap (BytesIO)
+        # image3_bytesio = BytesIO()
+        # image3_pil.save(image3_bytesio, format='BMP')
+        # image3_bytesio.seek(0)
 
 
 
-# openCV
-
-app = QtWidgets.QApplication(sys.argv)
-MainWindow = QtWidgets.QMainWindow()
-MainWindow.setObjectName("MainWindow")
-MainWindow.setWindowTitle("TYAI car")
-MainWindow.resize(864, 550)
-
-label = QtWidgets.QLabel(MainWindow)
-label.setGeometry(0, 0, 864, 480)
-
-datumYslider = QtWidgets.QSlider(MainWindow)
-datumYslider.setGeometry(0,490, 864, 30)
-datumYslider.setOrientation(QtCore.Qt.Horizontal)
-datumYslider.setMaximum(864)
-datumYslider.setMinimum(0)
-datumYslider.setValue(432)
+        return image, pr, image2, modelOutput
 
 
-trapezoid_label = QtWidgets.QLabel(MainWindow)
-trapezoid_label.setGeometry(550, 0, 250, 160)
-trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
-trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+deeplab = DeeplabV3()
 
+video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1319.MOV"
+#video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
 
-# 辨識
+video_save_path = ""
+video_fps = 30.0
+
+def calculate_angle(point1, point2):
+    # point1 和 point2 是包含兩個座標值的元組 (x, y)
+    
+    # 計算差值
+    delta_x = point2[0] - point1[0]
+    delta_y = point2[1] - point1[1]
+
+    # 計算反正切值，注意要將結果轉換為度數
+    angle_rad = math.atan2(delta_y, delta_x)
+    angle_deg = math.degrees(angle_rad)
+
+    return angle_deg
+
+def perspective_correction(image):
+
+    # 定義原始四邊形的四個點
+    original_points = np.float32([[-400, 480], [1120, 480],[200, 280], [520, 280]])
+
+    # 定義梯形校正後的四個點
+    corrected_points = np.float32([[200, 480], [520, 480], [200, 0], [520, 0]])
+
+    # 計算透視變換矩陣
+    perspective_matrix = cv2.getPerspectiveTransform(original_points, corrected_points)
+
+    # 執行透視變換
+    result = cv2.warpPerspective(image, perspective_matrix, (720, 480))
+
+    return result
 
 def getEdge(pr):
 
+    #print(len(pr))
 
     global data, colors
     leftOffset = 0
     rightOffset = 0
+    
+    # if np.all(pr[data["middlePointX"]-x] == list(colors[1])):
 
     xCount = 0
     startType = 'none'
@@ -86,55 +228,42 @@ def getEdge(pr):
 
     return highRange
 
-
 def map_range(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
-def calculate_angle(point1, point2):
-    # point1 和 point2 是包含兩個座標值的元組 (x, y)
-    
-    # 計算差值
-    delta_x = point2[0] - point1[0]
-    delta_y = point2[1] - point1[1]
 
-    # 計算反正切值，注意要將結果轉換為度數
-    angle_rad = math.atan2(delta_y, delta_x)
-    angle_deg = math.degrees(angle_rad)
+#  opencv set
 
-    return angle_deg
+app = QtWidgets.QApplication(sys.argv)
+MainWindow = QtWidgets.QMainWindow()
+MainWindow.setObjectName("MainWindow")
+MainWindow.setWindowTitle("TYAI car")
+MainWindow.resize(864, 550)
 
-def perspective_correction(image):
+label = QtWidgets.QLabel(MainWindow)
+label.setGeometry(0, 0, 864, 480)
 
-    # 定義原始四邊形的四個點
-    original_points = np.float32([[-400, 480], [1120, 480],[200, 280], [520, 280]])
 
-    # 定義梯形校正後的四個點
-    corrected_points = np.float32([[200, 480], [520, 480], [200, 0], [520, 0]])
+datumYslider = QtWidgets.QSlider(MainWindow)
+datumYslider.setGeometry(0,490, 864, 30)
+datumYslider.setOrientation(QtCore.Qt.Horizontal)
+datumYslider.setMaximum(864)
+datumYslider.setMinimum(0)
+datumYslider.setValue(432)
 
-    # 計算透視變換矩陣
-    perspective_matrix = cv2.getPerspectiveTransform(original_points, corrected_points)
 
-    # 執行透視變換
-    result = cv2.warpPerspective(image, perspective_matrix, (720, 480))
-
-    return result
+# trapezoid_label = QtWidgets.QLabel(MainWindow)
+# trapezoid_label.setGeometry(550, 0, 250, 160)
+# trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
+# trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
 
 
-# run mode
-
-#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1319.MOV"
-video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\Test5.mp4"
-#video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
-
-video_save_path = ""
-video_fps = 30.0
-
+# run
 useCam = False
 CamID = 0
 
 
-# main
 
 def opencv():
     
@@ -155,99 +284,87 @@ def opencv():
     ref, frame = capture.read()
     if not ref:
         raise ValueError("Video source Error")
-    
-    
-    height, width, channel = 480, 864, 3
-
 
     fps = 0.0
     while True:
         t1 = time.time()
-
-        # speed up
         for i in range(5):
             ref, frame = capture.read()
 
         frame = cv2.resize(frame, (864, 480))
 
+
         if not ref:
             break
-
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = Image.fromarray(np.uint8(frame))
 
-        # samAi
         deeplab.mix_type = 0
         result_img_blend, rd,result_img_trapezoid2 , modelOutput = deeplab.detect_image(frame)
+
+        #print(modelOutput[400])
+        height, width, channel = 480, 864, 3
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
 
-        angle = 90
 
-        # get edge
+        # pilot view
 
-        # ySampling = [260,300,340,380,420,460]
-        # xSampling = [0,50,100,150,713,763,813,863]
+        takePointX = [260,300,340,380]
+        rightOffsetx = []
+        leftOffsetx = []
 
-        # roadPoints = []
-        # roadPointsl = []
-        # roadPointsr = []
+        for Ty in takePointX:
+            x0, x1 = getEdge(modelOutput[Ty])
+            
+            if x0 != 0 and x1 != 0:
+                rightOffsetx.append([x0, Ty])
+                leftOffsetx.append([x1, Ty])
 
-        # for y in ySampling:
-        #     resultPoint = getEdge(modelOutput[y])
+            frame_blend = cv2.circle(frame_blend, (x0, Ty), radius=5, color=(0, 255, 0))
+            frame_blend = cv2.circle(frame_blend, (x1, Ty), radius=5, color=(0, 255, 0))
 
-        #     if resultPoint == [0,0]:
-        #         continue
-
-        #     roadPointsl.append([resultPoint[0],y])
-        #     roadPointsr.append([resultPoint[1],y])
-
-        # frame_blend = cv2.polylines(frame_blend, [np.array(roadPointsr, np.int32)], isClosed=False, color=(255, 255, 255), thickness=10)
-        # frame_blend = cv2.polylines(frame_blend, [np.array(roadPointsl, np.int32)], isClosed=False, color=(255, 255, 255), thickness=10)
-
-        # 梯形校正
-        result_img_trapezoid_corrected = perspective_correction(np.array(frame_blend))
-
-        # 梯形校正結果
-        result_img_trapezoid_corrected_pil = Image.fromarray(result_img_trapezoid_corrected)
-        result_img_trapezoid_np = np.array(result_img_trapezoid_corrected_pil.resize((250, 160), Image.BICUBIC))
-
-        bytesPerline_trapezoid = 3 * result_img_trapezoid_np.shape[1]
-        result_img_trapezoid_qt = QImage(result_img_trapezoid_np.data, result_img_trapezoid_np.shape[1],
-                                        result_img_trapezoid_np.shape[0], bytesPerline_trapezoid, QImage.Format_RGB888)
-        trapezoid_label.setPixmap(QPixmap.fromImage(result_img_trapezoid_qt))
-
-        result_img_trapezoid_corrected = result_img_trapezoid_corrected.astype('uint8')
+        rightOffsetxNp = np.array([rightOffsetx], dtype=np.int32)
+        leftOffsetxNp = np.array([leftOffsetx], dtype=np.int32)
+        frame_blend = cv2.polylines(frame_blend, rightOffsetxNp, isClosed=False, color=(255, 255, 255), thickness=10)
+        frame_blend = cv2.polylines(frame_blend, leftOffsetxNp, isClosed=False, color=(255, 255, 255), thickness=10)
 
 
 
-        
+        # angle
+
+
+        rightOffsetT = sum([x[0] for x in rightOffsetx])/len(rightOffsetx)
+        leftOffsetT = sum([x[0] for x in leftOffsetx])/len(leftOffsetx)
+
+        OffsetM = (rightOffsetT+leftOffsetT)/2
+
+        angle = calculate_angle((432,480),(OffsetM,200))
+    
+
+        frame_blend = cv2.line(frame_blend, (432+130, 480), (432+int(angle/2)+30, 330), (0, 255, 255), 5)
+        frame_blend = cv2.line(frame_blend, (432-130, 480), (432+int(angle/2)-30, 330), (0, 255, 255), 5)
+
+        # open cv
         bytesPerline_blend = channel * width
         img_blend = QImage(frame_blend.data, width, height, bytesPerline_blend, QImage.Format_RGB888)
         label.setPixmap(QPixmap.fromImage(img_blend))
-        
 
-        # 數據顯示
+        # 开始绘制
         painter = QPainter(label.pixmap())
         font = QFont()
         font.setPointSize(15)
         painter.setFont(font)
-        font.setWeight(QFont.Bold)  # 設定為粗體
-
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
-        painter.drawText(20, 30, f"FPS: {fps}")
-        painter.drawText(20, 60, f"priority: right")
+        painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
+        painter.drawText(20, 60, f"Road: {0}")
+        painter.drawText(20, 90, f"Angle: {angle}")
+        painter.drawText(20, 210, f"Drive on: {0}")
 
 
-        painter.drawText(20, 240, f"turnGain: {0}")
-        painter.drawText(20, 270, f"rightOffset: {0}")
-        painter.drawText(20, 300, f"leftOffset: {0}")
-
-
-
-        # 混合結果
+        # 结束绘制
         painter.end()
 
-        
+
 
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
@@ -255,18 +372,15 @@ def opencv():
 
         if openSerial:
             global ser
-            ser.write((str(int(angle))+'\n').encode())
+            ser.write((str(int(00))+'\n').encode())
 
         c= cv2.waitKey(1) & 0xff 
-
         if video_save_path!="":
             out.write(frame)
 
         if c==27:
-            print('end')
             capture.release()
             break
-
 
 video = threading.Thread(target=opencv)
 video.start()
