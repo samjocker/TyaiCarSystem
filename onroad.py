@@ -44,16 +44,16 @@ new_log = {
             "開始": "開始紀錄",
 }
 
-# 讀取現有的 JSON 檔案
-with open("gpsLog.json", "r", encoding="utf-8") as json_file:
-    existing_data = json.load(json_file)
+# # 讀取現有的 JSON 檔案
+# with open("gpsLog.json", "r", encoding="utf-8") as json_file:
+#     existing_data = json.load(json_file)
 
- # 將新的 log 資訊加入到現有的資料中
-existing_data["logs"].append(new_log)
+#  # 將新的 log 資訊加入到現有的資料中
+# existing_data["logs"].append(new_log)
 
-# 將更新後的資料寫回 JSON 檔案
-with open("gpsLog.json", "w", encoding="utf-8") as json_file:
-    json.dump(existing_data, json_file, ensure_ascii=False, indent=2)
+# # 將更新後的資料寫回 JSON 檔案
+# with open("gpsLog.json", "w", encoding="utf-8") as json_file:
+#     json.dump(existing_data, json_file, ensure_ascii=False, indent=2)
 
 
 
@@ -63,48 +63,53 @@ def update_gps_data():
     while True:
         # GPS
         url = "https://3908-60-251-221-219.ngrok-free.app/getData"
-        response = requests.get(url)
+        try:
+            response = requests.get(url)
 
-        if response.status_code == 200:
-            GPSdata = response.json()
-            latitude = GPSdata['latitude']
-            longitude = GPSdata['longitude']
-            site = GPSdata['site']
-            loraState = GPSdata['loraState']
-        else:
-            latitude = 0
-            longitude = 0
-            site = "None"
-            loraState = "None"
+            if response.status_code == 200:
+                GPSdata = response.json()
+                latitude = GPSdata['latitude']
+                longitude = GPSdata['longitude']
+                site = GPSdata['site']
+                loraState = GPSdata['loraState']
+            else:
+                latitude = 0
+                longitude = 0
+                site = "None"
+                loraState = "None"
 
-        # 使用互斥鎖保護對 shared_gps_data 的訪問
-        with gps_data_lock:
-            shared_gps_data["latitude"] = latitude
-            shared_gps_data["longitude"] = longitude
-            shared_gps_data["site"] = site 
-            shared_gps_data["loraState"] = loraState
+            # 使用互斥鎖保護對 shared_gps_data 的訪問
+            with gps_data_lock:
+                shared_gps_data["latitude"] = latitude
+                shared_gps_data["longitude"] = longitude
+                shared_gps_data["site"] = site 
+                shared_gps_data["loraState"] = loraState
+            
+            new_log = {
+                "log_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "latitude": latitude,
+                "longitude": longitude,
+                "site": site,
+                "loraState": loraState
+            }
+
+            # # 讀取現有的 JSON 檔案
+            # with open("gpsLog.json", "r", encoding="utf-8") as json_file:
+            #     existing_data = json.load(json_file)
+
+            # # 將新的 log 資訊加入到現有的資料中
+            # existing_data["logs"].append(new_log)
+
+            # # 將更新後的資料寫回 JSON 檔案
+            # with open("gpsLog.json", "w", encoding="utf-8") as json_file:
+            #     json.dump(existing_data, json_file, ensure_ascii=False, indent=2)
+
+            # 延遲一段時間，以免過於頻繁更新
+            time.sleep(0.5)
         
-        new_log = {
-            "log_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "latitude": latitude,
-            "longitude": longitude,
-            "site": site,
-            "loraState": loraState
-        }
+        except:
+            pass
 
-        # 讀取現有的 JSON 檔案
-        with open("gpsLog.json", "r", encoding="utf-8") as json_file:
-            existing_data = json.load(json_file)
-
-        # 將新的 log 資訊加入到現有的資料中
-        existing_data["logs"].append(new_log)
-
-        # 將更新後的資料寫回 JSON 檔案
-        with open("gpsLog.json", "w", encoding="utf-8") as json_file:
-            json.dump(existing_data, json_file, ensure_ascii=False, indent=2)
-
-        # 延遲一段時間，以免過於頻繁更新
-        time.sleep(0.5)
 
 
 openSerial = False
@@ -236,9 +241,9 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1319.MOV"
+video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\test5.mp4"
 #video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
-video_path = r"D:/IMG_1319.MOV"
+#video_path = r"D:/IMG_1319.MOV"
 
 video_save_path = ""
 video_fps = 30.0
@@ -342,9 +347,19 @@ datumYslider.setValue(432)
 # trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
 
+# box
+
+# line Box
+
+lineBoxPoint = []
+middlePointX = 432
+boxWidth = 20
+for i in range(329, 479, 20):
+    lineBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX+boxWidth,i-20]])
+    boxWidth += 20
 
 # run
-useCam = True
+useCam = False
 CamID = 0
 
 
@@ -400,11 +415,56 @@ def opencv():
         height, width, channel = 480, 864, 3
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
 
+        offsetListLeft = []
+        offsetListRight = []
+
+        for i in range(len(lineBoxPoint)):
+            BoxMove = 0
+            tryCount = 0
+            while True:
+                tryCount += 1
+                box = lineBoxPoint[i]
+                boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
+                if 0 in boxImg.shape:
+                    print(f"Error in box{i}: Box shape is (0, 0).")
+                    continue
+                # 將黑色顏色轉換為 NumPy 陣列
+                black_color = np.array(colors[0])
+
+                left_half = boxImg[:, :boxImg.shape[1] // 2, :]
+                right_half = boxImg[:, boxImg.shape[1] // 2:, :]
+                left_black_pixels = np.count_nonzero(np.all(left_half == black_color, axis=-1))
+                total_count = left_half.shape[0] * left_half.shape[1]
+                left_black_percent = left_black_pixels / total_count * 100
+                right_black_pixels = np.count_nonzero(np.all(right_half == black_color, axis=-1))
+                right_black_percent = right_black_pixels / total_count * 100
+
+                if left_black_percent + right_black_percent == 0 or tryCount > 15:
+                    break
+                elif left_black_percent > right_black_percent:
+                    BoxMove += 20
+                else:
+                    BoxMove -= 20
+
+            
+            if tryCount > 15:
+                BoxMove = 0
+                continue
+            
+            # 在modelOutput往少的方向平移 20 個像素 直到% ==0
+
+            offsetListLeft.append((box[0][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
+            offsetListRight.append((box[1][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
+
+            #劃出移動後的box
+            #cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
+
+            # 在圖像上顯示黑色像素的百分比
+            #cv2.putText(frame_blend, f"{left_black_percent:.2f}%,{right_black_percent:.2f}%", (box[0][0], box[0][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
 
-
-
-        # angle
+        cv2.polylines(frame_blend, [np.array(offsetListLeft)], False, (0, 255, 0), 2)
+        cv2.polylines(frame_blend, [np.array(offsetListRight)], False, (0, 255, 0), 2)
 
 
         # open cv
