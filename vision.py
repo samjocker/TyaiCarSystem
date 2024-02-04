@@ -206,6 +206,8 @@ try:
         sideDistSlider.setValue(data["sideDistValue"])
         trapezoidXvalue.setValue(data["trapezoidXvalue"])
         trapezoidYvalue.setValue(data["trapezoidYvalue"])
+        rectWidthValue.setValue(data["rectWidth"])
+        rectAdjustValue.setValue(data["rectAdjust"])
         datumXvalue.setText(str(data["middlePointX"]))
         datumYvalue.setText(str(data["middlePointY"]))
         sideDistValue.setText(str(data["sideDistValue"]))
@@ -456,8 +458,9 @@ def slidingWindow(frame):
                     else:
                         mask = cv2.inRange(roi, target_color, target_color)
                         total_pixels = np.count_nonzero(mask)
-                        percentage = int((total_pixels / ((roi.shape[0]-3) *( roi.shape[1]-3))) * 100)
-                        blockPercent[b] = percentage
+                        if total_pixels != 0:
+                            percentage = int((total_pixels / ((roi.shape[0]-3) *( roi.shape[1]-3))) * 100)
+                            blockPercent[b] = percentage
 
                 runTime += 1
 
