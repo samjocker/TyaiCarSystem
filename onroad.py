@@ -241,7 +241,7 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\test5.mp4"
+video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\Test9.mp4"
 #video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
 #video_path = r"D:/IMG_1319.MOV"
 
@@ -358,6 +358,24 @@ for i in range(329, 479, 20):
     lineBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX+boxWidth,i-20]])
     boxWidth += 20
 
+# turn left box
+
+turnLeftBoxPoint = []
+middlePointX = 350
+boxWidth = 30
+for i in range(329, 479, 10):
+    turnLeftBoxPoint.append([[middlePointX,i],[middlePointX+boxWidth,i-10]])
+    boxWidth += 10
+
+# turn right box
+    
+turnRightBoxPoint = []
+middlePointX = 514
+boxWidth = 30
+for i in range(329, 479, 10):
+    turnRightBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX,i-10]])
+    boxWidth += 10
+
 # run
 useCam = False
 CamID = 0
@@ -384,7 +402,7 @@ def opencv():
 
     fps = 0.0
 
-    videoSpeed = 15
+    videoSpeed = 3
     if useCam:
         videoSpeed = 1
 
@@ -418,6 +436,13 @@ def opencv():
         offsetListLeft = []
         offsetListRight = []
 
+        boxOffsetListLeft = []
+        boxOffsetListRight = []
+
+
+
+        # box
+
         for i in range(len(lineBoxPoint)):
             BoxMove = 0
             tryCount = 0
@@ -427,7 +452,7 @@ def opencv():
                 boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
                 if 0 in boxImg.shape:
                     print(f"Error in box{i}: Box shape is (0, 0).")
-                    continue
+                    break
                 # 將黑色顏色轉換為 NumPy 陣列
                 black_color = np.array(colors[0])
 
@@ -453,18 +478,82 @@ def opencv():
             
             # 在modelOutput往少的方向平移 20 個像素 直到% ==0
 
-            offsetListLeft.append((box[0][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
-            offsetListRight.append((box[1][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
+            boxOffsetListLeft.append((box[0][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
+            boxOffsetListRight.append((box[1][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
 
             #劃出移動後的box
-            #cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
+            cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
 
             # 在圖像上顯示黑色像素的百分比
             #cv2.putText(frame_blend, f"{left_black_percent:.2f}%,{right_black_percent:.2f}%", (box[0][0], box[0][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
 
-        cv2.polylines(frame_blend, [np.array(offsetListLeft)], False, (0, 255, 0), 2)
-        cv2.polylines(frame_blend, [np.array(offsetListRight)], False, (0, 255, 0), 2)
+        cv2.polylines(frame_blend, [np.array(boxOffsetListLeft)], False, (0, 255, 0), 2)
+        cv2.polylines(frame_blend, [np.array(boxOffsetListRight)], False, (0, 255, 0), 2)
+
+
+        turnLeftPoint = []
+        turnRightPoint = []
+
+        # turn left box
+        for box in turnLeftBoxPoint:
+
+            #往左移動直到黑色站超過一半
+            BoxMove = 0
+            tryCount = 0
+            while True:
+                tryCount += 1
+                boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
+                if 0 in boxImg.shape:
+                    print(f"Error in box{i}: Box shape is (0, 0).")
+                    break
+                # 將黑色顏色轉換為 NumPy 陣列
+                black_color = np.array(colors[0])
+                blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
+                total_count = boxImg.shape[0] * boxImg.shape[1]
+                black_percent = blackIndex / total_count
+
+                if black_percent >0.2 or tryCount > 30:
+                    break
+                else:
+                    BoxMove -= 20
+
+            turnLeftPoint.append((box[0][0]+BoxMove+40,int((box[0][1]+box[1][1])/2)))
+            cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
+
+
+
+        # turn right box
+        for box in turnRightBoxPoint:
+
+            #往右移動直到黑色站超過一半
+            BoxMove = 0
+            tryCount = 0
+            while True:
+                tryCount += 1
+                boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
+                if 0 in boxImg.shape:
+                    print(f"Error in box{i}: Box shape is (0, 0).")
+                    break
+                # 將黑色顏色轉換為 NumPy 陣列
+                black_color = np.array(colors[0])
+                blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
+                total_count = boxImg.shape[0] * boxImg.shape[1]
+                black_percent = blackIndex / total_count
+
+                if black_percent >0.1 or tryCount > 30:
+                    break
+                else:
+                    BoxMove += 20
+
+            turnRightPoint.append((box[1][0]+BoxMove-40,int((box[0][1]+box[1][1])/2)))
+            cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
+
+        #劃出移動後的box
+        cv2.polylines(frame_blend, [np.array(turnRightPoint)], False, (0, 255, 0), 2)
+        cv2.polylines(frame_blend, [np.array(turnLeftPoint)], False, (0, 255, 0), 2)
+
+
 
 
         # open cv
