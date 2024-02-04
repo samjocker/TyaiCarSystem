@@ -438,13 +438,14 @@ def slidingWindow(frame):
     while (cdnY-rectHeight >= 0):
         x1 = int((1919-rectWidth)/2)
         x2 = x1 + rectWidth
-
         if rectWidth > 0:
             block = [[x1,x1+int(rectWidth/2)], [x1+int(rectWidth/2), x1+rectWidth]]
             blockPercent = [0, 0]
             keepAdjust = True
             runTime = 0
             lastBlock = []
+            addNum = 20
+            biggest = {"cdn": [], "dist": 50}
             while keepAdjust:
                 block = [[x1,x1+int(rectWidth/2)], [x1+int(rectWidth/2), x1+rectWidth]]
                 for b in range(2):
@@ -495,6 +496,25 @@ def slidingWindow(frame):
 
                     x1 += addNum
 
+                elif site == 1:
+
+                    if block[0][0] < 0:
+                        if biggest["cdn"] != []:
+                            points.append(biggest["cdn"])
+                        keepAdjust = False
+                        break
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
+                        points.append([block[0][1], cdnY-rectHeight])
+                        keepAdjust = False
+                        break
+                    else:
+                        addNum = -20
+                        if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
+                            biggest["cdn"] = [block[0][1], cdnY-rectHeight]
+                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                        
+                        x1 += addNum
+
                 elif site == 2:
                     if abs(blockPercent[0]-blockPercent[1]) <= 5:
                         if blockPercent[0] != 0:
@@ -511,7 +531,28 @@ def slidingWindow(frame):
                             if not suggestSite:
                                 addNum *= -1
                         x1 += addNum
-                elif site == 4 or site == 3:
+
+                elif site == 3:
+
+                    if block[1][1] > 1919:
+                        if biggest["cdn"] != []:
+                            points.append(biggest["cdn"])
+                        keepAdjust = False
+                        break
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
+                        points.append([block[0][1], cdnY-rectHeight])
+                        keepAdjust = False
+                        break
+                    else:
+                        addNum = 20
+                        if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
+                            biggest["cdn"] = [block[0][1], cdnY-rectHeight]
+                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                        
+                        x1 += addNum
+                    
+
+                elif site == 4:
                     addNum = 20
 
                     if block[1][1] > 1919:
@@ -539,16 +580,14 @@ def slidingWindow(frame):
                             block = lastBlock
                             points.append([block[0][1], cdnY-rectHeight])
                             break
-
-
                     x1 += addNum
 
-                if runTime >= 150:
-                        keepAdjust = False
-                        print(blockPercent)
-                        print("break")
+                if runTime >= 100:
+                    keepAdjust = False
+                    # print(blockPercent)
+                    print("break", block[1][1], x1)
 
-                        # print(f'顏色佔比: {percentage}%')
+                    # print(f'顏色佔比: {percentage}%')
 
             cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
             cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
@@ -755,6 +794,8 @@ def opencv():
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         value = 0
         mapValue = [0, 0]
+        # print("fps= %.2f, angle= %4d"%(fps, 90), end='\r')
+
 
         # if sideButtonState:
         #     value = edge["offsetRight"]-data["sideDistValue"]
