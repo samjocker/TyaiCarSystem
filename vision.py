@@ -240,6 +240,25 @@ except KeyError:
 except Exception as e:
     print(e)
 
+def keyPressEvent(event):
+    # event.key() 會返回被按下的按鍵的鍵碼
+    if event.key() == QtCore.Qt.Key_A:
+        siteValue.setValue(0)
+    elif event.key() == QtCore.Qt.Key_S:
+        siteValue.setValue(1)
+    elif event.key() == QtCore.Qt.Key_D:
+        siteValue.setValue(2)
+    elif event.key() == QtCore.Qt.Key_F:
+        siteValue.setValue(3)
+    elif event.key() == QtCore.Qt.Key_G:
+        siteValue.setValue(4)
+    elif event.key() == QtCore.Qt.Key_Escape:
+        global ser, openSerial
+        print("motor command sended")
+        if openSerial:
+            ser.write("300\n".encode())
+            print("servo change \n")
+
 edge = {"offsetLeft": 0, "offsetRight": 0}
 
 def datumXsliderValue(value):
@@ -465,8 +484,8 @@ def slidingWindow(frame):
 
                 runTime += 1
 
-                if site == 0 or site == 1:
-                    addNum = -20
+                if site == 0:
+                    # addNum = -20
 
                     if block[0][0] < 0:
                         if lastBlock != []:
@@ -474,8 +493,8 @@ def slidingWindow(frame):
                             points.append([block[0][1], cdnY-rectHeight])
                             break
                         else:
-                            break
-                    elif block[1][0] > 960:
+                            addNum = -20
+                    elif block[1][1] > 1919:
                         if lastBlock != []:
                             keepAdjust = False
                             points.append([block[0][1], cdnY-rectHeight])
@@ -494,7 +513,7 @@ def slidingWindow(frame):
                             points.append([block[0][1], cdnY-rectHeight])
                             break
 
-                    x1 += addNum
+                    x1 -= addNum
 
                 elif site == 1:
 
@@ -504,6 +523,9 @@ def slidingWindow(frame):
                         keepAdjust = False
                         break
                     elif abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
+                        # if biggest["cdn"] != []:
+                        #     points.append(biggest["cdn"])
+                        # else:
                         points.append([block[0][1], cdnY-rectHeight])
                         keepAdjust = False
                         break
@@ -553,7 +575,7 @@ def slidingWindow(frame):
                     
 
                 elif site == 4:
-                    addNum = 20
+                    # addNum = 20
 
                     if block[1][1] > 1919:
                         if lastBlock != []:
@@ -561,20 +583,17 @@ def slidingWindow(frame):
                             points.append([block[0][1], cdnY-rectHeight])
                             break
                         else:
-                            break
-                    elif block[1][0] < 959:
+                            addNum = -20
+                    elif block[0][0] < 0:
                         if lastBlock != []:
                             keepAdjust = False
                             points.append([block[0][1], cdnY-rectHeight])
                             break
                         else:
                             break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 8:
-                        if blockPercent[0] != 0:
-                            lastBlock = block
-                        else:
-                            break
-                    elif abs(blockPercent[0]-blockPercent[1]) > 8:
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 10 and blockPercent[0] != 0:
+                        lastBlock = block
+                    elif abs(blockPercent[0]-blockPercent[1]) > 10:
                         if lastBlock != []:
                             keepAdjust = False
                             block = lastBlock
@@ -585,7 +604,7 @@ def slidingWindow(frame):
                 if runTime >= 100:
                     keepAdjust = False
                     # print(blockPercent)
-                    print("break", block[1][1], x1)
+                    print("break", block[1][1], site)
 
                     # print(f'顏色佔比: {percentage}%')
 
@@ -608,10 +627,13 @@ def slidingWindow(frame):
     cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
 
     point_coords = np.array([959, 1079])
-    relative_coords = point_coords - median_coords
+    if site == 2:
+        relative_coords = point_coords - points[-1]
+    else:
+        relative_coords = point_coords - median_coords
     angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
     angle_deg = np.degrees(angle_rad)
-
+    angle_deg = 180 - max(min(90+(angle_deg-90)*1.2, 180), 0)
     print("fps= %.2f, angle= %4d"%(6, angle_deg), end='\r')
     if openSerial:
         global ser
@@ -745,7 +767,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1413.MOV"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1319.MOV"
 video_save_path = ""
 video_fps       = 30.0
 
@@ -824,6 +846,7 @@ def opencv():
 video = threading.Thread(target=opencv)
 video.start()
 
+MainWindow.keyPressEvent = keyPressEvent
 MainWindow.show()
 # TrapezoidWindow.show()
 sys.exit(app.exec_())
