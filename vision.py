@@ -15,8 +15,8 @@ from PyQt5.QtGui import *
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-openSerial = True
-cameraUse = True
+openSerial = False
+cameraUse = False
 
 if openSerial:
     print("Wait connect")
@@ -548,16 +548,16 @@ def slidingWindow(frame):
                         # print(f'顏色佔比: {percentage}%')
 
             cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
+            cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
+        2, (0, 255, 255), 4, cv2.LINE_AA)
+            cv2.putText(frame, str(blockPercent[1]), (block[1][1]+10, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
+        2, (0, 255, 255), 4, cv2.LINE_AA)
         cdnY -= rectHeight
         rectWidth -= adjustNum
         rectWidth = max(rectWidth, 0)
 
     points_array = np.array(points, dtype=np.int32)
     cv2.polylines(frame, [points_array], isClosed=False, color=(235, 99, 169), thickness=40)
-    cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
-2, (0, 255, 255), 4, cv2.LINE_AA)
-    cv2.putText(frame, str(blockPercent[1]), (block[1][1]+10, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
-2, (0, 255, 255), 4, cv2.LINE_AA)
     if blockPercent[0]+blockPercent[1] < 10:
         rectColor = (200, 0, 0)
     coords = np.array(points)
@@ -703,7 +703,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1285.MOV"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1413.MOV"
 video_save_path = ""
 video_fps       = 30.0
 
