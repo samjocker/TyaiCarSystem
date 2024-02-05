@@ -336,9 +336,9 @@ label.setGeometry(0, 0, 864, 480)
 datumYslider = QtWidgets.QSlider(MainWindow)
 datumYslider.setGeometry(0,490, 864, 30)
 datumYslider.setOrientation(QtCore.Qt.Horizontal)
-datumYslider.setMaximum(864)
+datumYslider.setMaximum(2)
 datumYslider.setMinimum(0)
-datumYslider.setValue(432)
+datumYslider.setValue(1)
 
 
 # trapezoid_label = QtWidgets.QLabel(MainWindow)
@@ -362,19 +362,19 @@ for i in range(329, 479, 20):
 
 turnLeftBoxPoint = []
 middlePointX = 350
-boxWidth = 30
-for i in range(329, 479, 10):
-    turnLeftBoxPoint.append([[middlePointX,i],[middlePointX+boxWidth,i-10]])
-    boxWidth += 10
+boxWidth = 20
+for i in range(329, 479, 20):
+    turnLeftBoxPoint.append([[middlePointX-boxWidth-140,i],[middlePointX+boxWidth,i-20]])
+    boxWidth += 20
 
 # turn right box
     
 turnRightBoxPoint = []
 middlePointX = 514
-boxWidth = 30
-for i in range(329, 479, 10):
-    turnRightBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX,i-10]])
-    boxWidth += 10
+boxWidth = 20
+for i in range(329, 479, 20):
+    turnRightBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX+boxWidth+140,i-20]])
+    boxWidth += 20
 
 # run
 useCam = False
@@ -442,116 +442,118 @@ def opencv():
 
 
         # box
+        if datumYslider.value() == 1:
 
-        for i in range(len(lineBoxPoint)):
-            BoxMove = 0
-            tryCount = 0
-            while True:
-                tryCount += 1
-                box = lineBoxPoint[i]
-                boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
-                if 0 in boxImg.shape:
-                    print(f"Error in box{i}: Box shape is (0, 0).")
-                    break
-                # 將黑色顏色轉換為 NumPy 陣列
-                black_color = np.array(colors[0])
-
-                left_half = boxImg[:, :boxImg.shape[1] // 2, :]
-                right_half = boxImg[:, boxImg.shape[1] // 2:, :]
-                left_black_pixels = np.count_nonzero(np.all(left_half == black_color, axis=-1))
-                total_count = left_half.shape[0] * left_half.shape[1]
-                left_black_percent = left_black_pixels / total_count * 100
-                right_black_pixels = np.count_nonzero(np.all(right_half == black_color, axis=-1))
-                right_black_percent = right_black_pixels / total_count * 100
-
-                if left_black_percent + right_black_percent == 0 or tryCount > 15:
-                    break
-                elif left_black_percent > right_black_percent:
-                    BoxMove += 20
-                else:
-                    BoxMove -= 20
-
-            
-            if tryCount > 15:
+            for i in range(len(lineBoxPoint)):
                 BoxMove = 0
-                continue
-            
-            # 在modelOutput往少的方向平移 20 個像素 直到% ==0
+                tryCount = 0
+                while True:
+                    tryCount += 1
+                    box = lineBoxPoint[i]
+                    boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
+                    if 0 in boxImg.shape:
+                        print(f"Error in box{i}: Box shape is (0, 0).")
+                        break
+                    # 將黑色顏色轉換為 NumPy 陣列
+                    black_color = np.array(colors[0])
 
-            boxOffsetListLeft.append((box[0][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
-            boxOffsetListRight.append((box[1][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
+                    left_half = boxImg[:, :boxImg.shape[1] // 2, :]
+                    right_half = boxImg[:, boxImg.shape[1] // 2:, :]
+                    left_black_pixels = np.count_nonzero(np.all(left_half == black_color, axis=-1))
+                    total_count = left_half.shape[0] * left_half.shape[1]
+                    left_black_percent = left_black_pixels / total_count * 100
+                    right_black_pixels = np.count_nonzero(np.all(right_half == black_color, axis=-1))
+                    right_black_percent = right_black_pixels / total_count * 100
+
+                    if left_black_percent + right_black_percent == 0 or tryCount > 15:
+                        break
+                    elif left_black_percent > right_black_percent:
+                        BoxMove += 20
+                    else:
+                        BoxMove -= 20
+
+                
+                if tryCount > 15:
+                    BoxMove = 0
+                    continue
+                
+                # 在modelOutput往少的方向平移 20 個像素 直到% ==0
+
+                boxOffsetListLeft.append((box[0][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
+                boxOffsetListRight.append((box[1][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
+
+                #劃出移動後的box
+                cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
+
+                # 在圖像上顯示黑色像素的百分比
+                #cv2.putText(frame_blend, f"{left_black_percent:.2f}%,{right_black_percent:.2f}%", (box[0][0], box[0][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+
+            cv2.polylines(frame_blend, [np.array(boxOffsetListLeft)], False, (0, 255, 0), 2)
+            cv2.polylines(frame_blend, [np.array(boxOffsetListRight)], False, (0, 255, 0), 2)
+
+        elif datumYslider.value() == 0:
+
+            turnLeftPoint = []
+            
+
+            # turn left box
+            for box in turnLeftBoxPoint:
+
+                #往左移動直到黑色站超過一半
+                BoxMove = 0
+                tryCount = 0
+                while True:
+                    tryCount += 1
+                    boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
+                    if 0 in boxImg.shape:
+                        print(f"Error in box{i}: Box shape is (0, 0).")
+                        break
+                    # 將黑色顏色轉換為 NumPy 陣列
+                    black_color = np.array(colors[0])
+                    blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
+                    total_count = boxImg.shape[0] * boxImg.shape[1]
+                    black_percent = blackIndex / total_count
+
+                    if black_percent >0.2 or tryCount > 30:
+                        break
+                    else:
+                        BoxMove -= 20
+
+                turnLeftPoint.append((box[0][0]+BoxMove+40,int((box[0][1]+box[1][1])/2)))
+                cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
+            cv2.polylines(frame_blend, [np.array(turnLeftPoint)], False, (0, 255, 0), 2)
+
+        elif datumYslider.value() == 2:
+            turnRightPoint = []
+            # turn right box
+            for box in turnRightBoxPoint:
+
+                #往右移動直到黑色站超過一半
+                BoxMove = 0
+                tryCount = 0
+                while True:
+                    tryCount += 1
+                    boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
+                    if 0 in boxImg.shape:
+                        print(f"Error in box{i}: Box shape is (0, 0).")
+                        break
+                    # 將黑色顏色轉換為 NumPy 陣列
+                    black_color = np.array(colors[0])
+                    blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
+                    total_count = boxImg.shape[0] * boxImg.shape[1]
+                    black_percent = blackIndex / total_count
+
+                    if black_percent >0.1 or tryCount > 15` `:
+                        break
+                    else:
+                        BoxMove += 20
+
+                turnRightPoint.append((box[1][0]+BoxMove-40,int((box[0][1]+box[1][1])/2)))
+                cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
 
             #劃出移動後的box
-            cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
-
-            # 在圖像上顯示黑色像素的百分比
-            #cv2.putText(frame_blend, f"{left_black_percent:.2f}%,{right_black_percent:.2f}%", (box[0][0], box[0][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-
-        cv2.polylines(frame_blend, [np.array(boxOffsetListLeft)], False, (0, 255, 0), 2)
-        cv2.polylines(frame_blend, [np.array(boxOffsetListRight)], False, (0, 255, 0), 2)
-
-
-        turnLeftPoint = []
-        turnRightPoint = []
-
-        # turn left box
-        for box in turnLeftBoxPoint:
-
-            #往左移動直到黑色站超過一半
-            BoxMove = 0
-            tryCount = 0
-            while True:
-                tryCount += 1
-                boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
-                if 0 in boxImg.shape:
-                    print(f"Error in box{i}: Box shape is (0, 0).")
-                    break
-                # 將黑色顏色轉換為 NumPy 陣列
-                black_color = np.array(colors[0])
-                blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
-                total_count = boxImg.shape[0] * boxImg.shape[1]
-                black_percent = blackIndex / total_count
-
-                if black_percent >0.2 or tryCount > 30:
-                    break
-                else:
-                    BoxMove -= 20
-
-            turnLeftPoint.append((box[0][0]+BoxMove+40,int((box[0][1]+box[1][1])/2)))
-            cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
-
-
-
-        # turn right box
-        for box in turnRightBoxPoint:
-
-            #往右移動直到黑色站超過一半
-            BoxMove = 0
-            tryCount = 0
-            while True:
-                tryCount += 1
-                boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
-                if 0 in boxImg.shape:
-                    print(f"Error in box{i}: Box shape is (0, 0).")
-                    break
-                # 將黑色顏色轉換為 NumPy 陣列
-                black_color = np.array(colors[0])
-                blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
-                total_count = boxImg.shape[0] * boxImg.shape[1]
-                black_percent = blackIndex / total_count
-
-                if black_percent >0.1 or tryCount > 30:
-                    break
-                else:
-                    BoxMove += 20
-
-            turnRightPoint.append((box[1][0]+BoxMove-40,int((box[0][1]+box[1][1])/2)))
-            cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
-
-        #劃出移動後的box
-        cv2.polylines(frame_blend, [np.array(turnRightPoint)], False, (0, 255, 0), 2)
-        cv2.polylines(frame_blend, [np.array(turnLeftPoint)], False, (0, 255, 0), 2)
+            cv2.polylines(frame_blend, [np.array(turnRightPoint)], False, (0, 255, 0), 2)
 
 
 
