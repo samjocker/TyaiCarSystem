@@ -7,6 +7,7 @@ import colorsys
 import copy
 import time, sys, json
 import threading
+import asyncio
 import serial
 
 from PyQt5 import QtWidgets, QtCore
@@ -15,8 +16,13 @@ from PyQt5.QtGui import *
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-openSerial = False
-cameraUse = False
+import osmnx as ox
+import networkx as nx
+import matplotlib.pyplot as plt
+import requests
+
+openSerial = True
+cameraUse = True
 
 if openSerial:
     print("Wait connect")
@@ -518,8 +524,12 @@ def slidingWindow(frame):
                 elif site == 1:
 
                     if block[0][0] < 0:
-                        if biggest["cdn"] != []:
-                            points.append(biggest["cdn"])
+                        # if biggest["cdn"] != []:
+                        #     points.append(biggest["cdn"])
+                        # keepAdjust = False
+                        # break
+                        addNum = -20
+                    elif block[1][1] > 1919:
                         keepAdjust = False
                         break
                     elif abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
@@ -530,12 +540,11 @@ def slidingWindow(frame):
                         keepAdjust = False
                         break
                     else:
-                        addNum = -20
                         if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
                             biggest["cdn"] = [block[0][1], cdnY-rectHeight]
                             biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
                         
-                        x1 += addNum
+                        x1 -= addNum
 
                 elif site == 2:
                     if abs(blockPercent[0]-blockPercent[1]) <= 5:
@@ -557,16 +566,22 @@ def slidingWindow(frame):
                 elif site == 3:
 
                     if block[1][1] > 1919:
-                        if biggest["cdn"] != []:
-                            points.append(biggest["cdn"])
+                        # if biggest["cdn"] != []:
+                        #     points.append(biggest["cdn"])
+                        addNum = -20
+                    elif block[0][0] < 0:
                         keepAdjust = False
                         break
                     elif abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
+                        # if biggest["cdn"] != []:
+                        #     pass
+                        #     # points.append(biggest["cdn"])
+                        # else:
+                        #     pass
                         points.append([block[0][1], cdnY-rectHeight])
                         keepAdjust = False
                         break
                     else:
-                        addNum = 20
                         if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
                             biggest["cdn"] = [block[0][1], cdnY-rectHeight]
                             biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
@@ -607,7 +622,7 @@ def slidingWindow(frame):
                     print("break", block[1][1], site)
 
                     # print(f'顏色佔比: {percentage}%')
-
+            # points.append([block[0][1], cdnY-rectHeight])
             cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
             cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
         2, (0, 255, 255), 4, cv2.LINE_AA)
@@ -622,18 +637,19 @@ def slidingWindow(frame):
     if blockPercent[0]+blockPercent[1] < 10:
         rectColor = (200, 0, 0)
     coords = np.array(points)
-    median_coords = np.median(coords, axis=0)
+    median_coords = np.mean(coords, axis=0)
 
     cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
 
     point_coords = np.array([959, 1079])
-    if site == 2:
+    if site == 5:
         relative_coords = point_coords - points[-1]
     else:
         relative_coords = point_coords - median_coords
     angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
     angle_deg = np.degrees(angle_rad)
-    angle_deg = 180 - max(min(90+(angle_deg-90)*1.2, 180), 0)
+    muiltNum = 1.5 if angle_deg<110 and angle_deg>70 else 1.3
+    angle_deg = max(min(90+(angle_deg-90)*muiltNum, 180), 0)
     print("fps= %.2f, angle= %4d"%(6, angle_deg), end='\r')
     if openSerial:
         global ser
@@ -668,7 +684,7 @@ def perspective_correction(image):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/3_3.h5',
+        "model_path"        : 'model/3_5.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
         "input_shape"       : [387, 688],
@@ -771,6 +787,41 @@ video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/v
 video_save_path = ""
 video_fps       = 30.0
 
+mapImg = output = np.zeros((400, 400, 3), dtype="uint8")
+def getMap():
+    # 取得座標資料
+    api_url = "http://xhinherpro.xamjiang.com/getData"
+    response = requests.get(api_url)
+    data = response.json()
+    print(data)
+    latitude = data["latitude"]
+    longitude = data["longitude"]
+
+    # 獲取地圖數據
+    G = ox.graph_from_point((longitude, latitude), dist=150, network_type='drive_service')
+
+    # 繪製地圖並設定路徑和背景的顏色
+    fig, ax = ox.plot_graph(G, show=False, close=False, figsize=(10, 10), edge_color='white', bgcolor='gray', edge_linewidth=10.0)
+
+    # 將Matplotlib圖像轉換為OpenCV格式
+    fig.canvas.draw()
+    img = np.array(fig.canvas.renderer.buffer_rgba())
+
+    # 對圖像進行顏色和對比度調整（可以根據需要進行更進一步的調整）
+    alpha = 1.5  # 控制對比度
+    beta = 30    # 控制亮度
+    adjusted_img = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
+    foreground = cv2.resize(adjusted_img, (400, 400))
+    output = np.zeros((400, 400, 3), dtype="uint8")
+    center_coordinates = (200, 200)
+    radius = 200
+    color = (255, 255, 255)  # 白色
+
+    cv2.circle(output, center_coordinates, radius, color, -1)
+
+    mapImg = cv2.bitwise_and(foreground, output)
+
+
 def opencv():
     global ocv,video_path,video_save_path,video_fps, sideButtonState, openSerial
     
@@ -789,7 +840,7 @@ def opencv():
 
     fps = 0.0
     while(ocv):
-        for i in range(9):
+        for i in range(1 if cameraUse else 9):
             t1 = time.time()
             ref, frame = capture.read()
             if not ref:
@@ -800,10 +851,13 @@ def opencv():
         frame = Image.fromarray(np.uint8(frame))
         frame = np.array(deeplab.detect_image(frame))
 
-        testFrame = perspective_correction(frame)
-        testFrame = cv2.resize(testFrame, (720, 405))
-        testImg = QImage(testFrame, 702, 405, 720*3, QImage.Format_RGB888)
-        TestLabel.setPixmap(QPixmap.fromImage(testImg))
+        # tryFunc = threading.Thread(target=testFunc)
+        # tryFunc.start()
+
+        # testFrame = perspective_correction(frame)
+        # testFrame = cv2.resize(testFrame, (720, 405))
+        # testImg = QImage(testFrame, 702, 405, 720*3, QImage.Format_RGB888)
+        # TestLabel.setPixmap(QPixmap.fromImage(testImg))
 
         frame = putInformation(frame)
         height, width, channel = 405, 720, 3
