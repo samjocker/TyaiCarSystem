@@ -21,12 +21,12 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import requests
 
-openSerial = False
-cameraUse = False
+openSerial = True
+cameraUse = True
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem1401'
+    COM_PORT = '/dev/cu.usbmodem11301'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -673,7 +673,7 @@ def slidingWindow(frame):
     if site == 1 or site == 2 or site == 3:
         muiltNum = 1.5 if angle_deg<110 and angle_deg>70 else 1.3
     else:
-        muiltNum = 1.1 if angle_deg<110 and angle_deg>70 else 1.2
+        muiltNum = 1.1 if angle_deg<110 and angle_deg>70 else 0.8
     angle_deg = max(min(90+(angle_deg-90)*muiltNum, 180), 0)
     print("fps= %.2f, angle= %4d"%(6, angle_deg), end='\r')
     if openSerial:
@@ -868,6 +868,8 @@ def opencv():
         for i in range(1 if cameraUse else 9):
             t1 = time.time()
             ref, frame = capture.read()
+            frame = cv2.flip(frame, 0)
+            frame = cv2.flip(frame, 1)
             if not ref:
                 ocv = False
                 capture.release()
