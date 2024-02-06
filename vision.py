@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import requests
 
 openSerial = True
-cameraUse = False
+cameraUse = True
 
 if openSerial:
     print("Wait connect")
