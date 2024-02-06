@@ -21,7 +21,8 @@ from PIL import Image
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-
+from PyQt5.QtGui import QPixmap, QImage
+from PIL import ImageQt
 
 import math, os
 import serial
@@ -340,57 +341,12 @@ datumYslider.setMaximum(2)
 datumYslider.setMinimum(0)
 datumYslider.setValue(1)
 
-vdatumYslider = QtWidgets.QSlider(MainWindow)
-vdatumYslider.setGeometry(0,520, 864, 30)
-vdatumYslider.setOrientation(QtCore.Qt.Horizontal)
-vdatumYslider.setMaximum(190)
-vdatumYslider.setMinimum(-180)
-vdatumYslider.setValue(190)
 
-autoPilot = False
+trapezoid_label = QtWidgets.QLabel(MainWindow)
+trapezoid_label.setGeometry(550, 0, 250, 160)
+trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
+trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
 
-AdatumYslider = QtWidgets.QSlider(MainWindow)
-AdatumYslider.setGeometry(0,540, 864, 30)
-AdatumYslider.setOrientation(QtCore.Qt.Horizontal)
-AdatumYslider.setMaximum(0)
-AdatumYslider.setMinimum(1)
-AdatumYslider.setValue(0)
-
-
-# trapezoid_label = QtWidgets.QLabel(MainWindow)
-# trapezoid_label.setGeometry(550, 0, 250, 160)
-# trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
-# trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
-
-
-# box
-
-# line Box
-
-lineBoxPoint = []
-middlePointX = 432
-boxWidth = 20
-for i in range(240, 420, 20):
-    lineBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX+boxWidth,i-20]])
-    boxWidth += 20
-
-# turn left box
-
-turnLeftBoxPoint = []
-middlePointX = 350
-boxWidth = 10
-for i in range(289, 400, 20):
-    turnLeftBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX+boxWidth,i-20]])
-    #boxWidth += 20
-
-# turn right box
-    
-turnRightBoxPoint = []
-middlePointX = 514
-boxWidth = 10
-for i in range(289, 400, 20):
-    turnRightBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX+boxWidth,i-20]])
-    #boxWidth += 20
 
 # run
 useCam = False
@@ -398,7 +354,7 @@ CamID = 0
 
 
 def opencv():
-
+    
     if useCam:
         capture = cv2.VideoCapture(CamID)
     else:
@@ -428,11 +384,7 @@ def opencv():
     gps_thread.start()
 
 
-    
-
     while True:
-
-
         t1 = time.time()
 
         for i in range(videoSpeed):
@@ -453,224 +405,11 @@ def opencv():
         height, width, channel = 480, 864, 3
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
 
-        offsetListLeft = []
-        offsetListRight = []
-
-        boxOffsetListLeft = []
-        boxOffsetListRight = []
-
-
-        if vdatumYslider.value() > 180:
-            autoPilot = True
-        else:
-            autoPilot = False
-
-
-        # box
-        if 1 == 1:
-
-            for i in range(len(lineBoxPoint)):
-                BoxMove = 0
-                tryCount = 0
-                while True:
-                    tryCount += 1
-                    box = lineBoxPoint[i]
-                    boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
-                    if 0 in boxImg.shape:
-                        #print(f"Error in box{i}: Box shape is (0, 0).")
-                        break
-                    # 將黑色顏色轉換為 NumPy 陣列
-                    black_color = np.array(colors[0])
-
-                    left_half = boxImg[:, :boxImg.shape[1] // 2, :]
-                    right_half = boxImg[:, boxImg.shape[1] // 2:, :]
-                    left_black_pixels = np.count_nonzero(np.all(left_half == black_color, axis=-1))
-                    total_count = left_half.shape[0] * left_half.shape[1]
-                    left_black_percent = left_black_pixels / total_count * 100
-                    right_black_pixels = np.count_nonzero(np.all(right_half == black_color, axis=-1))
-                    right_black_percent = right_black_pixels / total_count * 100
-
-                    if left_black_percent + right_black_percent == 0 or tryCount > 15:
-                        break
-                    elif left_black_percent > right_black_percent:
-                        BoxMove += 20
-                    else:
-                        BoxMove -= 20
-
-                
-                if tryCount > 15:
-                    BoxMove = 0
-                    continue
-                
-                # 在modelOutput往少的方向平移 20 個像素 直到% ==0
-
-                boxOffsetListLeft.append((box[0][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
-                boxOffsetListRight.append((box[1][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
-
-                #劃出移動後的box
-                #
-                # 
-                cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
-
-                # 在圖像上顯示黑色像素的百分比
-                #cv2.putText(frame_blend, f"{left_black_percent:.2f}%,{right_black_percent:.2f}%", (box[0][0], box[0][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
 
 
-        leftOffsetAv = 0
-        if 0 == 0:
 
-            turnLeftPoint = []
-            
-
-            # turn left box
-            for box in turnLeftBoxPoint:
-
-                #往左移動直到黑色站超過一半
-                BoxMove = 0
-                tryCount = 0
-                while True:
-                    tryCount += 1
-                    boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
-                    if 0 in boxImg.shape:
-                        #print(f"Error in box{i}: Box shape is (0, 0).")
-                        break
-                    # 將黑色顏色轉換為 NumPy 陣列
-                    black_color = np.array(colors[0])
-                    blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
-                    total_count = boxImg.shape[0] * boxImg.shape[1]
-                    black_percent = blackIndex / total_count
-
-                    if black_percent >0.2 or tryCount > 15:
-                        break
-                    else:
-                        BoxMove -= 20
-
-                turnLeftPoint.append((box[0][0]+BoxMove+40,int((box[0][1]+box[1][1])/2)))
-                #cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
-
-                leftOffsetAv += box[0][0]+BoxMove+40
-            cv2.polylines(frame_blend, [np.array(turnLeftPoint)], False, (0, 255, 0), 2)
-
-        rightOffsetAv = 0
         
-        if 2== 2:
-            turnRightPoint = []
-            # turn right box
-            for box in turnRightBoxPoint:
-
-                #往右移動直到黑色站超過一半
-                BoxMove = 0
-                tryCount = 0
-                while True:
-                    tryCount += 1
-                    boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
-                    if 0 in boxImg.shape:
-                        print(f"Error in box{i}: Box shape is (0, 0).")
-                        break
-                    # 將黑色顏色轉換為 NumPy 陣列
-                    black_color = np.array(colors[0])
-                    blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
-                    total_count = boxImg.shape[0] * boxImg.shape[1]
-                    black_percent = blackIndex / total_count
-
-                    if black_percent >0.1 or tryCount > 15:
-                        break
-                    else:
-                        BoxMove += 20
-
-                turnRightPoint.append((box[1][0]+BoxMove-40,int((box[0][1]+box[1][1])/2)))
-                #cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
-                rightOffsetAv += box[1][0]+BoxMove-40
-
-            #劃出移動後的box
-            cv2.polylines(frame_blend, [np.array(turnRightPoint)], False, (0, 255, 0), 2)
-        
-        allRoad = []
-
-        if leftOffsetAv/len(turnLeftBoxPoint) < 150:
-            allRoad.append("left")
-        if rightOffsetAv/len(turnRightBoxPoint) > 700:
-            allRoad.append("right")
-
-        k = 1.5
-        turnAngle = 0
-        if datumYslider.value() == 1:
-            
-            try:
-                oSum = 0
-                for i in boxOffsetListLeft:
-                    oSum += i[0]
-                for i in boxOffsetListRight:
-                    oSum += i[0]
-                oSum = oSum/(len(boxOffsetListRight)+len(boxOffsetListLeft))
-            except:
-                oSum = 432
-            #oSum = ((rightOffsetAv/len(turnRightBoxPoint)) + (leftOffsetAv/len(turnLeftBoxPoint)))/2
-            
-            turnAngle = map_range(oSum, 0, 864, -90*k, 90*k)
-
-        elif datumYslider.value() == 2:
-            
-            if 'right' in allRoad:
-                turnAngle = (rightOffsetAv/len(turnRightBoxPoint)-432)/2
-
-            else:
-                try:
-                    oSum = 0
-                    for i in boxOffsetListLeft:
-                        oSum += i[0]
-                    for i in boxOffsetListRight:
-                        oSum += i[0]
-                    oSum = oSum/(len(boxOffsetListRight)+len(boxOffsetListLeft))
-                except:
-                    oSum = 432
-                turnAngle = map_range(oSum, 0, 864, -90*k, 90*k)
-
-
-        elif datumYslider.value() == 0:
-
-            if 'left' in allRoad:
-                turnAngle = (leftOffsetAv/len(turnLeftBoxPoint) -432)/2
-            else:
-                try:
-                    oSum = 0
-                    for i in boxOffsetListLeft:
-                        oSum += i[0]
-                    for i in boxOffsetListRight:
-                        oSum += i[0]
-                    oSum = oSum/(len(boxOffsetListRight)+len(boxOffsetListLeft))
-                except:
-                    oSum = 432
-                turnAngle = map_range(oSum, 0, 864, -90*k, 90*k)
-
-
-
-
-
-
-
-
-        cv2.line(frame_blend, (432, 470), (432+int(turnAngle), 300), (0, 255, 0), 2)
-        # cv2.polylines(frame_blend, [np.array(boxOffsetListLeft)], False, (0, 255, 0), 2)
-        # cv2.polylines(frame_blend, [np.array(boxOffsetListRight)], False, (0, 255, 0), 2)
-        
-
-
-        if not autoPilot:
-            turnAngle = vdatumYslider.value()
-
-
-        # 空心圓
-        cv2.circle(frame_blend, (80,380), 45, (255, 255, 255), 2)
-        # 根據turnAngle角度 在圓上畫線
-        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAngle*2))*45),380+int(math.sin(math.radians(turnAngle*2))*45)), (255, 255, 255), 2)
-        # turnAngle + 180
-        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAngle*2+180))*45),380+int(math.sin(math.radians(turnAngle*2+180))*45)), (255, 255, 255), 2)
-        # turnAngle + 90
-        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAngle*2+90))*45),380+int(math.sin(math.radians(turnAngle*2+90))*45)),(255, 255, 255), 2)
-        
-        cv2.putText(frame_blend, f"Angle: {turnAngle:.2f}", (20,320), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (00, 255, 0), 1)
 
         # open cv
         bytesPerline_blend = channel * width
@@ -685,36 +424,23 @@ def opencv():
         painter.setFont(font)
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
         painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
-        painter.drawText(20, 50, f"Road: {0}")
-        painter.drawText(20, 70, f"Angle: {turnAngle:.2f}")
+        painter.drawText(20, 60, f"Road: {0}")
 
+
+        painter.drawText(20, 90, f"Angle: {0}")
 
         painter.drawText(20, 120, f"Latitude: {shared_gps_data['latitude']}")
-        painter.drawText(20, 140, f"Longitude: {shared_gps_data['longitude']}")
-        painter.drawText(20, 160, f"Site: {shared_gps_data['site']}")
-        painter.drawText(20, 180, f"LoraState: {shared_gps_data['loraState']}")
+        painter.drawText(20, 150, f"Longitude: {shared_gps_data['longitude']}")
+        painter.drawText(20, 180, f"Site: {shared_gps_data['site']}")
+        painter.drawText(20, 210, f"LoraState: {shared_gps_data['loraState']}")
 
-        painter.drawText(20, 240, f"LeftOffset: {leftOffsetAv/len(turnLeftBoxPoint)}")
-        painter.drawText(20, 260, f"RightOffset: {rightOffsetAv/len(turnRightBoxPoint)}")
 
-        if autoPilot:
-            painter.setPen(QColor(0, 255, 0))
-            painter.drawText(20, 21.0, f"AutoPilot: ON")
-        else:
-            painter.setPen(QColor(255, 0, 0))
-            painter.drawText(20, 210, f"AutoPilot: OFF")
-
-        font.setPointSize(25)
-        painter.setFont(font)
-        painter.setPen(QColor(255, 0, 0))  # 文字顏色，白色
-
-        if leftOffsetAv/len(turnLeftBoxPoint) < 150:
-            painter.drawText(380,200, f"<<-")
-        if rightOffsetAv/len(turnRightBoxPoint) > 700:
-            painter.drawText(420, 200, f"->>")
 
         # 结束绘制
         painter.end()
+
+
+
 
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
@@ -722,16 +448,11 @@ def opencv():
 
         if openSerial:
             global ser
-            ser.write((str(int(turnAngle))+'\n').encode())
+            ser.write((str(int(00))+'\n').encode())
 
-        c= cv2.waitKey(1) & 0xff
-
+        c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
             out.write(frame)
-
-        if c == ord('p') and c == 2:
-            print("按下了 CTRL+P")
-            autoPilot = not autoPilot
 
         if c==27:
             capture.release()
