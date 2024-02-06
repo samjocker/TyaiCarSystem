@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import requests
 
 openSerial = True
-cameraUse = True
+cameraUse = False
 
 if openSerial:
     print("Wait connect")
@@ -248,6 +248,7 @@ except Exception as e:
 
 def keyPressEvent(event):
     # event.key() 會返回被按下的按鍵的鍵碼
+    commandNum = 0
     if event.key() == QtCore.Qt.Key_A:
         siteValue.setValue(0)
     elif event.key() == QtCore.Qt.Key_S:
@@ -259,11 +260,22 @@ def keyPressEvent(event):
     elif event.key() == QtCore.Qt.Key_G:
         siteValue.setValue(4)
     elif event.key() == QtCore.Qt.Key_Escape:
+        commandNum = 300
+    elif event.key() == QtCore.Qt.Key_U:
+        commandNum = 411
+    elif event.key() == QtCore.Qt.Key_I:
+        commandNum = 410
+    elif event.key() == QtCore.Qt.Key_O:
+        commandNum = 421
+    elif event.key() == QtCore.Qt.Key_P:
+        commandNum = 420
+
+    if commandNum != 0:
         global ser, openSerial
         print("motor command sended")
         if openSerial:
-            ser.write("300\n".encode())
-            print("servo change \n")
+            ser.write((str(commandNum)+"\n").encode())
+            print("Command "+str(commandNum)+"sended\n")
 
 edge = {"offsetLeft": 0, "offsetRight": 0}
 
@@ -893,7 +905,6 @@ def opencv():
 
         img = QImage(frame, width, height, bytesPerline, QImage.Format_RGB888)
         label.setPixmap(QPixmap.fromImage(img))
-
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         value = 0
         mapValue = [0, 0]
