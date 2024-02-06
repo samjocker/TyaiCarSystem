@@ -21,12 +21,12 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import requests
 
-openSerial = True
-cameraUse = True
+openSerial = False
+cameraUse = False
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem1101'
+    COM_PORT = '/dev/cu.usbmodem1401'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -399,21 +399,6 @@ def findLine(frame):
     # 將輪廓座標轉為numpy array
     contour_array = np.vstack(contours).squeeze()
 
-    # for point in contour_array:
-    #     cv2.circle(frame, tuple(point), 3, (0, 0, 255), 5)
-
-    # # 抓取 x 和 y 座標
-    # x, y = contour_array[:, 0], contour_array[:, 1]
-
-    # # 使用 NumPy 的濾波函數進行平滑處理
-    # smoothed_x = np.convolve(x, np.ones(1)/1, mode='valid')
-    # smoothed_y = np.convolve(y, np.ones(1)/1, mode='valid')
-
-    # # 將平滑後的座標組合回去
-    # smoothed_contour = np.column_stack((smoothed_x, smoothed_y))
-
-    # 在原始圖片上畫出平滑後的線條
-    # smoothed_contour = smoothed_contour.astype(int)
     cv2.polylines(frame, [contour_array], isClosed=True, color=(123, 222, 245), thickness=20)
     return frame
 
@@ -459,7 +444,8 @@ def slidingWindow(frame):
     rectWidth = int(data["rectWidth"])
     adjustNum = int(rectWidth*(data["rectAdjust"]/100))
     suggestSite = True
-    points = [[959, 1079]]
+    points = []
+    # [959, 1079]
     while (cdnY-rectHeight >= 0):
         x1 = int((1919-rectWidth)/2)
         x2 = x1 + rectWidth
@@ -493,32 +479,43 @@ def slidingWindow(frame):
                 if site == 0:
                     # addNum = -20
 
+                    
                     if block[0][0] < 0:
                         if lastBlock != []:
                             keepAdjust = False
-                            points.append([block[0][1], cdnY-rectHeight])
+                            points.append([lastBlock[0][1], cdnY-rectHeight])
+                            block = lastBlock
                             break
                         else:
                             addNum = -20
                     elif block[1][1] > 1919:
+                        print("\nout\n")
                         if lastBlock != []:
                             keepAdjust = False
-                            points.append([block[0][1], cdnY-rectHeight])
+                            points.append([lastBlock[0][1], cdnY-rectHeight])
+                            break
+                        elif biggest["cdn"] != []:
+                            keepAdjust = False
+                            points.append([biggest["cdn"][0][1], cdnY-rectHeight])
+                            block = biggest["cdn"]
                             break
                         else:
                             break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 8:
-                        if blockPercent[0] != 0:
-                            lastBlock = block
-                        else:
-                            break
-                    elif abs(blockPercent[0]-blockPercent[1]) > 8:
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 10 and blockPercent[0] > 20:
+                        lastBlock = block
+                        if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
+                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                            biggest["cdn"] = block
+                    elif abs(blockPercent[0]-blockPercent[1]) > 10:
                         if lastBlock != []:
                             keepAdjust = False
                             block = lastBlock
                             points.append([block[0][1], cdnY-rectHeight])
                             break
-
+                        else:
+                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
+                                biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                biggest["cdn"] = block
                     x1 -= addNum
 
                 elif site == 1:
@@ -528,6 +525,10 @@ def slidingWindow(frame):
                         #     points.append(biggest["cdn"])
                         # keepAdjust = False
                         # break
+                        if abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
+                            points.append([block[0][1], cdnY-rectHeight])
+                            keepAdjust = False
+                            break
                         addNum = -20
                     elif block[1][1] > 1919:
                         keepAdjust = False
@@ -555,12 +556,15 @@ def slidingWindow(frame):
                         addNum = 20
                         if blockPercent[0] > blockPercent[1]:
                             suggestSite = False
-                            addNum *= -1
+                            addNum = -20
                         elif blockPercent[0] < blockPercent[1]:
                             suggestSite = True
+                            addNum = 20
                         elif blockPercent[0] == blockPercent[1]:
                             if not suggestSite:
-                                addNum *= -1
+                                addNum = -20
+                            else:
+                                addNum = 20
                         x1 += addNum
 
                 elif site == 3:
@@ -568,16 +572,20 @@ def slidingWindow(frame):
                     if block[1][1] > 1919:
                         # if biggest["cdn"] != []:
                         #     points.append(biggest["cdn"])
+                        # keepAdjust = False
+                        # break
+                        if abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
+                            points.append([block[0][1], cdnY-rectHeight])
+                            keepAdjust = False
+                            break
                         addNum = -20
                     elif block[0][0] < 0:
                         keepAdjust = False
                         break
                     elif abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
                         # if biggest["cdn"] != []:
-                        #     pass
-                        #     # points.append(biggest["cdn"])
+                        #     points.append(biggest["cdn"])
                         # else:
-                        #     pass
                         points.append([block[0][1], cdnY-rectHeight])
                         keepAdjust = False
                         break
@@ -587,7 +595,6 @@ def slidingWindow(frame):
                             biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
                         
                         x1 += addNum
-                    
 
                 elif site == 4:
                     # addNum = 20
@@ -595,25 +602,39 @@ def slidingWindow(frame):
                     if block[1][1] > 1919:
                         if lastBlock != []:
                             keepAdjust = False
-                            points.append([block[0][1], cdnY-rectHeight])
+                            points.append([lastBlock[0][1], cdnY-rectHeight])
+                            block = lastBlock
                             break
                         else:
                             addNum = -20
                     elif block[0][0] < 0:
+                        print("\nout\n")
                         if lastBlock != []:
                             keepAdjust = False
-                            points.append([block[0][1], cdnY-rectHeight])
+                            points.append([lastBlock[0][1], cdnY-rectHeight])
+                            break
+                        elif biggest["cdn"] != []:
+                            keepAdjust = False
+                            points.append([biggest["cdn"][0][1], cdnY-rectHeight])
+                            block = biggest["cdn"]
                             break
                         else:
                             break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 10 and blockPercent[0] != 0:
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 10 and blockPercent[0] > 20:
                         lastBlock = block
+                        if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
+                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                            biggest["cdn"] = block
                     elif abs(blockPercent[0]-blockPercent[1]) > 10:
                         if lastBlock != []:
                             keepAdjust = False
                             block = lastBlock
                             points.append([block[0][1], cdnY-rectHeight])
                             break
+                        else:
+                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
+                                biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                biggest["cdn"] = block
                     x1 += addNum
 
                 if runTime >= 100:
@@ -623,11 +644,12 @@ def slidingWindow(frame):
 
                     # print(f'顏色佔比: {percentage}%')
             # points.append([block[0][1], cdnY-rectHeight])
+                    
             cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
-            cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
-        2, (0, 255, 255), 4, cv2.LINE_AA)
-            cv2.putText(frame, str(blockPercent[1]), (block[1][1]+10, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
-        2, (0, 255, 255), 4, cv2.LINE_AA)
+        #     cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
+        # 2, (0, 255, 255), 4, cv2.LINE_AA)
+        #     cv2.putText(frame, str(blockPercent[1]), (block[1][1]+10, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
+        # 2, (0, 255, 255), 4, cv2.LINE_AA)
         cdnY -= rectHeight
         rectWidth -= adjustNum
         rectWidth = max(rectWidth, 0)
@@ -637,18 +659,21 @@ def slidingWindow(frame):
     if blockPercent[0]+blockPercent[1] < 10:
         rectColor = (200, 0, 0)
     coords = np.array(points)
-    median_coords = np.mean(coords, axis=0)
-
+    median_coords = np.median(coords, axis=0)
     cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
-
-    point_coords = np.array([959, 1079])
-    if site == 5:
-        relative_coords = point_coords - points[-1]
+    if site == 4:
+        point_coords = np.array([1050, 1079])
+    elif site == 0:
+        point_coords = np.array([880, 1079])
     else:
-        relative_coords = point_coords - median_coords
+        point_coords = np.array([959, 1079])
+    relative_coords = point_coords - median_coords
     angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
     angle_deg = np.degrees(angle_rad)
-    muiltNum = 1.5 if angle_deg<110 and angle_deg>70 else 1.3
+    if site == 1 or site == 2 or site == 3:
+        muiltNum = 1.5 if angle_deg<110 and angle_deg>70 else 1.3
+    else:
+        muiltNum = 1.1 if angle_deg<110 and angle_deg>70 else 1.2
     angle_deg = max(min(90+(angle_deg-90)*muiltNum, 180), 0)
     print("fps= %.2f, angle= %4d"%(6, angle_deg), end='\r')
     if openSerial:
@@ -684,7 +709,7 @@ def perspective_correction(image):
 
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/3_5.h5',
+        "model_path"        : 'model/3_3.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
         "input_shape"       : [387, 688],
@@ -783,7 +808,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1319.MOV"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1460.MOV"
 video_save_path = ""
 video_fps       = 30.0
 
@@ -871,23 +896,6 @@ def opencv():
         value = 0
         mapValue = [0, 0]
         # print("fps= %.2f, angle= %4d"%(fps, 90), end='\r')
-
-
-        # if sideButtonState:
-        #     value = edge["offsetRight"]-data["sideDistValue"]
-        #     # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-        #     mapValue = [-960, 960]
-        #     mapNum = max(min(map(value, mapValue[0], mapValue[1], 90, -90)+90, 180), 0)
-        # else:
-        #     value = edge["offsetLeft"]-data["sideDistValue"]
-        #     # mapValue = [int(data["middlePointX"]/2)*-1, int(data["middlePointX"]/2)]
-        #     mapValue = [-960, 960]
-        #     mapNum = max(min(map(value, mapValue[0], mapValue[1], -90, 90)+90, 180), 0)
-
-        # print("fps= %.2f, angle= %4d"%(fps, mapNum), end='\r')
-        # if openSerial:
-        #     global ser
-        #     ser.write((str(int(mapNum))+'\n').encode())
 
         c= cv2.waitKey(1) & 0xff 
         if video_save_path!="":
