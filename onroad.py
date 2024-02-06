@@ -241,8 +241,8 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1461.MOV"
-#video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
+#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1461.MOV"
+video_path = r"/Volumes/YihuanMiSSD/IMG_1460.MOV"
 #video_path = r"D:/IMG_1319.MOV"
 
 video_save_path = ""
@@ -356,7 +356,11 @@ AdatumYslider.setMaximum(0)
 AdatumYslider.setMinimum(1)
 AdatumYslider.setValue(0)
 
+servoState = False
+
 def keyPressEvent(event):
+    global servoState
+    servoState = not servoState
     if event.key() == QtCore.Qt.Key_Escape:
         global ser, openSerial
         print("motor command sended")
@@ -446,9 +450,11 @@ def opencv():
         for i in range(videoSpeed):
             ref, frame = capture.read()
 
-        frame = cv2.resize(frame, (864, 480))
-        frame = cv2.flip(frame, 0)
-        frame = cv2.flip(frame, 1)
+        frame =  cv2.resize(frame, (864, 480))
+        
+        if useCam:
+            frame = cv2.flip(frame, 0)
+            frame = cv2.flip(frame, 1)
 
 
 
@@ -666,7 +672,8 @@ def opencv():
         # cv2.polylines(frame_blend, [np.array(boxOffsetListLeft)], False, (0, 255, 0), 2)
         # cv2.polylines(frame_blend, [np.array(boxOffsetListRight)], False, (0, 255, 0), 2)
         
-
+        displayAngle = turnAngle  
+        turnAngle = map_range(turnAngle, -180, 180, 0, 180)
 
         if not autoPilot:
             turnAngle = vdatumYslider.value()
@@ -710,10 +717,15 @@ def opencv():
 
         if autoPilot:
             painter.setPen(QColor(0, 255, 0))
-            painter.drawText(20, 21.0, f"AutoPilot: ON")
+            painter.drawText(200, 300, f"AutoPilot: ON")
         else:
             painter.setPen(QColor(255, 0, 0))
-            painter.drawText(20, 210, f"AutoPilot: OFF")
+            painter.drawText(200, 30, f"AutoPilot: OFF")
+        
+
+        painter.setPen(QColor(255, 255, 255))
+
+        painter.drawText(250, 30, f"servo:{servoState}")
 
         font.setPointSize(25)
         painter.setFont(font)
@@ -727,6 +739,7 @@ def opencv():
         # 结束绘制
         painter.end()
 
+        
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         #print("fps= %.2f"%(fps), end='\r')
