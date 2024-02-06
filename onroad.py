@@ -112,7 +112,7 @@ def update_gps_data():
 
 
 
-openSerial = False
+openSerial = True
 
 def animate_rocket():
   distance_from_top = 20
@@ -130,7 +130,7 @@ def animate_rocket():
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem1101'
+    COM_PORT = '/dev/cu.usbmodem1301'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -356,6 +356,14 @@ AdatumYslider.setMaximum(0)
 AdatumYslider.setMinimum(1)
 AdatumYslider.setValue(0)
 
+def keyPressEvent(event):
+    if event.key() == QtCore.Qt.Key_Escape:
+        global ser, openSerial
+        print("motor command sended")
+        if openSerial:
+            ser.write("300\n".encode())
+            print("servo change \n")
+
 
 # trapezoid_label = QtWidgets.QLabel(MainWindow)
 # trapezoid_label.setGeometry(550, 0, 250, 160)
@@ -393,7 +401,7 @@ for i in range(289, 400, 20):
     #boxWidth += 20
 
 # run
-useCam = False
+useCam = True
 CamID = 0
 
 
@@ -439,6 +447,9 @@ def opencv():
             ref, frame = capture.read()
 
         frame = cv2.resize(frame, (864, 480))
+        frame = cv2.flip(frame, 0)
+        frame = cv2.flip(frame, 1)
+
 
 
         if not ref:
@@ -740,5 +751,6 @@ def opencv():
 video = threading.Thread(target=opencv)
 video.start()
 
+MainWindow.keyPressEvent = keyPressEvent
 MainWindow.show()
 sys.exit(app.exec_())
