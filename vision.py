@@ -673,7 +673,7 @@ def slidingWindow(frame):
     if site == 1 or site == 2 or site == 3:
         muiltNum = 1.5 if angle_deg<110 and angle_deg>70 else 1.3
     else:
-        muiltNum = 1.1 if angle_deg<110 and angle_deg>70 else 0.8
+        muiltNum = 0.8 if angle_deg<110 and angle_deg>70 else 0.7
     angle_deg = max(min(90+(angle_deg-90)*muiltNum, 180), 0)
     print("fps= %.2f, angle= %4d"%(6, angle_deg), end='\r')
     if openSerial:
