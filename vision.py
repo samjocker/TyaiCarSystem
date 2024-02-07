@@ -218,6 +218,7 @@ def slidingWindow(frame):
             lastBlock = []
             addNum = 40
             biggest = {"cdn": [], "dist": 50}
+            testPoints = []
             while keepAdjust:
                 block = [[x1,x1+int(rectWidth/2)], [x1+int(rectWidth/2), x1+rectWidth]]
                 for b in range(2):
@@ -262,7 +263,7 @@ def slidingWindow(frame):
                             break
                         else:
                             break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 10 and blockPercent[0] > 20:
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 20 and blockPercent[0] > 5:
                         lastBlock = block
                         if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
                             biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
@@ -362,7 +363,6 @@ def slidingWindow(frame):
 
                 elif site == 4:
                     # addNum = 20
-
                     if block[1][1] > 1919:
                         if lastBlock != []:
                             keepAdjust = False
@@ -370,6 +370,7 @@ def slidingWindow(frame):
                             block = lastBlock
                             break
                         else:
+                            x1 = int((1919-rectWidth)/2)
                             addNum = -40
                     elif block[0][0] < 0:
                         # print("\nout\n")
@@ -384,23 +385,23 @@ def slidingWindow(frame):
                             break
                         else:
                             break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 10 and blockPercent[0] > 20:
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 20 and blockPercent[0] > 5:
                         lastBlock = block
                         if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
                             biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
                             biggest["cdn"] = block
-                    elif abs(blockPercent[0]-blockPercent[1]) > 10:
+                    else:
                         if lastBlock != []:
                             keepAdjust = False
                             block = lastBlock
                             points.append([block[0][1], cdnY-rectHeight])
                             break
                         else:
-                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
+                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"] and blockPercent[0] > 5:
                                 biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
                                 biggest["cdn"] = block
                     x1 += addNum
-
+                # testPoints.append([block[0][1], cdnY-rectHeight])
                 if runTime >= 100:
                     keepAdjust = False
                     # print(blockPercent)
@@ -408,7 +409,8 @@ def slidingWindow(frame):
 
                     # print(f'顏色佔比: {percentage}%')
             # points.append([block[0][1], cdnY-rectHeight])
-                    
+            testPoints_array = np.array(testPoints, dtype=np.int32)
+            cv2.polylines(frame, [testPoints_array], isClosed=False, color=(235, 0, 0), thickness=20)
             cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
         #     cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
         # 2, (0, 255, 255), 4, cv2.LINE_AA)
@@ -434,11 +436,19 @@ def slidingWindow(frame):
     relative_coords = point_coords - median_coords
     angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
     angle_deg = np.degrees(angle_rad)
-    #TODO:fix site 2 turning strstegy
+    #FIXME:site 4 turning strstegy
     if site == 1 or site == 2 or site == 3:
         muiltNum = 1.5 if angle_deg<110 and angle_deg>70 else 1.3
-    else:
-        muiltNum = 0.8 if angle_deg<110 and angle_deg>70 else 0.7
+    elif site == 4:
+        if angle_deg >= 90:
+            muiltNum = 0.8 if angle_deg<110 else 0.7
+        else:
+            muiltNum = 1.5
+    elif site == 0:
+        if angle_deg <= 90:
+            muiltNum = 0.8 if angle_deg>70 else 0.7
+        else:
+            muiltNum = 1.5
     angle_deg = max(min(90+(angle_deg-90)*muiltNum, 180), 0)
 
     fps = round(1.0/(time.time()-lastTime), 2)
