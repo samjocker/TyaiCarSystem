@@ -7,7 +7,6 @@ import colorsys
 import copy
 import time, sys, json
 import threading
-import asyncio
 import serial
 
 from PyQt5 import QtWidgets, QtCore
@@ -42,55 +41,57 @@ MainWindow.resize(720, 685)
 label = QtWidgets.QLabel(MainWindow)
 label.setGeometry(0, 0, 720, 405)
 
+y = 435
+
 rectWidthValue = QtWidgets.QSlider(MainWindow)
-rectWidthValue.setGeometry(110, 580, 500, 30)
+rectWidthValue.setGeometry(110, y, 500, 30)
 rectWidthValue.setOrientation(QtCore.Qt.Horizontal)
 rectWidthValue.setMaximum(1919)
 rectWidthTitle = QtWidgets.QLabel(MainWindow)
-rectWidthTitle.setGeometry(70, 577, 80, 30)
+rectWidthTitle.setGeometry(70, y-3, 80, 30)
 font = QFont() 
 font.setPointSize(18)
 rectWidthTitle.setText("方寬")
 rectWidthTitle.setFont(font)
 rectWidthNum = QtWidgets.QLabel(MainWindow)
-rectWidthNum.setGeometry(620, 577, 80, 30)
+rectWidthNum.setGeometry(620, y-3, 80, 30)
 font = QFont() 
 font.setPointSize(18)
 rectWidthNum.setText("555")
 rectWidthNum.setFont(font)
-
+y += 30
 rectAdjustValue = QtWidgets.QSlider(MainWindow)
-rectAdjustValue.setGeometry(110, 610, 500, 30)
+rectAdjustValue.setGeometry(110, y, 500, 30)
 rectAdjustValue.setOrientation(QtCore.Qt.Horizontal)
 rectAdjustValue.setMaximum(100)
 rectAdjustTitle = QtWidgets.QLabel(MainWindow)
-rectAdjustTitle.setGeometry(70, 607, 80, 30)
+rectAdjustTitle.setGeometry(70, y-3, 80, 30)
 font = QFont() 
 font.setPointSize(18)
 rectAdjustTitle.setText("微調")
 rectAdjustTitle.setFont(font)
 rectAdjustNum = QtWidgets.QLabel(MainWindow)
-rectAdjustNum.setGeometry(620, 607, 80, 30)
+rectAdjustNum.setGeometry(620, y-3, 80, 30)
 font = QFont() 
 font.setPointSize(18)
 rectAdjustNum.setText("555")
 rectAdjustNum.setFont(font)
-
+y += 30
 siteValue = QtWidgets.QSlider(MainWindow)
-siteValue.setGeometry(110, 640, 500, 30)
+siteValue.setGeometry(110, y, 500, 30)
 siteValue.setOrientation(QtCore.Qt.Horizontal)
 siteValue.setMaximum(4)
 siteValue.setTickPosition(3)
 siteValue.setValue(2)
 # siteValue.setTickInterval(20)
 siteTitle = QtWidgets.QLabel(MainWindow)
-siteTitle.setGeometry(70, 637, 80, 30)
+siteTitle.setGeometry(70, y-3, 80, 30)
 font = QFont() 
 font.setPointSize(18)
 siteTitle.setText("  左")
 siteTitle.setFont(font)
 siteNum = QtWidgets.QLabel(MainWindow)
-siteNum.setGeometry(620, 637, 80, 30)
+siteNum.setGeometry(620, y-3, 80, 30)
 font = QFont() 
 font.setPointSize(18)
 siteNum.setText("右")
@@ -199,16 +200,16 @@ def slidingWindow(frame):
     suggestSite = True
     points = []
     # [959, 1079]
+    # TODO:add turn site identify
     while (cdnY-rectHeight >= 0):
         x1 = int((1919-rectWidth)/2)
-        x2 = x1 + rectWidth
         if rectWidth > 0:
             block = [[x1,x1+int(rectWidth/2)], [x1+int(rectWidth/2), x1+rectWidth]]
             blockPercent = [0, 0]
             keepAdjust = True
             runTime = 0
             lastBlock = []
-            addNum = 20
+            addNum = 40
             biggest = {"cdn": [], "dist": 50}
             while keepAdjust:
                 block = [[x1,x1+int(rectWidth/2)], [x1+int(rectWidth/2), x1+rectWidth]]
@@ -240,7 +241,7 @@ def slidingWindow(frame):
                             block = lastBlock
                             break
                         else:
-                            addNum = -20
+                            addNum = -40
                     elif block[1][1] > 1919:
                         print("\nout\n")
                         if lastBlock != []:
@@ -282,7 +283,7 @@ def slidingWindow(frame):
                             points.append([block[0][1], cdnY-rectHeight])
                             keepAdjust = False
                             break
-                        addNum = -20
+                        addNum = -40
                     elif block[1][1] > 1919:
                         keepAdjust = False
                         break
@@ -306,18 +307,18 @@ def slidingWindow(frame):
                             points.append([block[0][1], cdnY-rectHeight])
                         keepAdjust = False
                     else:
-                        addNum = 20
+                        addNum = 40
                         if blockPercent[0] > blockPercent[1]:
                             suggestSite = False
-                            addNum = -20
+                            addNum = -40
                         elif blockPercent[0] < blockPercent[1]:
                             suggestSite = True
-                            addNum = 20
+                            addNum = 40
                         elif blockPercent[0] == blockPercent[1]:
                             if not suggestSite:
-                                addNum = -20
+                                addNum = -40
                             else:
-                                addNum = 20
+                                addNum = 40
                         x1 += addNum
 
                 elif site == 3:
@@ -331,7 +332,7 @@ def slidingWindow(frame):
                             points.append([block[0][1], cdnY-rectHeight])
                             keepAdjust = False
                             break
-                        addNum = -20
+                        addNum = -40
                     elif block[0][0] < 0:
                         keepAdjust = False
                         break
@@ -359,9 +360,9 @@ def slidingWindow(frame):
                             block = lastBlock
                             break
                         else:
-                            addNum = -20
+                            addNum = -40
                     elif block[0][0] < 0:
-                        print("\nout\n")
+                        # print("\nout\n")
                         if lastBlock != []:
                             keepAdjust = False
                             points.append([lastBlock[0][1], cdnY-rectHeight])
@@ -497,11 +498,6 @@ class DeeplabV3(object):
 
         
         if self.mix_type == 0:
-            # seg_img = np.zeros((np.shape(pr)[0], np.shape(pr)[1], 3))
-            # for c in range(self.num_classes):
-            #     seg_img[:, :, 0] += ((pr[:, :] == c ) * self.colors[c][0]).astype('uint8')
-            #     seg_img[:, :, 1] += ((pr[:, :] == c ) * self.colors[c][1]).astype('uint8')
-            #     seg_img[:, :, 2] += ((pr[:, :] == c ) * self.colors[c][2]).astype('uint8')
             seg_img = np.reshape(np.array(self.colors, np.uint8)[np.reshape(pr, [-1])], [orininal_h, orininal_w, -1])
 
             # kernel = np.ones((7,7),np.uint8)
@@ -532,7 +528,7 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1460.MOV"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1413.MOV"
 video_save_path = ""
 video_fps       = 30.0
 
@@ -584,10 +580,8 @@ def opencv():
     if not ref:
         raise ValueError("Video source Error")
 
-    fps = 0.0
     while(ocv):
-        for i in range(1 if cameraUse else 9):
-            t1 = time.time()
+        for _ in range(1 if cameraUse else 9):
             ref, frame = capture.read()
             if cameraUse:
                 frame = cv2.flip(frame, 0)
@@ -606,9 +600,6 @@ def opencv():
 
         img = QImage(frame, width, height, bytesPerline, QImage.Format_RGB888)
         label.setPixmap(QPixmap.fromImage(img))
-        fps  = ( fps + (1./(time.time()-t1)) ) / 2
-        value = 0
-        mapValue = [0, 0]
         # print("fps= %.2f, angle= %4d"%(fps, 90), end='\r')
 
         c= cv2.waitKey(1) & 0xff 
