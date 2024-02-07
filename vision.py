@@ -42,7 +42,13 @@ label = QtWidgets.QLabel(MainWindow)
 label.setGeometry(0, 0, 720, 405)
 
 y = 435
-
+fpsText = QtWidgets.QLabel(MainWindow)
+fpsText.setGeometry(70, y, 120, 30)
+font = QFont() 
+font.setPointSize(24)
+fpsText.setFont(font)
+fpsText.setText("Fps: "+str(0))
+y += 50
 rectWidthValue = QtWidgets.QSlider(MainWindow)
 rectWidthValue.setGeometry(110, y, 500, 30)
 rectWidthValue.setOrientation(QtCore.Qt.Horizontal)
@@ -189,8 +195,9 @@ shortcut1.activated.connect(save)
 def map(value, from_low, from_high, to_low, to_high):
     return (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
 
+lastTime = time.time()
 def slidingWindow(frame):
-    global data, colors, site, openSerial
+    global data, colors, site, openSerial, lastTime
     rectColor = (0, 200 ,0)
 
     cdnY = 1079
@@ -302,23 +309,26 @@ def slidingWindow(frame):
                         x1 -= addNum
 
                 elif site == 2:
-                    if abs(blockPercent[0]-blockPercent[1]) <= 5:
-                        if blockPercent[0] != 0:
-                            points.append([block[0][1], cdnY-rectHeight])
+                    if abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
+                        points.append([block[0][1], cdnY-rectHeight])
                         keepAdjust = False
+                        break
+                    elif block[0][0] < 0 or block[1][1] > 1919:
+                        # points.append([959, cdnY-rectHeight])
+                        keepAdjust = False
+                        break
                     else:
-                        addNum = 40
-                        if blockPercent[0] > blockPercent[1]:
+                        if blockPercent[0] > blockPercent[1] and blockPercent[0] > 10:
                             suggestSite = False
                             addNum = -40
-                        elif blockPercent[0] < blockPercent[1]:
+                        elif blockPercent[0] < blockPercent[1] and blockPercent[0] > 10:
                             suggestSite = True
                             addNum = 40
-                        elif blockPercent[0] == blockPercent[1]:
-                            if not suggestSite:
-                                addNum = -40
-                            else:
+                        else:
+                            if suggestSite:
                                 addNum = 40
+                            else:
+                                addNum = -40
                         x1 += addNum
 
                 elif site == 3:
@@ -394,7 +404,7 @@ def slidingWindow(frame):
                 if runTime >= 100:
                     keepAdjust = False
                     # print(blockPercent)
-                    print("break", block[1][1], site)
+                    print("break", blockPercent[0], blockPercent[1], site)
 
                     # print(f'顏色佔比: {percentage}%')
             # points.append([block[0][1], cdnY-rectHeight])
@@ -424,12 +434,17 @@ def slidingWindow(frame):
     relative_coords = point_coords - median_coords
     angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
     angle_deg = np.degrees(angle_rad)
+    #TODO:fix site 2 turning strstegy
     if site == 1 or site == 2 or site == 3:
         muiltNum = 1.5 if angle_deg<110 and angle_deg>70 else 1.3
     else:
         muiltNum = 0.8 if angle_deg<110 and angle_deg>70 else 0.7
     angle_deg = max(min(90+(angle_deg-90)*muiltNum, 180), 0)
-    print("fps= %.2f, angle= %4d"%(6, angle_deg), end='\r')
+
+    fps = round(1.0/(time.time()-lastTime), 2)
+    lastTime = time.time()
+    fpsText.setText("Fps: "+str(fps))
+    print("fps= %.2f, angle= %4d"%(fps, angle_deg), end='\r')
     if openSerial:
         global ser
         ser.write((str(int(angle_deg))+'\n').encode())
@@ -437,7 +452,7 @@ def slidingWindow(frame):
     return frame
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/3_3.h5',
+        "model_path"        : 'model/3_5.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
         "input_shape"       : [387, 688],
