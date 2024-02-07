@@ -3,10 +3,8 @@ import geopandas as gpd
 from shapely.geometry import LineString
 import math
 
-# 本地 .osm 文件的路径
 osm_file_path = "TYAIcampus2.osm"
 
-# 读取 .osm 文件并创建图形数据
 G = ox.graph_from_xml(osm_file_path)
 fig, ax = ox.plot_graph(G, show=True, close=True, figsize=(10, 10), edge_color='#FFF', bgcolor='#F1F2F8', edge_linewidth=5.0, node_size=20, node_color="#FFC97E")
 

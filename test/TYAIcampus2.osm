@@ -78,7 +78,6 @@
  <node id="1007082411" visible="true" version="3" changeset="102738375" timestamp="2021-04-11T13:10:39Z" user="assanges" uid="2859698" lat="24.9996267" lon="121.3160431"/>
  <node id="1007082419" visible="true" version="4" changeset="102738375" timestamp="2021-04-11T13:10:39Z" user="assanges" uid="2859698" lat="24.9944616" lon="121.3180570"/>
  <node id="1007082434" visible="true" version="4" changeset="116872055" timestamp="2022-02-01T14:48:18Z" user="Littlebtc" uid="1439333" lat="24.9954625" lon="121.3191348"/>
- <node id="1007082437" visible="true" version="3" changeset="102738375" timestamp="2021-04-11T13:10:39Z" user="assanges" uid="2859698" lat="25.0001147" lon="121.3158528"/>
  <node id="1007082445" visible="true" version="2" changeset="42345133" timestamp="2016-09-22T11:24:28Z" user="poornibadrinath" uid="1597155" lat="24.9960805" lon="121.3231946">
   <tag k="highway" v="traffic_signals"/>
  </node>
