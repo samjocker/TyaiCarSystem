@@ -20,12 +20,16 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import requests
 
+import simpleaudio as sa
+
+autoPilot = False
+
 openSerial = False
 cameraUse = False
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem11301'
+    COM_PORT = '/dev/cu.usbmodem1401'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -132,7 +136,14 @@ except KeyError:
 except Exception as e:
     print(e)
 
+def play_sound(sound_file, end=False):
+    wave_obj = sa.WaveObject.from_wave_file(sound_file)
+    play_obj = wave_obj.play()
+    if end:
+        play_obj.wait_done()
+
 def keyPressEvent(event):
+    global autoPilot
     # event.key() 會返回被按下的按鍵的鍵碼
     commandNum = 0
     if event.key() == QtCore.Qt.Key_A:
@@ -147,6 +158,12 @@ def keyPressEvent(event):
         siteValue.setValue(4)
     elif event.key() == QtCore.Qt.Key_Escape:
         commandNum = 300
+        autoPilot = False
+        play_sound("sound/autoPilotOFF.wav")
+    elif event.key() == QtCore.Qt.Key_Q:
+        commandNum = 301
+        autoPilot = True
+        play_sound("sound/autoPilotON.wav")
     elif event.key() == QtCore.Qt.Key_U:
         commandNum = 411
     elif event.key() == QtCore.Qt.Key_I:
@@ -197,7 +214,7 @@ def map(value, from_low, from_high, to_low, to_high):
 
 lastTime = time.time()
 def slidingWindow(frame):
-    global data, colors, site, openSerial, lastTime
+    global data, colors, site, openSerial, lastTime, autoPilot
     rectColor = (0, 200 ,0)
 
     cdnY = 1079
@@ -251,7 +268,6 @@ def slidingWindow(frame):
                         else:
                             addNum = -40
                     elif block[1][1] > 1919:
-                        print("\nout\n")
                         if lastBlock != []:
                             keepAdjust = False
                             points.append([lastBlock[0][1], cdnY-rectHeight])
@@ -411,7 +427,8 @@ def slidingWindow(frame):
             # points.append([block[0][1], cdnY-rectHeight])
             testPoints_array = np.array(testPoints, dtype=np.int32)
             cv2.polylines(frame, [testPoints_array], isClosed=False, color=(235, 0, 0), thickness=20)
-            cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
+            if autoPilot:
+                cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
         #     cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
         # 2, (0, 255, 255), 4, cv2.LINE_AA)
         #     cv2.putText(frame, str(blockPercent[1]), (block[1][1]+10, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
@@ -425,7 +442,7 @@ def slidingWindow(frame):
     if blockPercent[0]+blockPercent[1] < 10:
         rectColor = (200, 0, 0)
     coords = np.array(points)
-    median_coords = np.median(coords, axis=0)
+    median_coords = np.median(coords, axis=0) if site != 2 else np.mean(coords, axis=0)
     cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
     if site == 4:
         point_coords = np.array([1050, 1079])
@@ -436,20 +453,22 @@ def slidingWindow(frame):
     relative_coords = point_coords - median_coords
     angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
     angle_deg = np.degrees(angle_rad)
-    #FIXME:site 4 turning strstegy
-    if site == 1 or site == 2 or site == 3:
+
+    if site == 1 or site == 3:
         muiltNum = 1.5 if angle_deg<110 and angle_deg>70 else 1.3
+    elif site == 2:
+        muiltNum = 2.5
     elif site == 4:
         if angle_deg >= 90:
-            muiltNum = 0.8 if angle_deg<110 else 0.7
+            muiltNum = 0.7 if angle_deg<110 else 0.6
         else:
-            muiltNum = 1.5
+            muiltNum = 3
     elif site == 0:
         if angle_deg <= 90:
             muiltNum = 0.8 if angle_deg>70 else 0.7
         else:
-            muiltNum = 1.5
-    angle_deg = max(min(90+(angle_deg-90)*muiltNum, 180), 0)
+            muiltNum = 3
+    angle_deg = int(max(min(90+(angle_deg-90)*muiltNum, 180), 0))
 
     fps = round(1.0/(time.time()-lastTime), 2)
     lastTime = time.time()
