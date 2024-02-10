@@ -213,8 +213,9 @@ def map(value, from_low, from_high, to_low, to_high):
     return (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
 
 lastTime = time.time()
+lastRoute = []
 def slidingWindow(frame):
-    global data, colors, site, openSerial, lastTime, autoPilot
+    global data, colors, site, openSerial, lastTime, autoPilot, lastRoute
     rectColor = (0, 200 ,0)
 
     cdnY = 1079
@@ -227,7 +228,7 @@ def slidingWindow(frame):
     # TODO:add turn site identify
     while (cdnY-rectHeight >= 0):
         x1 = int((1919-rectWidth)/2)
-        if rectWidth > 0:
+        if rectWidth > 20:
             block = [[x1,x1+int(rectWidth/2)], [x1+int(rectWidth/2), x1+rectWidth]]
             blockPercent = [0, 0]
             keepAdjust = True
@@ -438,6 +439,14 @@ def slidingWindow(frame):
         rectWidth = max(rectWidth, 0)
 
     points_array = np.array(points, dtype=np.int32)
+    mixPoints = []
+    if lastRoute != []:
+        for n,r in enumerate(points):
+            if n<len(lastRoute):
+                mixPoints.append([int(lastRoute[n][0]*0.5+r[0]*0.5), r[1]])
+        mixPointsArray = np.array(mixPoints)
+        cv2.polylines(frame, [mixPointsArray], isClosed=False,color=[0, 0, 255], thickness= 50)
+    lastRoute = points
     cv2.polylines(frame, [points_array], isClosed=False, color=(235, 99, 169), thickness=40)
     if blockPercent[0]+blockPercent[1] < 10:
         rectColor = (200, 0, 0)
@@ -445,9 +454,9 @@ def slidingWindow(frame):
     median_coords = np.median(coords, axis=0) if site != 2 else np.mean(coords, axis=0)
     cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
     if site == 4:
-        point_coords = np.array([1050, 1079])
+        point_coords = np.array([1200, 1079])
     elif site == 0:
-        point_coords = np.array([880, 1079])
+        point_coords = np.array([718, 1079])
     else:
         point_coords = np.array([959, 1079])
     relative_coords = point_coords - median_coords
@@ -459,15 +468,15 @@ def slidingWindow(frame):
     elif site == 2:
         muiltNum = 2.5
     elif site == 4:
-        if angle_deg >= 90:
+        if angle_deg >= 100:
             muiltNum = 0.7 if angle_deg<110 else 0.6
         else:
-            muiltNum = 3
+            muiltNum = 1.7
     elif site == 0:
-        if angle_deg <= 90:
-            muiltNum = 0.8 if angle_deg>70 else 0.7
+        if angle_deg <= 80:
+            muiltNum = 0.7 if angle_deg>70 else 0.6
         else:
-            muiltNum = 3
+            muiltNum = 1.7
     angle_deg = int(max(min(90+(angle_deg-90)*muiltNum, 180), 0))
 
     fps = round(1.0/(time.time()-lastTime), 2)
@@ -481,7 +490,7 @@ def slidingWindow(frame):
     return frame
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/3_5.h5',
+        "model_path"        : 'model/3_7.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
         "input_shape"       : [387, 688],
