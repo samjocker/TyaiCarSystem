@@ -1,8 +1,9 @@
 from view import get_view
 import cv2
 import numpy as np
-from PyQt5 import QtWidgets, QtCore
-import sys
+import threading
+import time
+
 
 cap = cv2.VideoCapture("/media/yihuan/yihuanMissd/missd1t/IMG_1461.MOV")
 
@@ -12,16 +13,16 @@ def perspective_correction(image):
     image = np.array(image)
 
     # 定義原始四邊形的四個點
-    original_points = np.float32([[-400, 480], [1120, 480],[150, 280], [570, 280]])
+    original_points = np.float32([[-400, 480], [1264, 480],[200, 230], [664, 230]])
 
     # 定義梯形校正後的四個點
-    corrected_points = np.float32([[200, 480], [520, 480], [200, 0], [520, 0]])
+    corrected_points = np.float32([[300, 480], [564, 480], [200, 0], [664, 0]])
 
     # 計算透視變換矩陣
     perspective_matrix = cv2.getPerspectiveTransform(original_points, corrected_points)
 
     # 執行透視變換
-    result = cv2.warpPerspective(image, perspective_matrix, (720, 480))
+    result = cv2.warpPerspective(image, perspective_matrix, (864, 480))
 
     return result
 
@@ -59,7 +60,7 @@ def get_edges(pil_image,original_image):
             thresh[labels == label] = 0
 
     # 霍夫直線變換
-    lines = cv2.HoughLines(thresh, 1, np.pi/180, threshold=300)  # 可根據需要調整閾值
+    lines = cv2.HoughLines(thresh, 1, np.pi/180, threshold=200)  # 可根據需要調整閾值
 
 
     # 繪製直線段
@@ -81,6 +82,9 @@ def get_edges(pil_image,original_image):
     return original_image
 
 
+# 計算幀率的參數
+frame_count = 0
+start_time = time.time()
 
 
 while True:
@@ -98,9 +102,21 @@ while True:
         #display_frame = get_edges(processed_frame[2],processed_frame[0])
         display_frame = perspective_correction(processed_frame[2])
 
+        display_frame = get_edges(display_frame,display_frame)
+
         cv2.imshow('Processed Frame', np.array(display_frame))
+        cv2.imshow('original', np.array(frame))
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     else:
         break
+
+    # 計算幀率
+    frame_count += 1
+    if time.time() - start_time >= 1:
+        fps = frame_count / (time.time() - start_time)
+        print("FPS:", fps)
+        frame_count = 0
+        start_time = time.time()
+
