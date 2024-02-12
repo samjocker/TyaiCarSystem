@@ -1,9 +1,29 @@
 from view import get_view
 import cv2
 import numpy as np
+from PyQt5 import QtWidgets, QtCore
+import sys
 
-cap = cv2.VideoCapture("E:\\missd1t\\test5.mp4")
+cap = cv2.VideoCapture("/media/yihuan/yihuanMissd/missd1t/IMG_1461.MOV")
 
+
+def perspective_correction(image):
+
+    image = np.array(image)
+
+    # 定義原始四邊形的四個點
+    original_points = np.float32([[-400, 480], [1120, 480],[150, 280], [570, 280]])
+
+    # 定義梯形校正後的四個點
+    corrected_points = np.float32([[200, 480], [520, 480], [200, 0], [520, 0]])
+
+    # 計算透視變換矩陣
+    perspective_matrix = cv2.getPerspectiveTransform(original_points, corrected_points)
+
+    # 執行透視變換
+    result = cv2.warpPerspective(image, perspective_matrix, (720, 480))
+
+    return result
 
 
 def get_edges(pil_image,original_image):
@@ -59,9 +79,13 @@ def get_edges(pil_image,original_image):
                 
 
     return original_image
+
+
+
+
 while True:
 
-    for i in range(20): 
+    for i in range(1): 
         ret, frame = cap.read()
 
     frame = cv2.resize(frame, (864, 480))
@@ -71,7 +95,8 @@ while True:
     if ret:
         processed_frame = get_view(frame)
 
-        display_frame = get_edges(processed_frame[2],processed_frame[0])
+        #display_frame = get_edges(processed_frame[2],processed_frame[0])
+        display_frame = perspective_correction(processed_frame[2])
 
         cv2.imshow('Processed Frame', np.array(display_frame))
 
