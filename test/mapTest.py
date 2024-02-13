@@ -16,8 +16,8 @@ def get_coordinates(api_url):
 
 # 取得座標資料
 api_url = "http://xhinherpro.xamjiang.com/getData"
-# latitude, longitude = get_coordinates(api_url)
-latitude, longitude = 24.99250, 121.32032
+latitude, longitude = get_coordinates(api_url)
+# latitude, longitude = 24.99250, 121.32032
 
 if latitude > 50:
     temp = longitude
@@ -31,7 +31,7 @@ origin = ox.distance.nearest_nodes(G, longitude, latitude)
 destination = ox.distance.nearest_nodes(G, 121.32012, 24.99422)
 
 route = nx.shortest_path(G, origin, destination)
-ox.plot_graph_route(G, route)
+# ox.plot_graph_route(G, route)
 
 # 取得所有點的座標
 nodes = list(G.nodes())
@@ -70,19 +70,21 @@ scale_y = height / (max_y - min_y)
 
 # 繪製地圖
 img = np.zeros((height, width, 3), dtype=np.uint8)
-for x, y in node_coordinates:
-    x = int((x - min_x) * scale_x - 1)
-    y = int((y - min_y) * scale_y - 1)
-    # img[y, x] = (255, 255, 255)
-    cv2.circle(img, (x, y), 3, (255, 255, 0), 3, -1)
-
-cv2.circle(img, (int((longitude - min_x) * scale_x - 1), int((latitude - min_y) * scale_y - 1)), 3, (0, 0, 255), 3, -1)
+img.fill(255)
 for u, v in edge_coordinates:
     ux = int((u[0] - min_x) * scale_x)
     uy = int((u[1] - min_y) * scale_y)
     vx = int((v[0] - min_x) * scale_x)
     vy = int((v[1] - min_y) * scale_y)
-    cv2.line(img, (ux, uy), (vx, vy), (255, 255, 255), 4)
+    cv2.line(img, (ux, uy), (vx, vy), (248, 242, 241), 4)
+
+for x, y in node_coordinates:
+    x = int((x - min_x) * scale_x - 1)
+    y = int((y - min_y) * scale_y - 1)
+    # img[y, x] = (255, 255, 255)
+    cv2.circle(img, (x, y), 2, (126, 201, 255), 2, -1)
+
+cv2.circle(img, (int((longitude - min_x) * scale_x - 1), int((latitude - min_y) * scale_y - 1)), 3, (255, 205, 125), 3, -1)
 img = cv2.flip(img, 0)
 cv2.imshow('Map', img)
 cv2.waitKey(0)
@@ -104,6 +106,6 @@ cdnY = int(img.shape[1]/2)
 # cv2.circle(img, (cdnX, cdnY), 15, (0, 149, 255), 5)
 
 # 顯示調整後的圖像
-cv2.imshow('Adjusted Map', img)
+# cv2.imshow('Adjusted Map', img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()

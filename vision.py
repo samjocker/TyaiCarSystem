@@ -45,6 +45,9 @@ MainWindow.resize(720, 685)
 label = QtWidgets.QLabel(MainWindow)
 label.setGeometry(0, 0, 720, 405)
 
+mapLabel = QtWidgets.QLabel(MainWindow)
+mapLabel.setGeometry(560, 10, 150, 150)
+
 y = 435
 fpsText = QtWidgets.QLabel(MainWindow)
 fpsText.setGeometry(70, y, 120, 30)
@@ -211,6 +214,62 @@ shortcut1.activated.connect(save)
 
 def map(value, from_low, from_high, to_low, to_high):
     return (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
+
+def mask_image(imgdata, angle, size = 150): 
+  
+    # Load image 
+    # image = QImage.fromData(imgdata, imgtype) 
+    h,w,c = imgdata.shape
+    image = QImage(imgdata.data, w, h, 3*w, QImage.Format_RGB888)
+  
+    # convert image to 32-bit ARGB (adds an alpha 
+    # channel ie transparency factor): 
+    image.convertToFormat(QImage.Format_ARGB32) 
+  
+    # Crop image to a square: 
+    imgsize = min(image.width(), image.height()) 
+    rect = QtCore.QRect( 
+        (image.width() - imgsize) / 2, 
+        (image.height() - imgsize) / 2, 
+        imgsize, 
+        imgsize, 
+     ) 
+       
+    image = image.copy(rect) 
+  
+    # Create the output image with the same dimensions  
+    # and an alpha channel and make it completely transparent: 
+    out_img = QImage(imgsize, imgsize, QImage.Format_ARGB32) 
+    out_img.fill(QtCore.Qt.transparent) 
+  
+    # Create a texture brush and paint a circle  
+    # with the original image onto the output image: 
+    brush = QBrush(image) 
+  
+    # Paint the output image 
+    painter = QPainter(out_img) 
+    painter.setBrush(brush) 
+  
+    # Don't draw an outline 
+    painter.setPen(QtCore.Qt.NoPen) 
+  
+    # drawing circle 
+    painter.drawEllipse(0, 0, imgsize, imgsize) 
+  
+    # closing painter event 
+    painter.end() 
+  
+    # Convert the image to a pixmap and rescale it.  
+    pr = QWindow().devicePixelRatio() 
+    pm = QPixmap.fromImage(out_img) 
+    pm.setDevicePixelRatio(pr) 
+    size *= pr 
+    pm = pm.scaled(size, size, QtCore.Qt.KeepAspectRatio,  
+                               QtCore.Qt.SmoothTransformation) 
+  
+    # return back the pixmap data 
+
+    return pm
 
 lastTime = time.time()
 lastRoute = []
@@ -587,6 +646,8 @@ video_fps       = 30.0
 
 mapImg = output = np.zeros((400, 400, 3), dtype="uint8")
 def getMap():
+
+    global mapLabel
     # 取得座標資料
     api_url = "http://xhinherpro.xamjiang.com/getData"
     response = requests.get(api_url)
@@ -594,31 +655,87 @@ def getMap():
     print(data)
     latitude = data["latitude"]
     longitude = data["longitude"]
+    angle = int(data["site"])
+
+    if latitude > 50:
+        temp = longitude
+        longitude = latitude
+        latitude = temp
 
     # 獲取地圖數據
-    G = ox.graph_from_point((longitude, latitude), dist=150, network_type='drive_service')
+    G = ox.graph_from_point((latitude, longitude), dist=200, network_type='drive_service')
+    print(G)
+    origin = ox.distance.nearest_nodes(G, longitude, latitude)
+    destination = ox.distance.nearest_nodes(G, 121.32012, 24.99422)
 
-    # 繪製地圖並設定路徑和背景的顏色
-    fig, ax = ox.plot_graph(G, show=False, close=False, figsize=(10, 10), edge_color='white', bgcolor='gray', edge_linewidth=10.0)
+    route = nx.shortest_path(G, origin, destination)
+    # ox.plot_graph_route(G, route)
 
-    # 將Matplotlib圖像轉換為OpenCV格式
-    fig.canvas.draw()
-    img = np.array(fig.canvas.renderer.buffer_rgba())
+    # 取得所有點的座標
+    nodes = list(G.nodes())
+    node_coordinates = []
 
-    # 對圖像進行顏色和對比度調整（可以根據需要進行更進一步的調整）
-    alpha = 1.5  # 控制對比度
-    beta = 30    # 控制亮度
-    adjusted_img = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
-    foreground = cv2.resize(adjusted_img, (400, 400))
-    output = np.zeros((400, 400, 3), dtype="uint8")
-    center_coordinates = (200, 200)
-    radius = 200
-    color = (255, 255, 255)  # 白色
+    for node in nodes:
+        x, y = G.nodes[node]['x'], G.nodes[node]['y']
+        node_coordinates.append((x, y))
 
-    cv2.circle(output, center_coordinates, radius, color, -1)
 
-    mapImg = cv2.bitwise_and(foreground, output)
+    # 取得所有線條的座標
+    edges = list(G.edges())
+    edge_coordinates = []
+    for edge in edges:
+        u, v = edge
+        x1, y1 = G.nodes[u]['x'], G.nodes[u]['y']
+        x2, y2 = G.nodes[v]['x'], G.nodes[v]['y']
+        edge_coordinates.append([(x1, y1), (x2, y2)])
+        
+    # 計算最右最左最上最下的值
+    min_x = min([x for x, _ in node_coordinates])
+    min_y = min([y for _, y in node_coordinates])
+    max_x = max([x for x, _ in node_coordinates])
+    max_y = max([y for _, y in node_coordinates])
 
+    # 等比例轉換成能放進去500*500的OpenCV空白畫面內顯示
+    width = 500
+    height = 500
+    scale_x = width / (max_x - min_x)
+    scale_y = height / (max_y - min_y)
+
+    # 繪製地圖
+    img = np.zeros((height, width, 3), dtype=np.uint8)
+    img.fill(255)
+    for u, v in edge_coordinates:
+        ux = int((u[0] - min_x) * scale_x)
+        uy = int((u[1] - min_y) * scale_y)
+        vx = int((v[0] - min_x) * scale_x)
+        vy = int((v[1] - min_y) * scale_y)
+        cv2.line(img, (ux, uy), (vx, vy), (248, 242, 241), 4)
+
+    for x, y in node_coordinates:
+        x = int((x - min_x) * scale_x - 1)
+        y = int((y - min_y) * scale_y - 1)
+        # img[y, x] = (255, 255, 255)
+        cv2.circle(img, (x, y), 2, (126, 201, 255), 2, -1)
+
+    cv2.circle(img, (int((longitude - min_x) * scale_x - 1), int((latitude - min_y) * scale_y - 1)), 3, (255, 205, 125), 3, -1)
+    img = cv2.flip(img, 0)
+
+        # 將 NumPy 陣列轉換為 QImage
+    qimage = QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888)
+
+    # 創建 QPainter 對象
+    painter = QPainter()
+
+    # 將 QImage 繪製到畫布上
+    painter.drawImage(0, 0, qimage)
+
+    # 繪製圓形
+    painter.drawEllipse(QtCore.QPoint(250, 250), 250, 250)
+
+    # 將畫布轉換為 QPixmap
+    mapImg = QImage(img, 250, 250, 250*3, QImage.Format_RGB888)
+    # mapLabel.setPixmap(QPixmap.fromImage(mapImg))
+    mapLabel.setPixmap(mask_image(img, angle)) 
 
 def opencv():
     global ocv,video_path,video_save_path,video_fps, sideButtonState, openSerial
@@ -632,6 +749,8 @@ def opencv():
     ref, frame = capture.read()
     if not ref:
         raise ValueError("Video source Error")
+    
+    getMap()
 
     while(ocv):
         for _ in range(1 if cameraUse else 9):
