@@ -46,7 +46,7 @@ label = QtWidgets.QLabel(MainWindow)
 label.setGeometry(0, 0, 720, 405)
 
 mapLabel = QtWidgets.QLabel(MainWindow)
-mapLabel.setGeometry(560, 10, 150, 150)
+mapLabel.setGeometry(555, -10, 150, 150)
 
 y = 435
 fpsText = QtWidgets.QLabel(MainWindow)
@@ -204,7 +204,6 @@ def closeOpenCV():
 MainWindow.closeEvent = closeOpenCV  
 
 def save():
-    global data
     # data = {"middlePointX": data["middlePointX"], "middlePointY": data["middlePointY"]}
     with open("setting.json", 'w') as file:
         json.dump(data, file)
@@ -216,7 +215,7 @@ def map(value, from_low, from_high, to_low, to_high):
     return (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
 
 def mask_image(imgdata, angle, size = 150): 
-  
+    global data
     # Load image 
     # image = QImage.fromData(imgdata, imgtype) 
     h,w,c = imgdata.shape
@@ -267,8 +266,9 @@ def mask_image(imgdata, angle, size = 150):
     pm = pm.scaled(size, size, QtCore.Qt.KeepAspectRatio,  
                                QtCore.Qt.SmoothTransformation) 
   
-    # return back the pixmap data 
-
+    # Rotate the pixmap by 30 degrees
+    pm = pm.transformed(QTransform().rotate(120))
+    # Return back the rotated pixmap data
     return pm
 
 lastTime = time.time()
@@ -644,7 +644,7 @@ video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/v
 video_save_path = ""
 video_fps       = 30.0
 
-mapImg = output = np.zeros((400, 400, 3), dtype="uint8")
+# mapImg = output = np.zeros((150, 150, 3), dtype="uint8")
 def getMap():
 
     global mapLabel
@@ -663,7 +663,7 @@ def getMap():
         latitude = temp
 
     # 獲取地圖數據
-    G = ox.graph_from_point((latitude, longitude), dist=200, network_type='drive_service')
+    G = ox.graph_from_point((latitude, longitude), dist=400, network_type='drive_service')
     print(G)
     origin = ox.distance.nearest_nodes(G, longitude, latitude)
     destination = ox.distance.nearest_nodes(G, 121.32012, 24.99422)
@@ -696,8 +696,8 @@ def getMap():
     max_y = max([y for _, y in node_coordinates])
 
     # 等比例轉換成能放進去500*500的OpenCV空白畫面內顯示
-    width = 500
-    height = 500
+    width = 150
+    height = 150
     scale_x = width / (max_x - min_x)
     scale_y = height / (max_y - min_y)
 
@@ -720,20 +720,20 @@ def getMap():
     cv2.circle(img, (int((longitude - min_x) * scale_x - 1), int((latitude - min_y) * scale_y - 1)), 3, (255, 205, 125), 3, -1)
     img = cv2.flip(img, 0)
 
-        # 將 NumPy 陣列轉換為 QImage
-    qimage = QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888)
+    #     # 將 NumPy 陣列轉換為 QImage
+    # qimage = QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888)
 
-    # 創建 QPainter 對象
-    painter = QPainter()
+    # # 創建 QPainter 對象
+    # painter = QPainter()
 
-    # 將 QImage 繪製到畫布上
-    painter.drawImage(0, 0, qimage)
+    # # 將 QImage 繪製到畫布上
+    # painter.drawImage(0, 0, qimage)
 
-    # 繪製圓形
-    painter.drawEllipse(QtCore.QPoint(250, 250), 250, 250)
+    # # 繪製圓形
+    # painter.drawEllipse(QtCore.QPoint(150, 150), 150, 150)
 
     # 將畫布轉換為 QPixmap
-    mapImg = QImage(img, 250, 250, 250*3, QImage.Format_RGB888)
+    # mapImg = QImage(img, 250, 250, 250*3, QImage.Format_RGB888)
     # mapLabel.setPixmap(QPixmap.fromImage(mapImg))
     mapLabel.setPixmap(mask_image(img, angle)) 
 
