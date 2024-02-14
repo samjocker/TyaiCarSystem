@@ -278,13 +278,11 @@ def slidingWindow(frame):
     rectColor = (0, 200 ,0)
 
     cdnY = 1079
-    rectHeight = 50
+    rectHeight = 20
     rectWidth = int(data["rectWidth"])
     adjustNum = int(rectWidth*(data["rectAdjust"]/100))
-    suggestSite = True
     points = []
     # [959, 1079]
-    # TODO:add turn site identify
     while (cdnY-rectHeight >= 0):
         x1 = int((1919-rectWidth)/2)
         if rectWidth > 20:
@@ -292,10 +290,9 @@ def slidingWindow(frame):
             blockPercent = [0, 0]
             keepAdjust = True
             runTime = 0
-            lastBlock = []
             addNum = 40
-            biggest = {"cdn": [], "dist": 50}
-            testPoints = []
+            farRight = None
+            farLeft = None
             while keepAdjust:
                 block = [[x1,x1+int(rectWidth/2)], [x1+int(rectWidth/2), x1+rectWidth]]
                 for b in range(2):
@@ -312,181 +309,29 @@ def slidingWindow(frame):
                         if total_pixels != 0:
                             percentage = int((total_pixels / ((roi.shape[0]-3) *( roi.shape[1]-3))) * 100)
                             blockPercent[b] = percentage
-
-                runTime += 1
-
-                if site == 0:
-                    # addNum = -20
-
                     
-                    if block[0][0] < 0:
-                        if lastBlock != []:
-                            keepAdjust = False
-                            points.append([lastBlock[0][1], cdnY-rectHeight])
-                            block = lastBlock
-                            break
-                        else:
-                            addNum = -40
-                    elif block[1][1] > 1919:
-                        if lastBlock != []:
-                            keepAdjust = False
-                            points.append([lastBlock[0][1], cdnY-rectHeight])
-                            break
-                        elif biggest["cdn"] != []:
-                            keepAdjust = False
-                            points.append([biggest["cdn"][0][1], cdnY-rectHeight])
-                            block = biggest["cdn"]
-                            break
-                        else:
-                            break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 20 and blockPercent[0] > 5:
-                        lastBlock = block
-                        if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
-                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                            biggest["cdn"] = block
-                    elif abs(blockPercent[0]-blockPercent[1]) > 10:
-                        if lastBlock != []:
-                            keepAdjust = False
-                            block = lastBlock
-                            points.append([block[0][1], cdnY-rectHeight])
-                            break
-                        else:
-                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
-                                biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                                biggest["cdn"] = block
-                    x1 -= addNum
-
-                elif site == 1:
-
-                    if block[0][0] < 0:
-                        # if biggest["cdn"] != []:
-                        #     points.append(biggest["cdn"])
-                        # keepAdjust = False
-                        # break
-                        if abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
-                            points.append([block[0][1], cdnY-rectHeight])
-                            keepAdjust = False
-                            break
-                        addNum = -40
-                    elif block[1][1] > 1919:
-                        keepAdjust = False
-                        break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
-                        # if biggest["cdn"] != []:
-                        #     points.append(biggest["cdn"])
-                        # else:
-                        points.append([block[0][1], cdnY-rectHeight])
-                        keepAdjust = False
-                        break
-                    else:
-                        if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
-                            biggest["cdn"] = [block[0][1], cdnY-rectHeight]
-                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                        
-                        x1 -= addNum
-
-                elif site == 2:
-                    if abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
-                        points.append([block[0][1], cdnY-rectHeight])
-                        keepAdjust = False
-                        break
-                    elif block[0][0] < 0 or block[1][1] > 1919:
-                        # points.append([959, cdnY-rectHeight])
-                        keepAdjust = False
-                        break
-                    else:
-                        if blockPercent[0] > blockPercent[1] and blockPercent[0] > 10:
-                            suggestSite = False
-                            addNum = -40
-                        elif blockPercent[0] < blockPercent[1] and blockPercent[0] > 10:
-                            suggestSite = True
-                            addNum = 40
-                        else:
-                            if suggestSite:
-                                addNum = 40
-                            else:
-                                addNum = -40
-                        x1 += addNum
-
-                elif site == 3:
-
-                    if block[1][1] > 1919:
-                        # if biggest["cdn"] != []:
-                        #     points.append(biggest["cdn"])
-                        # keepAdjust = False
-                        # break
-                        if abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
-                            points.append([block[0][1], cdnY-rectHeight])
-                            keepAdjust = False
-                            break
-                        addNum = -40
-                    elif block[0][0] < 0:
-                        keepAdjust = False
-                        break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 30 and blockPercent[0] > 5:
-                        # if biggest["cdn"] != []:
-                        #     points.append(biggest["cdn"])
-                        # else:
-                        points.append([block[0][1], cdnY-rectHeight])
-                        keepAdjust = False
-                        break
-                    else:
-                        if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
-                            biggest["cdn"] = [block[0][1], cdnY-rectHeight]
-                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                        
-                        x1 += addNum
-
-                elif site == 4:
-                    # addNum = 20
-                    if block[1][1] > 1919:
-                        if lastBlock != []:
-                            keepAdjust = False
-                            points.append([lastBlock[0][1], cdnY-rectHeight])
-                            block = lastBlock
-                            break
-                        else:
-                            x1 = int((1919-rectWidth)/2)
-                            addNum = -40
-                    elif block[0][0] < 0:
-                        # print("\nout\n")
-                        if lastBlock != []:
-                            keepAdjust = False
-                            points.append([lastBlock[0][1], cdnY-rectHeight])
-                            break
-                        elif biggest["cdn"] != []:
-                            keepAdjust = False
-                            points.append([biggest["cdn"][0][1], cdnY-rectHeight])
-                            block = biggest["cdn"]
-                            break
-                        else:
-                            break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 20 and blockPercent[0] > 5:
-                        lastBlock = block
-                        if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
-                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                            biggest["cdn"] = block
-                    else:
-                        if lastBlock != []:
-                            keepAdjust = False
-                            block = lastBlock
-                            points.append([block[0][1], cdnY-rectHeight])
-                            break
-                        else:
-                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"] and blockPercent[0] > 5:
-                                biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                                biggest["cdn"] = block
+                if block[1][1] > 1919:
+                    addNum = abs(addNum)*-1
                     x1 += addNum
-                # testPoints.append([block[0][1], cdnY-rectHeight])
-                if runTime >= 100:
+                    continue
+                elif block[0][0] < 0:
                     keepAdjust = False
-                    # print(blockPercent)
-                    print("break", blockPercent[0], blockPercent[1], site)
+                    break
 
-                    # print(f'顏色佔比: {percentage}%')
-            # points.append([block[0][1], cdnY-rectHeight])
-            testPoints_array = np.array(testPoints, dtype=np.int32)
-            cv2.polylines(frame, [testPoints_array], isClosed=False, color=(235, 0, 0), thickness=20)
+                if abs(blockPercent[0]-blockPercent[1]) < 15 and blockPercent[0] > 70:
+                    farLeft = block[0][1] if farLeft is None else farLeft
+                    farRight = block[0][1] if farRight is None else farRight
+                    if block[0][1] < farLeft:
+                        farLeft = block[0][1]
+                    if block[0][1] > farRight:
+                        farRight = block[0][1]
+                
+                x1 += addNum
+
+            if farLeft is not None and farRight is not None:
+                block[0][0] = farLeft - rectWidth
+                block[1][1] = farRight + rectWidth
+                points.append([int((farRight+farLeft)/2), cdnY])
             if autoPilot:
                 cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
         #     cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
