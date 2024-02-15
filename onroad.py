@@ -368,6 +368,13 @@ def keyPressEvent(event):
             ser.write("300\n".encode())
             print("servo change \n")
 
+ocv = True            
+def closeOpenCV():
+    global ocv
+    ocv = False        
+
+MainWindow.closeEvent = closeOpenCV  
+
 
 # trapezoid_label = QtWidgets.QLabel(MainWindow)
 # trapezoid_label.setGeometry(550, 0, 250, 160)
@@ -410,6 +417,7 @@ CamID = 0
 
 
 def opencv():
+    global ocv
 
     if useCam:
         capture = cv2.VideoCapture(CamID)
@@ -442,7 +450,7 @@ def opencv():
 
     
 
-    while True:
+    while ocv:
 
 
         t1 = time.time()
