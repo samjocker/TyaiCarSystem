@@ -25,8 +25,8 @@ from scipy.signal import convolve
 
 autoPilot = False
 
-openSerial = False
-cameraUse = False
+openSerial = True
+cameraUse = True
 
 if openSerial:
     print("Wait connect")
@@ -480,23 +480,23 @@ def slidingWindow(frame):
         if angle_deg >= 120 or angle_deg <= 60:
             muiltNum = 1.2
         else:
-            muiltNum = 0.5
+            muiltNum = 0.8
     elif site == 2:
-        muiltNum = 0.7
+        muiltNum = 0.8
     elif site == 4:
         if angle_deg >= 130:
             muiltNum = 1.4
         elif angle_deg <= 80:
             muiltNum = 1.2
         else:
-            muiltNum = 0.7
+            muiltNum = 0.8
     elif site == 0:
         if angle_deg <= 50:
             muiltNum = 1.4
         elif angle_deg >= 100:
             muiltNum = 1.2
         else:
-            muiltNum = 0.7
+            muiltNum = 0.8
     angle_deg = int(max(min(90+(angle_deg-90)*muiltNum, 180), 0))
 
     fps = round(1.0/(time.time()-lastTime), 2)
