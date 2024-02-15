@@ -332,6 +332,7 @@ def slidingWindow(frame):
                             block = lastBlock
                             break
                         else:
+                            x1 = int((1919-rectWidth)/2)
                             addNum = abs(addNum)*-1
                     elif block[1][1] > 1919:
                         if lastBlock != []:
@@ -345,12 +346,12 @@ def slidingWindow(frame):
                             break
                         else:
                             break
-                    elif abs(blockPercent[0]-blockPercent[1]) <= 20 and blockPercent[0] > 5:
+                    elif abs(blockPercent[0]-blockPercent[1]) <= 20 and blockPercent[1] > 40:
                         lastBlock = block
                         if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
                             biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
                             biggest["cdn"] = block
-                    elif abs(blockPercent[0]-blockPercent[1]) > 10:
+                    else:
                         if lastBlock != []:
                             keepAdjust = False
                             block = lastBlock
@@ -443,24 +444,31 @@ def slidingWindow(frame):
         rectWidth = max(rectWidth, 0)
 
     points_array = np.array(points, dtype=np.int32)
-    mixPoints = []
-    if lastRoute != []:
-        for n,r in enumerate(points):
-            if n<len(lastRoute):
-                mixPoints.append([int(lastRoute[n][0]*0.5+r[0]*0.5), r[1]])
-        mixPointsArray = np.array(mixPoints)
-        # cv2.polylines(frame, [mixPointsArray], isClosed=False,color=[0, 0, 255], thickness= 50)
-    lastRoute = points
+    if site == 0 or site == 4:
+        points_array = points_array[:10]
+    elif site == 2:
+        points_array = points_array[:15]
 
     cv2.polylines(frame, [points_array], isClosed=False, color=(235, 99, 169), thickness=40)
     if blockPercent[0]+blockPercent[1] < 10:
         rectColor = (200, 0, 0)
-    coords = np.array(points)
-    median_coords = np.median(coords, axis=0) if site != 2 else np.mean(coords, axis=0)
+    coords = points_array
+    if site != 2:
+        median_coords = np.median(coords, axis=0)
+    elif site == 1 or site == 3:
+        median_coords = np.mean(coords, axis=0)
+    else:
+        maxCdn = np.max(coords, axis=0)
+        minCdn = np.min(coords, axis=0)
+        if abs(maxCdn[0]-959) > abs(minCdn[0]-959):
+            median_coords = maxCdn
+        else:
+            median_coords = minCdn
+        
     cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
-    if site == 4:
+    if site >= 3:
         point_coords = np.array([1200, 1079])
-    elif site == 0:
+    elif site <= 1:
         point_coords = np.array([718, 1079])
     else:
         point_coords = np.array([959, 1079])
@@ -469,19 +477,26 @@ def slidingWindow(frame):
     angle_deg = np.degrees(angle_rad)
 
     if site == 1 or site == 3:
-        muiltNum = 1.5 if angle_deg<110 and angle_deg>70 else 1.3
+        if angle_deg >= 120 or angle_deg <= 60:
+            muiltNum = 1.2
+        else:
+            muiltNum = 0.5
     elif site == 2:
-        muiltNum = 2.5
+        muiltNum = 0.7
     elif site == 4:
-        if angle_deg >= 100:
-            muiltNum = 1 if angle_deg<110 else 1.1
+        if angle_deg >= 130:
+            muiltNum = 1.4
+        elif angle_deg <= 80:
+            muiltNum = 1.2
         else:
-            muiltNum = 1.7
+            muiltNum = 0.7
     elif site == 0:
-        if angle_deg <= 80:
-            muiltNum = 1 if angle_deg>70 else 1.1
+        if angle_deg <= 50:
+            muiltNum = 1.4
+        elif angle_deg >= 100:
+            muiltNum = 1.2
         else:
-            muiltNum = 1.7
+            muiltNum = 0.7
     angle_deg = int(max(min(90+(angle_deg-90)*muiltNum, 180), 0))
 
     fps = round(1.0/(time.time()-lastTime), 2)
