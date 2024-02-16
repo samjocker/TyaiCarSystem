@@ -25,8 +25,8 @@ from scipy.signal import convolve
 
 autoPilot = False
 
-openSerial = True
-cameraUse = True
+openSerial = False
+cameraUse = False
 
 if openSerial:
     print("Wait connect")
@@ -153,8 +153,9 @@ def play_sound(sound_file, end=False):
     if end:
         play_obj.wait_done()
 
+lastPlay = time.time()
 def keyPressEvent(event):
-    global autoPilot
+    global autoPilot, lastPlay
     # event.key() 會返回被按下的按鍵的鍵碼
     commandNum = 0
     if event.key() == QtCore.Qt.Key_A:
@@ -183,6 +184,10 @@ def keyPressEvent(event):
         commandNum = 421
     elif event.key() == QtCore.Qt.Key_P:
         commandNum = 420
+    elif event.key() == QtCore.Qt.Key_T:
+        if time.time() - lastPlay >= 2:
+            lastPlay = time.time()
+            play_sound("sound/warning.wav")
 
     if commandNum != 0:
         global ser, openSerial
