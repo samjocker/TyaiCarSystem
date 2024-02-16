@@ -112,7 +112,7 @@ def update_gps_data():
 
 
 
-openSerial = True
+openSerial = False
 
 def animate_rocket():
   distance_from_top = 20
@@ -432,7 +432,7 @@ for i in range(289, 450, 20):
     #boxWidth += 20
 
 # run
-useCam = True
+useCam = False
 CamID = 0
 
 

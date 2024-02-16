@@ -21,8 +21,7 @@ from PIL import Image
 from nets.deeplab import Deeplabv3
 from utils.utils import cvtColor, preprocess_input, resize_image
 
-from PyQt5.QtGui import QPixmap, QImage
-from PIL import ImageQt
+
 
 import math, os
 import serial
@@ -131,7 +130,7 @@ def animate_rocket():
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem1101'
+    COM_PORT = '/dev/cu.usbmodem1401'
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -152,9 +151,7 @@ if openSerial:
     # print("servoFree!!!")
 
 colors = [(0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128),
-          (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128),
-          (64, 128, 128), (192, 128, 128), (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128),
-          (128, 64, 12)]
+          (128, 128, 128)]
 
 
 class DeeplabV3(object):
@@ -242,8 +239,10 @@ class DeeplabV3(object):
 
 deeplab = DeeplabV3()
 
-video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1461.MOV"
-#video_path = r"/Volumes/YihuanMiSSD/test8.MOV"
+#video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1461.MOV"
+video_path = r"D:/Data/project/tyaiCar/TyaiCarSystem/IMG_1460.MOV"
+
+#video_path = r"/Volumes/YihuanMiSSD/IMG_1460.MOV"
 #video_path = r"D:/IMG_1319.MOV"
 
 video_save_path = ""
@@ -341,12 +340,96 @@ datumYslider.setMaximum(2)
 datumYslider.setMinimum(0)
 datumYslider.setValue(1)
 
+vdatumYslider = QtWidgets.QSlider(MainWindow)
+vdatumYslider.setGeometry(0,520, 864, 30)
+vdatumYslider.setOrientation(QtCore.Qt.Horizontal)
+vdatumYslider.setMaximum(190)
+vdatumYslider.setMinimum(-180)
+vdatumYslider.setValue(190)
 
-trapezoid_label = QtWidgets.QLabel(MainWindow)
-trapezoid_label.setGeometry(550, 0, 250, 160)
-trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
-trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+autoPilot = False
 
+AdatumYslider = QtWidgets.QSlider(MainWindow)
+AdatumYslider.setGeometry(0,540, 864, 30)
+AdatumYslider.setOrientation(QtCore.Qt.Horizontal)
+AdatumYslider.setMaximum(0)
+AdatumYslider.setMinimum(1)
+AdatumYslider.setValue(0)
+
+servoState = False
+def keyPressEvent(event):
+    global autoPilot
+    # event.key() 會返回被按下的按鍵的鍵碼
+    commandNum = 0
+    # if event.key() == QtCore.Qt.Key_A:
+    #     siteValue.setValue(0)
+    # elif event.key() == QtCore.Qt.Key_S:
+    #     siteValue.setValue(1)
+    # elif event.key() == QtCore.Qt.Key_D:
+    #     siteValue.setValue(2)
+    # elif event.key() == QtCore.Qt.Key_F:
+    #     siteValue.setValue(3)
+    # elif event.key() == QtCore.Qt.Key_G:
+    #     siteValue.setValue(4)
+    if event.key() == QtCore.Qt.Key_Escape:
+        commandNum = 300
+        autoPilot = False
+        #play_sound("sound/autoPilotOFF.wav")
+    elif event.key() == QtCore.Qt.Key_Q:
+        commandNum = 301
+        autoPilot = True
+        #play_sound("sound/autoPilotON.wav")
+    elif event.key() == QtCore.Qt.Key_U:
+        commandNum = 411
+    elif event.key() == QtCore.Qt.Key_I:
+        commandNum = 410
+    elif event.key() == QtCore.Qt.Key_O:
+        commandNum = 421
+    elif event.key() == QtCore.Qt.Key_P:
+        commandNum = 420
+
+    if commandNum != 0:
+        global ser, openSerial
+        print("motor command sended")
+        if openSerial:
+            ser.write((str(commandNum)+"\n").encode())
+            print("Command "+str(commandNum)+"sended\n")
+
+
+# trapezoid_label = QtWidgets.QLabel(MainWindow)
+# trapezoid_label.setGeometry(550, 0, 250, 160)
+# trapezoid_label.setStyleSheet("QLabel { background-color : white; color : black; }")
+# trapezoid_label.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+
+
+# box
+
+# line Box
+
+lineBoxPoint = []
+middlePointX = 432
+boxWidth = 20
+for i in range(200, 420, 20):
+    lineBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX+boxWidth,i-20]])
+    boxWidth += 20
+
+# turn left box
+
+turnLeftBoxPoint = []
+middlePointX = 432
+boxWidth = 20
+for i in range(250, 450, 20):
+    turnLeftBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX+boxWidth,i-20]])
+    #boxWidth += 20
+
+# turn right box
+    
+turnRightBoxPoint = []
+middlePointX = 432
+boxWidth = 20
+for i in range(250, 450, 20):
+    turnRightBoxPoint.append([[middlePointX-boxWidth,i],[middlePointX+boxWidth,i-20]])
+    #boxWidth += 20
 
 # run
 useCam = False
@@ -354,7 +437,7 @@ CamID = 0
 
 
 def opencv():
-    
+
     if useCam:
         capture = cv2.VideoCapture(CamID)
     else:
@@ -380,17 +463,26 @@ def opencv():
 
 
 
-    gps_thread = threading.Thread(target=update_gps_data)
-    gps_thread.start()
+    # gps_thread = threading.Thread(target=update_gps_data)
+    # gps_thread.start()
 
+
+    turnAngle = 0
 
     while True:
+
+
         t1 = time.time()
 
         for i in range(videoSpeed):
             ref, frame = capture.read()
 
-        frame = cv2.resize(frame, (864, 480))
+        frame =  cv2.resize(frame, (864, 480))
+        
+        if useCam:
+            frame = cv2.flip(frame, 0)
+            frame = cv2.flip(frame, 1)
+
 
 
         if not ref:
@@ -405,11 +497,131 @@ def opencv():
         height, width, channel = 480, 864, 3
         frame_blend = cv2.resize(np.array(result_img_blend), (width, height))
 
+        rightRoadL = []
+        rightRoadR = []
+        leftRoadL = []
+        leftRoadR = []
 
 
+        # right Mode
+        turnRightOffset = []
+        turnRightPoint = []
+        # turn right box
+        for box in turnRightBoxPoint:
+
+                #往右移動直到黑色站超過一半
+            BoxMove = 0
+            tryCount = 0
+            while True:
+                tryCount += 1
+                boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
+                if 0 in boxImg.shape:
+                    print(f"Error in box{i}: Box shape is (0, 0).")
+                    break
+                    # 將黑色顏色轉換為 NumPy 陣列
+                black_color = np.array(colors[1])
+                blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
+                total_count = boxImg.shape[0] * boxImg.shape[1]
+                black_percent = blackIndex / total_count
+
+                if black_percent < 0.5 or tryCount > 25:
+                    break
+                else:
+                    BoxMove += 20
+
+            turnRightPoint.append((box[1][0]+BoxMove-40,int((box[0][1]+box[1][1])/2)))
+
+            rightRoadL.append((box[1][0]+BoxMove-40-60,int((box[0][1]+box[1][1])/2)))
+            rightRoadR.append((box[1][0]+BoxMove-40-200,int((box[0][1]+box[1][1])/2)))
+
+            turnRightOffset.append(BoxMove)
+            #cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
+
+        # left Mode
+        turnLeftOffset = []
+        turnLeftPoint = []
 
 
         
+
+
+        # turn left box
+        for box in turnLeftBoxPoint:
+                
+                    #往右移動直到黑色站超過一半
+            BoxMove = 0
+            tryCount = 0
+            while True:
+                tryCount += 1
+                boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
+                if 0 in boxImg.shape:
+                    print(f"Error in box{i}: Box shape is (0, 0).")
+                    break
+                    # 將黑色顏色轉換為 NumPy 陣列
+                black_color = np.array(colors[1])
+                blackIndex = np.count_nonzero(np.all(boxImg == black_color, axis=-1))
+                total_count = boxImg.shape[0] * boxImg.shape[1]
+                black_percent = blackIndex / total_count
+    
+                if black_percent < 0.5 or tryCount > 25:
+                    if tryCount == 1:
+                        print("Error in box{i}: Box is not found.")
+                    break
+                else:
+                    BoxMove -= 20
+    
+            turnLeftPoint.append((box[1][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
+            leftRoadL.append((box[1][0]+BoxMove+40,int((box[0][1]+box[1][1])/2)))
+            leftRoadR.append((box[1][0]+BoxMove+200,int((box[0][1]+box[1][1])/2)))
+            turnLeftOffset.append(BoxMove)
+            #cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
+
+
+
+
+        #print(turnRightOffset, end='\r')
+        cv2.polylines(frame_blend, [np.array(turnRightPoint)], False, (0, 255, 0), 2)
+        cv2.polylines(frame_blend, [np.array(turnLeftPoint)], False, (0, 255, 0), 2)
+
+
+        cv2.polylines(frame_blend, [np.array(rightRoadL)], False, (0, 255, 0), 2)
+        cv2.polylines(frame_blend, [np.array(rightRoadR)], False, (0, 255, 0), 2)
+        cv2.polylines(frame_blend, [np.array(leftRoadL)], False, (0, 255, 0), 2)
+        cv2.polylines(frame_blend, [np.array(leftRoadR)], False, (0, 255, 0), 2)
+
+
+
+        turn_X = turnRightOffset[4] + turnRightOffset[5] + turnRightOffset[6] + turnRightOffset[7]
+        turn_X = turn_X/4
+
+        if (turnRightOffset[4] + turnRightOffset[5] + turnRightOffset[6] + turnRightOffset[7]) <= 20 :
+            turn_X = 500
+
+
+        cv2.line(frame_blend, (432,479), (200+int(turn_X),400), (0, 255, 0), 2)
+
+
+        turnAngle = calculate_angle((432,479), (200+int(turn_X),400))
+
+        turnAngle = 140 + (turnAngle)/1.9
+        turnAngle = int(turnAngle)
+
+        print(turnAngle, end='\r')
+
+
+
+        # draw 
+
+        # 空心圓
+        cv2.circle(frame_blend, (80,380), 45, (255, 255, 255), 2)
+        # 根據turnAngle角度 在圓上畫線
+        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAngle*2))*45),380+int(math.sin(math.radians(turnAngle*2))*45)), (255, 255, 255), 2)
+        # turnAngle + 180
+        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAngle*2+180))*45),380+int(math.sin(math.radians(turnAngle*2+180))*45)), (255, 255, 255), 2)
+        # turnAngle + 90
+        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAngle*2+90))*45),380+int(math.sin(math.radians(turnAngle*2+90))*45)),(255, 255, 255), 2)
+        
+        cv2.putText(frame_blend, f"Angle: {turnAngle:.2f}", (20,320), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (00, 255, 0), 1)
 
         # open cv
         bytesPerline_blend = channel * width
@@ -424,35 +636,53 @@ def opencv():
         painter.setFont(font)
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
         painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
-        painter.drawText(20, 60, f"Road: {0}")
+        painter.drawText(20, 50, f"Road: {0}")
 
 
-        painter.drawText(20, 90, f"Angle: {0}")
+        # painter.drawText(20, 120, f"Latitude: {shared_gps_data['latitude']}")
+        # painter.drawText(20, 140, f"Longitude: {shared_gps_data['longitude']}")
+        # painter.drawText(20, 160, f"Site: {shared_gps_data['site']}")
+        # painter.drawText(20, 180, f"LoraState: {shared_gps_data['loraState']}")
 
-        painter.drawText(20, 120, f"Latitude: {shared_gps_data['latitude']}")
-        painter.drawText(20, 150, f"Longitude: {shared_gps_data['longitude']}")
-        painter.drawText(20, 180, f"Site: {shared_gps_data['site']}")
-        painter.drawText(20, 210, f"LoraState: {shared_gps_data['loraState']}")
+        autoPilot = True
+        if autoPilot:
+            painter.setPen(QColor(0, 255, 0))
+            painter.drawText(310, 30, f"AutoPilot: ON")
+        else:
+            painter.setPen(QColor(255, 0, 0))
+            painter.drawText(310, 30, f"AutoPilot: OFF")
+        
 
+        painter.setPen(QColor(255, 255, 255))
+
+        painter.drawText(250, 30, f"servo:{servoState}")
+
+        font.setPointSize(25)
+        painter.setFont(font)
+        painter.setPen(QColor(255, 0, 0))  # 文字顏色，白色
 
 
         # 结束绘制
         painter.end()
 
-
-
-
+        
 
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         #print("fps= %.2f"%(fps), end='\r')
 
         if openSerial:
             global ser
-            ser.write((str(int(00))+'\n').encode())
+            ser.write((str(int(turnAngle))+'\n').encode())
+            print(turnAngle)
 
-        c= cv2.waitKey(1) & 0xff 
+        c= cv2.waitKey(1) & 0xff
+
         if video_save_path!="":
             out.write(frame)
+
+        if c == ord('p') and c == 2:
+            print("按下了 CTRL+P")
+            autoPilot = not autoPilot
 
         if c==27:
             capture.release()
@@ -461,5 +691,6 @@ def opencv():
 video = threading.Thread(target=opencv)
 video.start()
 
+MainWindow.keyPressEvent = keyPressEvent
 MainWindow.show()
 sys.exit(app.exec_())
