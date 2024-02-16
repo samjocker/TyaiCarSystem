@@ -327,38 +327,28 @@ app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
 MainWindow.setObjectName("MainWindow")
 MainWindow.setWindowTitle("TYAI car")
-MainWindow.resize(864, 550)
+MainWindow.resize(864, 480)
 
 label = QtWidgets.QLabel(MainWindow)
 label.setGeometry(0, 0, 864, 480)
 
 
-datumYslider = QtWidgets.QSlider(MainWindow)
-datumYslider.setGeometry(0,490, 864, 30)
-datumYslider.setOrientation(QtCore.Qt.Horizontal)
-datumYslider.setMaximum(2)
-datumYslider.setMinimum(0)
-datumYslider.setValue(1)
+# datumYslider = QtWidgets.QSlider(MainWindow)
+# datumYslider.setGeometry(0,490, 864, 30)
+# datumYslider.setOrientation(QtCore.Qt.Horizontal)
+# datumYslider.setMaximum(2)
+# datumYslider.setMinimum(0)
+# datumYslider.setValue(1)
 
-vdatumYslider = QtWidgets.QSlider(MainWindow)
-vdatumYslider.setGeometry(0,520, 864, 30)
-vdatumYslider.setOrientation(QtCore.Qt.Horizontal)
-vdatumYslider.setMaximum(190)
-vdatumYslider.setMinimum(-180)
-vdatumYslider.setValue(190)
 
 autoPilot = False
 
-AdatumYslider = QtWidgets.QSlider(MainWindow)
-AdatumYslider.setGeometry(0,540, 864, 30)
-AdatumYslider.setOrientation(QtCore.Qt.Horizontal)
-AdatumYslider.setMaximum(0)
-AdatumYslider.setMinimum(1)
-AdatumYslider.setValue(0)
+turnMode = 'right'
+motorSpeed = 10
 
 servoState = False
 def keyPressEvent(event):
-    global autoPilot
+    global autoPilot, turnMode
     # event.key() 會返回被按下的按鍵的鍵碼
     commandNum = 0
     # if event.key() == QtCore.Qt.Key_A:
@@ -387,6 +377,11 @@ def keyPressEvent(event):
         commandNum = 421
     elif event.key() == QtCore.Qt.Key_P:
         commandNum = 420
+
+    elif event.key() == QtCore.Qt.Key_A:
+        turnMode = 'left'
+    elif event.key() == QtCore.Qt.Key_D:
+        turnMode = 'right'
 
     if commandNum != 0:
         global ser, openSerial
@@ -468,7 +463,7 @@ def opencv():
 
 
     turnAngle = 0
-
+    
     while True:
 
 
@@ -516,7 +511,7 @@ def opencv():
                 tryCount += 1
                 boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
                 if 0 in boxImg.shape:
-                    print(f"Error in box{i}: Box shape is (0, 0).")
+                    #print(f"Error in box{i}: Box shape is (0, 0).")
                     break
                     # 將黑色顏色轉換為 NumPy 陣列
                 black_color = np.array(colors[1])
@@ -531,19 +526,16 @@ def opencv():
 
             turnRightPoint.append((box[1][0]+BoxMove-40,int((box[0][1]+box[1][1])/2)))
 
-            rightRoadL.append((box[1][0]+BoxMove-40-60,int((box[0][1]+box[1][1])/2)))
-            rightRoadR.append((box[1][0]+BoxMove-40-200,int((box[0][1]+box[1][1])/2)))
 
             turnRightOffset.append(BoxMove)
-            #cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
+            cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
 
         # left Mode
         turnLeftOffset = []
         turnLeftPoint = []
 
 
-        
-
+    
 
         # turn left box
         for box in turnLeftBoxPoint:
@@ -555,7 +547,7 @@ def opencv():
                 tryCount += 1
                 boxImg = modelOutput[box[1][1]:box[0][1] + 1,box[0][0]+BoxMove:box[1][0]+BoxMove  + 1]
                 if 0 in boxImg.shape:
-                    print(f"Error in box{i}: Box shape is (0, 0).")
+                    #print(f"Error in box{i}: Box shape is (0, 0).")
                     break
                     # 將黑色顏色轉換為 NumPy 陣列
                 black_color = np.array(colors[1])
@@ -564,19 +556,16 @@ def opencv():
                 black_percent = blackIndex / total_count
     
                 if black_percent < 0.5 or tryCount > 25:
-                    if tryCount == 1:
-                        print("Error in box{i}: Box is not found.")
+                    # if tryCount == 1:
+                    #     print("Error in box{i}: Box is not found.")
                     break
                 else:
                     BoxMove -= 20
     
             turnLeftPoint.append((box[1][0]+BoxMove,int((box[0][1]+box[1][1])/2)))
-            leftRoadL.append((box[1][0]+BoxMove+40,int((box[0][1]+box[1][1])/2)))
-            leftRoadR.append((box[1][0]+BoxMove+200,int((box[0][1]+box[1][1])/2)))
+
             turnLeftOffset.append(BoxMove)
-            #cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
-
-
+            cv2.rectangle(frame_blend, (box[0][0]+BoxMove, box[0][1]), (box[1][0]+BoxMove, box[1][1]), (0, 255, 0), 2)
 
 
         #print(turnRightOffset, end='\r')
@@ -584,44 +573,41 @@ def opencv():
         cv2.polylines(frame_blend, [np.array(turnLeftPoint)], False, (0, 255, 0), 2)
 
 
-        cv2.polylines(frame_blend, [np.array(rightRoadL)], False, (0, 255, 0), 2)
-        cv2.polylines(frame_blend, [np.array(rightRoadR)], False, (0, 255, 0), 2)
-        cv2.polylines(frame_blend, [np.array(leftRoadL)], False, (0, 255, 0), 2)
-        cv2.polylines(frame_blend, [np.array(leftRoadR)], False, (0, 255, 0), 2)
+        if turnMode == 'right':
+            turn_X = turnRightOffset[4] + turnRightOffset[5] + turnRightOffset[6] + turnRightOffset[7]
+            turn_X = turn_X/4
 
 
+            cv2.line(frame_blend, (432,479), (200+int(turn_X),400), (0, 255, 0), 2)
+            turnAngle = calculate_angle((432,479), (200+int(turn_X),400))
+            turnAngle = 125 + (turnAngle)/1.9
+            turnAngle = int(turnAngle)
 
-        turn_X = turnRightOffset[4] + turnRightOffset[5] + turnRightOffset[6] + turnRightOffset[7]
-        turn_X = turn_X/4
+        elif turnMode == 'left':
 
-        if (turnRightOffset[4] + turnRightOffset[5] + turnRightOffset[6] + turnRightOffset[7]) <= 20 :
-            turn_X = 500
+            turn_X = turnLeftOffset[4] + turnLeftOffset[5] + turnLeftOffset[6] + turnLeftOffset[7]
+            turn_X = turn_X/4
 
+            cv2.line(frame_blend, (432,479), (632+int(turn_X),400), (0, 255, 0), 2)
+            turnAngle = calculate_angle((432,479), (632+int(turn_X),400))
+            turnAngle =150 + (turnAngle)/1.9
+            
 
-        cv2.line(frame_blend, (432,479), (200+int(turn_X),400), (0, 255, 0), 2)
-
-
-        turnAngle = calculate_angle((432,479), (200+int(turn_X),400))
-
-        turnAngle = 140 + (turnAngle)/1.9
-        turnAngle = int(turnAngle)
-
-        print(turnAngle, end='\r')
+       # print(turnAngle, end='\r')
 
 
 
         # draw 
-
+        turnAnglek = (turnAngle-90)*2
         # 空心圓
         cv2.circle(frame_blend, (80,380), 45, (255, 255, 255), 2)
         # 根據turnAngle角度 在圓上畫線
-        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAngle*2))*45),380+int(math.sin(math.radians(turnAngle*2))*45)), (255, 255, 255), 2)
+        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAnglek*2))*45),380+int(math.sin(math.radians(turnAnglek*2))*45)), (255, 255, 255), 2)
         # turnAngle + 180
-        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAngle*2+180))*45),380+int(math.sin(math.radians(turnAngle*2+180))*45)), (255, 255, 255), 2)
+        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAnglek*2+180))*45),380+int(math.sin(math.radians(turnAnglek*2+180))*45)), (255, 255, 255), 2)
         # turnAngle + 90
-        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAngle*2+90))*45),380+int(math.sin(math.radians(turnAngle*2+90))*45)),(255, 255, 255), 2)
+        cv2.line(frame_blend, (80,380), (80+int(math.cos(math.radians(turnAnglek*2+90))*45),380+int(math.sin(math.radians(turnAnglek*2+90))*45)),(255, 255, 255), 2)
         
-        cv2.putText(frame_blend, f"Angle: {turnAngle:.2f}", (20,320), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (00, 255, 0), 1)
 
         # open cv
         bytesPerline_blend = channel * width
@@ -635,9 +621,22 @@ def opencv():
         font.setPointSize(15)
         painter.setFont(font)
         painter.setPen(QColor(255, 255, 255))  # 文字顏色，白色
-        painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
-        painter.drawText(20, 50, f"Road: {0}")
 
+        painter.drawText(20, 30, f"FPS: {fps}")  # 在左上角顯示FPS小數點後兩位
+
+
+        painter.drawText(20, 70, f"servo:{servoState}")
+        painter.drawText(20, 90, f"Angle:{turnAngle}")
+        painter.drawText(20, 100, f"---------------")
+        painter.drawText(20, 110, f"motor: ")
+        painter.drawText(20, 130, f"power{motorSpeed}")
+        painter.drawText(20, 140, f"---------------")
+        painter.drawText(20, 150, f"brakes: not ready")
+
+        painter.drawText(20, 190, f"mode: {turnMode}")
+
+        painter.drawText(30, 310, f"RealAngle: {(turnAngle-90)*2}")
+        painter.drawText(30, 290, f"SetAngle: {turnAngle}")
 
         # painter.drawText(20, 120, f"Latitude: {shared_gps_data['latitude']}")
         # painter.drawText(20, 140, f"Longitude: {shared_gps_data['longitude']}")
@@ -654,8 +653,6 @@ def opencv():
         
 
         painter.setPen(QColor(255, 255, 255))
-
-        painter.drawText(250, 30, f"servo:{servoState}")
 
         font.setPointSize(25)
         painter.setFont(font)
