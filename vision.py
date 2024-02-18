@@ -21,7 +21,10 @@ import matplotlib.pyplot as plt
 import requests
 
 import simpleaudio as sa
-from scipy.signal import convolve
+
+import xml.etree.ElementTree as ET
+import osmnx as ox
+import networkx as nx
 
 autoPilot = False
 
@@ -41,13 +44,13 @@ app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
 MainWindow.setObjectName("MainWindow")
 MainWindow.setWindowTitle("TYAI car")
-MainWindow.resize(720, 685)
+MainWindow.resize(1220, 685)
 
 label = QtWidgets.QLabel(MainWindow)
 label.setGeometry(0, 0, 720, 405)
 
 mapLabel = QtWidgets.QLabel(MainWindow)
-mapLabel.setGeometry(555, -10, 150, 150)
+mapLabel.setGeometry(720, 0, 500, 500)
 
 y = 435
 fpsText = QtWidgets.QLabel(MainWindow)
@@ -63,6 +66,14 @@ font = QFont()
 font.setPointSize(24)
 angleText.setFont(font)
 angleText.setText("Angle: "+str(0))
+
+rawAngleText = QtWidgets.QLabel(MainWindow)
+rawAngleText.setGeometry(300, y, 200, 30)
+font = QFont() 
+font.setPointSize(24)
+rawAngleText.setFont(font)
+rawAngleText.setText("Angle(raw): "+str(0))
+
 y += 50
 rectWidthValue = QtWidgets.QSlider(MainWindow)
 rectWidthValue.setGeometry(110, y, 500, 30)
@@ -286,8 +297,9 @@ def mask_image(imgdata, angle, size = 150):
 
 lastTime = time.time()
 lastRoute = []
+speed = 150
 def slidingWindow(frame):
-    global data, colors, site, openSerial, lastTime, autoPilot, lastRoute
+    global data, colors, site, openSerial, lastTime, autoPilot, lastRoute, rawAngleText, speed
     rectColor = (0, 200 ,0)
 
     cdnY = 1079
@@ -480,12 +492,13 @@ def slidingWindow(frame):
     relative_coords = point_coords - median_coords
     angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
     angle_deg = np.degrees(angle_rad)
+    rawAngleText.setText("Angle(raw): "+str(int(angle_deg)))
 
     if site == 1 or site == 3:
         if angle_deg >= 120 or angle_deg <= 60:
-            muiltNum = 1.2
+            muiltNum = 1.4
         else:
-            muiltNum = 0.8
+            muiltNum = 1.2
     elif site == 2:
         muiltNum = 0.8
     elif site == 4:
@@ -509,14 +522,25 @@ def slidingWindow(frame):
     fpsText.setText("Fps: "+str(fps))
     angleText.setText("Angle: "+str(angle_deg))
     # print("fps= %.2f, angle= %4d"%(fps, angle_deg), end='\r')
+    if angle_deg > 120 or angle_deg < 60:
+        speed = 100
+    else:
+        speed = 150
+
     if openSerial:
         global ser
         ser.write((str(int(angle_deg))+'\n').encode())
+        # send to arduino speedStr format is "40speed" ex: "4050" and "4100" mean 50 and 100 speed
+        speedStr = "4"+str(speed).zfill(3)+"\n"
+        print(speedStr)
+        time.sleep(0.02)
+        ser.write(speedStr.encode())
+    
 
     return frame
 class DeeplabV3(object):
     _defaults = {
-        "model_path"        : 'model/3_7.h5',
+        "model_path"        : 'model/3_7_5.h5',
         "num_classes"       : 7,
         "backbone"          : "mobilenet",
         "input_shape"       : [387, 688],
@@ -612,97 +636,320 @@ video_save_path = ""
 video_fps       = 30.0
 
 # mapImg = output = np.zeros((150, 150, 3), dtype="uint8")
-def getMap():
 
-    global mapLabel
-    # 取得座標資料
-    api_url = "http://xhinherpro.xamjiang.com/getData"
-    response = requests.get(api_url)
-    data = response.json()
-    print(data)
-    latitude = data["latitude"]
-    longitude = data["longitude"]
-    angle = int(data["site"])
+def startMap():
+    global mapLabel, siteValue
+    # 讀取OSM檔案
+    osm_file_path = "test/TYAIcampus3.osm"
+    G = ox.graph_from_point((24.99250, 121.32032), dist=200, network_type='drive_service')
+    tree = ET.parse(osm_file_path)
+    root = tree.getroot()
 
-    if latitude > 50:
-        temp = longitude
-        longitude = latitude
-        latitude = temp
+    # 創建節點字典以便根據ID查找座標
+    node_dict = {}
+    for node in root.findall('node'):
+        node_id = node.attrib['id']
+        latitude = float(node.attrib['lat'])
+        longitude = float(node.attrib['lon'])
+        node_dict[node_id] = (latitude, longitude)
 
-    # 獲取地圖數據
-    G = ox.graph_from_point((latitude, longitude), dist=400, network_type='drive_service')
-    print(G)
-    origin = ox.distance.nearest_nodes(G, longitude, latitude)
-    destination = ox.distance.nearest_nodes(G, 121.32012, 24.99422)
+    # 創建way字典以便根據ID查找節點參考和標籤
+    way_dict = {}
+    for way in root.findall('way'):
+        way_id = way.attrib['id']
+        node_refs = [nd.attrib['ref'] for nd in way.findall('nd')]
+        tags = {tag.attrib['k']: tag.attrib['v'] for tag in way.findall('tag')}
+        way_dict[way_id] = {'node_refs': node_refs, 'tags': tags}
 
-    route = nx.shortest_path(G, origin, destination)
-    # ox.plot_graph_route(G, route)
+    # 獲取路徑的範圍
+    min_x, max_x, min_y, max_y = np.inf, -np.inf, np.inf, -np.inf
 
-    # 取得所有點的座標
-    nodes = list(G.nodes())
-    node_coordinates = []
+    # 遍歷所有way並僅顯示service等於driveway的路徑
+    for way_id, data in way_dict.items():
+        if 'service' in data['tags'] and data['tags']['service'] == 'driveway':
+            route = []
+            # 從way中提取節點座標
+            for node_id in data['node_refs']:
+                if node_id in node_dict:
+                    route.append(node_dict[node_id])
+            route = np.array(route)
 
-    for node in nodes:
-        x, y = G.nodes[node]['x'], G.nodes[node]['y']
-        node_coordinates.append((x, y))
+            # 更新範圍
+            min_x = min(min_x, np.min(route[:, 1]))
+            max_x = max(max_x, np.max(route[:, 1]))
+            min_y = min(min_y, np.min(route[:, 0]))
+            max_y = max(max_y, np.max(route[:, 0]))
 
-
-    # 取得所有線條的座標
-    edges = list(G.edges())
-    edge_coordinates = []
-    for edge in edges:
-        u, v = edge
-        x1, y1 = G.nodes[u]['x'], G.nodes[u]['y']
-        x2, y2 = G.nodes[v]['x'], G.nodes[v]['y']
-        edge_coordinates.append([(x1, y1), (x2, y2)])
-        
-    # 計算最右最左最上最下的值
-    min_x = min([x for x, _ in node_coordinates])
-    min_y = min([y for _, y in node_coordinates])
-    max_x = max([x for x, _ in node_coordinates])
-    max_y = max([y for _, y in node_coordinates])
-
-    # 等比例轉換成能放進去500*500的OpenCV空白畫面內顯示
-    width = 150
-    height = 150
+    # 計算縮放比例
+    width = 500
+    height = 500
     scale_x = width / (max_x - min_x)
     scale_y = height / (max_y - min_y)
 
-    # 繪製地圖
+    def convertCdn(num, type):
+        if type == "x":
+            return int((num - min_x) * scale_x)
+        elif type == "y":
+            return int((num - min_y) * scale_y)
+
+    # 創建空白畫布
     img = np.zeros((height, width, 3), dtype=np.uint8)
     img.fill(255)
-    for u, v in edge_coordinates:
-        ux = int((u[0] - min_x) * scale_x)
-        uy = int((u[1] - min_y) * scale_y)
-        vx = int((v[0] - min_x) * scale_x)
-        vy = int((v[1] - min_y) * scale_y)
-        cv2.line(img, (ux, uy), (vx, vy), (248, 242, 241), 4)
 
-    for x, y in node_coordinates:
-        x = int((x - min_x) * scale_x - 1)
-        y = int((y - min_y) * scale_y - 1)
-        # img[y, x] = (255, 255, 255)
-        cv2.circle(img, (x, y), 2, (126, 201, 255), 2, -1)
+    # 繪製每個way的路徑並顯示節點
+    canGoWay = []
+    for way_id, data in way_dict.items():
+        if 'service' in data['tags'] and data['tags']['service'] == 'driveway':
+            route = []
+            # 從way中提取節點座標
+            for node_id in data['node_refs']:
+                if node_id in node_dict:
+                    route.append(node_dict[node_id])
+            route = np.array(route)
+            
+            # 繪製路徑
+            for i in range(len(route) - 1):
+                u = route[i]
+                v = route[i + 1]
+                ux = convertCdn(u[1], "x")
+                uy = convertCdn(u[0], "y")
+                vx = convertCdn(v[1], "x")
+                vy = convertCdn(v[0], "y")
+                cv2.line(img, (ux, uy), (vx, vy), (217, 232, 245), 8)
+                try:
+                    site = data['tags']['target']
+                    canGoWay.append([(ux, uy), (vx, vy), site])
+                except:
+                    pass
+            
+            # 繪製節點
+            for node in route:
+                x = int((node[1] - min_x) * scale_x - 1)
+                y = int((node[0] - min_y) * scale_y - 1)
+                cv2.circle(img, (x, y), 3, (134, 171, 212), -1)
+    startX, startY = 121.32167, 24.99179
+    endX, endY = 121.31989, 24.99412
 
-    cv2.circle(img, (int((longitude - min_x) * scale_x - 1), int((latitude - min_y) * scale_y - 1)), 3, (255, 205, 125), 3, -1)
-    img = cv2.flip(img, 0)
+    origin = ox.distance.nearest_nodes(G, startX, startY)
+    destination = ox.distance.nearest_nodes(G, endX, endY)
 
-    #     # 將 NumPy 陣列轉換為 QImage
-    # qimage = QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888)
+    route = nx.shortest_path(G, origin, destination)
+    lastNode = (convertCdn(startX, "x"), convertCdn(startY, "y"))
+    routeList = []
+    for node in route:
+        x, y = G.nodes[node]['x'], G.nodes[node]['y']
+        x = convertCdn(x, "x")
+        y = convertCdn(y, "y")
+        cv2.line(img, lastNode, (x, y), (48, 66, 105), 3)
+        cv2.circle(img, (x, y), 5, (0, 255, 0), -1)
+        routeList.append((x, y))
+        lastNode = (x, y)
+        # cv2.circle(img, (x, y), 5, (0, 255, 0), -1)
+    cv2.line(img, lastNode, (convertCdn(endX, "x"), convertCdn(endY, "y")), (48, 66, 105), 3)
+    cv2.circle(img, (convertCdn(startX, "x"), convertCdn(startY, "y")), 6, (242, 97, 1), -1)
+    cv2.circle(img, (convertCdn(endX, "x"), convertCdn(endY, "y")), 4, (255, 255, 255), -1)
+    cv2.circle(img, (convertCdn(endX, "x"), convertCdn(endY, "y")), 6, (242, 97, 1), 2)
+    
+    def get_coordinates():
+        api_url = "https://6c96-60-251-221-219.ngrok-free.app/getData"
+        response = requests.get(api_url)
+        data = response.json()
+        print(data)
+        latitude = data["latitude"]
+        longitude = data["longitude"]
+        site = int(float(data["site"]))
+        return latitude, longitude, site
+    
+    def point_to_line_distance(point, line):
+        """
+        計算點到直線的垂直距離
+        :param point: 點的座標 (x, y)
+        :param line: 直線的兩個端點 ((x1, y1), (x2, y2))
+        :return: 點到直線的垂直距離
+        """
+        x, y = point
+        x1, y1 = line[0]
+        x2, y2 = line[1]
+        dx = x2 - x1
+        dy = y2 - y1
+        if dx == 0 and dy == 0:
+            # 線段長度為0，返回點與端點之間的距離
+            return np.linalg.norm(np.array(point) - np.array(line[0]))
+        t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy)
+        t = max(0, min(1, t))  # 確保t在[0, 1]範圍內
+        closest_point = (x1 + t * dx, y1 + t * dy)
+        distance = np.linalg.norm(np.array(point) - np.array(closest_point))
+        return distance
+    
+    lastImg = img.copy()
+    turnSite = ""
+    turnMode = "littleRight"
+    readyToOut = False
+    while True:
+        myCdn = [121.32186, 24.99240]
+        siteAngle = 0        
+        try:
+            myCdn[0], myCdn[1], siteAngle = get_coordinates()
+        except Exception as e:
+            print(e)
+        myCdn = [convertCdn(myCdn[0], "x"), convertCdn(myCdn[1], "y")]
 
-    # # 創建 QPainter 對象
-    # painter = QPainter()
+        # 找出距離最近的線條
+        closest_way = None
+        closest_distance = np.inf
+        for way in canGoWay:
+            u, v, site = way
+            dist = point_to_line_distance(myCdn, (u, v))
+            if dist < closest_distance:
+                closest_way = way
+                closest_distance = dist
 
-    # # 將 QImage 繪製到畫布上
-    # painter.drawImage(0, 0, qimage)
+        # 打印最接近的線條和距離
+        if closest_way is not None:
+            u, v, recommandSite = closest_way
+            # cv2.line(img, u, v, (0, 255, 0), 4)
+            print("Closest way:", u, "-", v, "Distance:", closest_distance, "Site:", recommandSite)
+        else:
+            print("No closest way found.")
 
-    # # 繪製圓形
-    # painter.drawEllipse(QtCore.QPoint(150, 150), 150, 150)
+        img = lastImg.copy()
+        nowCdn = tuple(myCdn)
+        cv2.circle(img, nowCdn, 4, (223, 251, 252), -1)
+        cv2.circle(img, nowCdn, 6, (61, 91, 129), 2)
+        distance = cv2.norm(nowCdn, routeList[0])
+        print("distance: ", distance)
 
-    # 將畫布轉換為 QPixmap
-    # mapImg = QImage(img, 250, 250, 250*3, QImage.Format_RGB888)
-    # mapLabel.setPixmap(QPixmap.fromImage(mapImg))
-    mapLabel.setPixmap(mask_image(img, angle)) 
+        if len(routeList) > 2:
+            if routeList[1] > routeList[0]:
+                cv2.circle(lastImg, routeList[0], 6, (255, 0, 0), -1)
+                routeList.pop(0)
+                print("delete one pass point")
+
+        if distance < 30 and turnSite == "" and not readyToOut:
+            if len(routeList) > 2:
+                turnAngle = np.arctan2(routeList[1][1]-routeList[0][1], routeList[1][0]-routeList[0][0])
+                turnAngle = np.degrees(turnAngle)
+                print("turnAngle: ", turnAngle)
+            if routeList[0] == (222, 73):
+                turnSite = ""
+                recommandSite = "straight"
+            elif routeList[0] == (178, 98) or routeList[0] == (168, 112):
+                turnSite = ""
+                recommandSite = "littleRight"
+            elif turnAngle >= -45 and turnAngle < 45:
+                turnSite = "east"
+            elif turnAngle >=45 and turnAngle < 135:
+                turnSite = "south"
+            elif turnAngle >= 135 and turnAngle < 180 or turnAngle >= -180 and turnAngle < -135:
+                turnSite = "west"
+            else:
+                turnSite = "north"
+        elif distance < 13 and not readyToOut:
+            readyToOut = True
+        elif distance > 15 and readyToOut:
+            readyToOut = False
+            turnSite = ""
+            cv2.circle(lastImg, routeList[0], 6, (255, 0, 0), -1)
+            if routeList[0] == (222, 73):
+                recommandSite = "littleRight"
+            routeList.pop(0)
+            print("pass one point")
+
+        siteStr = ""
+        if turnSite == "west" or turnSite == "east":
+            if siteAngle >= 315 or siteAngle <= 45:
+                siteStr = "north"
+            elif siteAngle >= 135 and siteAngle <= 225:
+                siteStr = "south"
+            else:
+                siteStr = ""
+                recommandSite = "east" if siteAngle >= 45 and siteAngle <= 135 else "west"
+        elif turnSite == "north" or turnSite == "south":
+            if siteAngle >= 225 and siteAngle <= 315:
+                siteStr = "west"
+            elif siteAngle >= 45 and siteAngle <= 135:
+                siteStr = "east"
+            else:
+                siteStr = ""
+                recommandSite = "north" if siteAngle >= 315 and siteAngle <= 45 else "south"
+        elif recommandSite == "east" or recommandSite == "west":
+            if siteAngle >= 270 or siteAngle <= 90:
+                siteStr = "north"
+            else:
+                siteStr = "south"
+        elif recommandSite == "north" or recommandSite == "south":
+            if siteAngle >= 0 and siteAngle <= 180:
+                siteStr = "east"
+            else:
+                siteStr = "west"
+
+        # turnMode have five step left, little left, straight, little right, right
+
+        # turnMode = ""
+        if turnSite != "":    
+            if turnSite == "north":
+                if siteStr == "east":
+                    turnMode = "Left"
+                elif siteStr == "west":
+                    turnMode = "Right"
+            elif turnSite == "east":
+                if siteStr == "south":
+                    turnMode = "Left"
+                elif siteStr == "north":
+                    turnMode = "Right"
+            elif turnSite == "south":
+                if siteStr == "west":
+                    turnMode = "Left"
+                elif siteStr == "east":
+                    turnMode = "Right"
+            elif turnSite == "west":
+                if siteStr == "north":
+                    turnMode = "Left"
+                elif siteStr == "south":
+                    turnMode = "Right"
+        else:
+            if recommandSite == "north":
+                if siteStr == "east":
+                    turnMode = "littleLeft"
+                elif siteStr == "west":
+                    turnMode = "littleRight"
+            elif recommandSite == "east":
+                if siteStr == "south":
+                    turnMode = "littleLeft"
+                elif siteStr == "north":
+                    turnMode = "littleRight"
+            elif recommandSite == "south":
+                if siteStr == "west":
+                    turnMode = "littleLeft"
+                elif siteStr == "east":
+                    turnMode = "littleRight"
+            elif recommandSite == "west":
+                if siteStr == "north":
+                    turnMode = "littleLeft"
+                elif siteStr == "south":
+                    turnMode = "littleRight"
+            elif recommandSite == "littleRight":
+                turnMode = "littleRight"
+            elif recommandSite == "straight":
+                turnMode = "straight"
+
+        # print("siteStr: ", siteStr, siteAngle)
+        print("turnSite: ", turnSite, "turnMode: ", turnMode)
+        # print(routeList)
+
+        # 創建網絡圖
+        for way_id, data in way_dict.items():
+            for i in range(len(data['node_refs']) - 1):
+                u = data['node_refs'][i]
+                v = data['node_refs'][i + 1]
+                G.add_edge(u, v)
+
+        # nowCdn = (convertCdn(121.32164781214851, "x"), convertCdn(24.99193515292301, "y"))
+        sideDict = {"Left": 0,"littleLeft": 1,"straight": 2,"littleRight": 3,"Right": 4}
+        siteValue.setValue(sideDict[turnMode])
+        image = QImage(cv2.flip(img, 0), 500, 500, 1500, QImage.Format_RGB888)
+        mapLabel.setPixmap(QPixmap.fromImage(image))
+        time.sleep(0.3)
 
 def opencv():
     global ocv,video_path,video_save_path,video_fps, sideButtonState, openSerial
@@ -749,8 +996,11 @@ def opencv():
             capture.release()
             break
 
-video = threading.Thread(target=opencv)
-video.start()
+# video = threading.Thread(target=opencv)
+# video.start()
+
+mapThread = threading.Thread(target=startMap)
+mapThread.start()
 
 MainWindow.keyPressEvent = keyPressEvent
 MainWindow.show()
