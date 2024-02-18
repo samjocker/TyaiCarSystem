@@ -74,6 +74,13 @@ font.setPointSize(24)
 rawAngleText.setFont(font)
 rawAngleText.setText("Angle(raw): "+str(0))
 
+speedText = QtWidgets.QLabel(MainWindow)
+speedText.setGeometry(480, y, 100, 30)
+font = QFont() 
+font.setPointSize(24)
+speedText.setFont(font)
+speedText.setText("km/h: "+str(0))
+
 y += 50
 rectWidthValue = QtWidgets.QSlider(MainWindow)
 rectWidthValue.setGeometry(110, y, 500, 30)
@@ -632,13 +639,15 @@ for gpu in gpus:
 deeplab = DeeplabV3()
 
 video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1413.MOV"
-video_save_path = ""
+#filename format is time ex: 2023_01_12_13_23_30
+fileName  = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
+video_save_path = "visionLogRaw/"+fileName+".mp4"
 video_fps       = 30.0
 
 # mapImg = output = np.zeros((150, 150, 3), dtype="uint8")
 
 def startMap():
-    global mapLabel, siteValue
+    global mapLabel, siteValue, speedText
     # 讀取OSM檔案
     osm_file_path = "test/TYAIcampus3.osm"
     G = ox.graph_from_point((24.99250, 121.32032), dist=200, network_type='drive_service')
@@ -758,7 +767,8 @@ def startMap():
         latitude = data["latitude"]
         longitude = data["longitude"]
         site = int(float(data["site"]))
-        return latitude, longitude, site
+        speed = int(float(data["speed"]))
+        return latitude, longitude, site, speed
     
     def point_to_line_distance(point, line):
         """
@@ -784,12 +794,16 @@ def startMap():
     lastImg = img.copy()
     turnSite = ""
     turnMode = "littleRight"
+    turnAngle = 0
     readyToOut = False
+    readyToIn = True
     while True:
         myCdn = [121.32186, 24.99240]
-        siteAngle = 0        
+        siteAngle = 0       
+        gpsSpeed = 0 
         try:
-            myCdn[0], myCdn[1], siteAngle = get_coordinates()
+            myCdn[0], myCdn[1], siteAngle, gpsSpeed = get_coordinates()
+            speedText.setText("km/h: "+str(gpsSpeed))
         except Exception as e:
             print(e)
         myCdn = [convertCdn(myCdn[0], "x"), convertCdn(myCdn[1], "y")]
@@ -825,7 +839,8 @@ def startMap():
                 routeList.pop(0)
                 print("delete one pass point")
 
-        if distance < 30 and turnSite == "" and not readyToOut:
+        if distance < 25 and readyToIn and not readyToOut:
+            readyToIn = False
             if len(routeList) > 2:
                 turnAngle = np.arctan2(routeList[1][1]-routeList[0][1], routeList[1][0]-routeList[0][0])
                 turnAngle = np.degrees(turnAngle)
@@ -844,10 +859,11 @@ def startMap():
                 turnSite = "west"
             else:
                 turnSite = "north"
-        elif distance < 13 and not readyToOut:
+        elif distance < 10 and not readyToOut:
             readyToOut = True
-        elif distance > 15 and readyToOut:
+        elif distance > 11 and readyToOut:
             readyToOut = False
+            readyToIn = True
             turnSite = ""
             cv2.circle(lastImg, routeList[0], 6, (255, 0, 0), -1)
             if routeList[0] == (222, 73):
@@ -976,6 +992,8 @@ def opencv():
                 ocv = False
                 capture.release()
                 break
+        if video_save_path!="" and cameraUse:
+            out.write(frame)
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
         frame = Image.fromarray(np.uint8(frame))
         frame = np.array(deeplab.detect_image(frame))
@@ -989,15 +1007,13 @@ def opencv():
         # print("fps= %.2f, angle= %4d"%(fps, 90), end='\r')
 
         c= cv2.waitKey(1) & 0xff 
-        if video_save_path!="":
-            out.write(frame)
 
         if c==27:
             capture.release()
             break
 
-# video = threading.Thread(target=opencv)
-# video.start()
+video = threading.Thread(target=opencv)
+video.start()
 
 mapThread = threading.Thread(target=startMap)
 mapThread.start()

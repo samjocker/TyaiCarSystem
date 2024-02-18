@@ -167,7 +167,7 @@ for way_id, data in way_dict.items():
         v = data['node_refs'][i + 1]
         G.add_edge(u, v)
 
-nowCdn = (convertCdn(121.32154, "x"), convertCdn(24.99210, "y"))
+nowCdn = (convertCdn(121.32164781214851, "x"), convertCdn(24.99193515292301, "y"))
 cv2.circle(img, nowCdn, 4, (252, 251, 223), -1)
 cv2.circle(img, nowCdn, 6, (129, 91, 61), 2)
 distance = cv2.norm(nowCdn, routeList[0])
