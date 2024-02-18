@@ -129,7 +129,9 @@ class DeeplabV3(object):
                     print('-' * 63)
                 classes_nums[i] = num
             print("classes_nums:", classes_nums)
-    
+            
+        self.mix_type = 1
+
         if self.mix_type == 0:
             # seg_img = np.zeros((np.shape(pr)[0], np.shape(pr)[1], 3))
             # for c in range(self.num_classes):
