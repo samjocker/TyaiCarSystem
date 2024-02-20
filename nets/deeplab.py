@@ -1,16 +1,18 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
-from tensorflow.keras import backend as K
-from tensorflow.keras.layers import (Activation, BatchNormalization,
+from keras import backend as K
+from keras.layers import (Activation, BatchNormalization,
                                      Concatenate, Conv2D, DepthwiseConv2D,
                                      Dropout, GlobalAveragePooling2D, Input,
                                      Lambda, Softmax, ZeroPadding2D)
-from tensorflow.keras.models import Model
+from keras.models import Model
 
 from nets.mobilenet import mobilenetV2
 from nets.Xception import Xception
 
+print('dddddddd')
+tf.device('/GPU:0')
 
 def SepConv_BN(x, filters, prefix, stride=1, kernel_size=3, rate=1, depth_activation=False, epsilon=1e-3):
     # 计算padding的数量，hw是否需要收缩

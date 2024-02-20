@@ -235,6 +235,7 @@ if __name__ == "__main__":
             # 將輪廓內部填充灰色
             cv2.fillPoly(filled_contour, contours, (200, 200, 200))
 
+            
             # 將原始圖像與填充後的輪廓進行融合
             blended_image = cv2.addWeighted(frame, 1, filled_contour, 0.9, 0)
 

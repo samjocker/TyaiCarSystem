@@ -19,7 +19,7 @@ from utils.utils import cvtColor, preprocess_input, resize_image
 #--------------------------------------------#
 class DeeplabV3(object):
     _defaults = {
-        "model_path": 'model/3_2.h5',
+        "model_path": 'model/3_7.h5',
         "num_classes": 7,
         "backbone": "mobilenet",
         "input_shape": [387, 688],
@@ -129,7 +129,7 @@ class DeeplabV3(object):
                     print('-' * 63)
                 classes_nums[i] = num
             print("classes_nums:", classes_nums)
-            
+
         self.mix_type = 1
 
         if self.mix_type == 0:
