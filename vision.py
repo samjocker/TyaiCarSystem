@@ -8,6 +8,7 @@ import copy
 import time, sys, json
 import threading
 import serial
+import serial.tools.list_ports
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import *
@@ -30,10 +31,23 @@ autoPilot = False
 
 openSerial = False
 cameraUse = False
+mapControl = False
 
 if openSerial:
     print("Wait connect")
-    COM_PORT = '/dev/cu.usbmodem1401'
+    open_ports = []
+    arduinoPorts = ""
+    for port in serial.tools.list_ports.comports():
+        try:
+            ser = serial.Serial(port.device)
+            ser.close()
+            open_ports.append(port.device)
+            if "/dev/cu.usbmodem" in port.device:
+                arduinoPorts = port.device
+        except serial.SerialException:
+            pass
+    # COM_PORT = '/dev/cu.usbmodem13101'
+    COM_PORT = arduinoPorts
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     print("Connect successfuly")
@@ -373,8 +387,13 @@ def slidingWindow(frame):
                     elif abs(blockPercent[0]-blockPercent[1]) <= 20 and blockPercent[1] > 40:
                         lastBlock = block
                         if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
-                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                            biggest["cdn"] = block
+                            if biggest["cdn"] != []:
+                                if block[1][0] < biggest["cdn"][1][0]:
+                                    biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                    biggest["cdn"] = block
+                            else:
+                                biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                biggest["cdn"] = block
                     else:
                         if lastBlock != []:
                             keepAdjust = False
@@ -383,8 +402,13 @@ def slidingWindow(frame):
                             break
                         else:
                             if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
-                                biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                                biggest["cdn"] = block
+                                if biggest["cdn"] != []:
+                                    if block[1][0] < biggest["cdn"][1][0]:
+                                        biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                        biggest["cdn"] = block
+                                else:
+                                    biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                    biggest["cdn"] = block
                     x1 -= addNum
 
                 elif site == 2:
@@ -437,8 +461,13 @@ def slidingWindow(frame):
                     elif abs(blockPercent[0]-blockPercent[1]) <= 20 and blockPercent[0] > 40:
                         lastBlock = block
                         if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
-                            biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                            biggest["cdn"] = block
+                            if biggest["cdn"] != []:
+                                if block[1][0] > biggest["cdn"][1][0]:
+                                    biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                    biggest["cdn"] = block
+                            else:
+                                biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                biggest["cdn"] = block
                     else:
                         if lastBlock != []:
                             keepAdjust = False
@@ -447,8 +476,13 @@ def slidingWindow(frame):
                             break
                         else:
                             if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"] and blockPercent[0] > 5:
-                                biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
-                                biggest["cdn"] = block
+                                if biggest["cdn"] != []:
+                                    if block[1][0] > biggest["cdn"][1][0]:
+                                        biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                        biggest["cdn"] = block
+                                else:
+                                    biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
+                                    biggest["cdn"] = block
                     x1 += addNum
                 # testPoints.append([block[0][1], cdnY-rectHeight])
                 if runTime >= 100:
@@ -467,81 +501,104 @@ def slidingWindow(frame):
         rectWidth -= adjustNum
         rectWidth = max(rectWidth, 0)
 
-    points_array = np.array(points, dtype=np.int32)
-    if site == 0 or site == 4:
-        points_array = points_array[:10]
-    elif site == 2:
-        points_array = points_array[:15]
-
-    cv2.polylines(frame, [points_array], isClosed=False, color=(235, 99, 169), thickness=40)
-    if blockPercent[0]+blockPercent[1] < 10:
-        rectColor = (200, 0, 0)
-    coords = points_array
-    if site != 2:
-        median_coords = np.median(coords, axis=0)
-    elif site == 1 or site == 3:
-        median_coords = np.mean(coords, axis=0)
-    else:
-        maxCdn = np.max(coords, axis=0)
-        minCdn = np.min(coords, axis=0)
-        if abs(maxCdn[0]-959) > abs(minCdn[0]-959):
-            median_coords = maxCdn
-        else:
-            median_coords = minCdn
-        
-    cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
-    if site >= 3:
-        point_coords = np.array([1200, 1079])
-    elif site <= 1:
-        point_coords = np.array([718, 1079])
-    else:
-        point_coords = np.array([959, 1079])
-    relative_coords = point_coords - median_coords
-    angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
-    angle_deg = np.degrees(angle_rad)
-    rawAngleText.setText("Angle(raw): "+str(int(angle_deg)))
-
-    if site == 1 or site == 3:
-        if angle_deg >= 120 or angle_deg <= 60:
-            muiltNum = 1.4
-        else:
-            muiltNum = 1.2
-    elif site == 2:
-        muiltNum = 0.8
-    elif site == 4:
-        if angle_deg >= 130:
-            muiltNum = 1.4
-        elif angle_deg <= 80:
-            muiltNum = 1.2
-        else:
-            muiltNum = 0.8
-    elif site == 0:
-        if angle_deg <= 50:
-            muiltNum = 1.4
-        elif angle_deg >= 100:
-            muiltNum = 1.2
-        else:
-            muiltNum = 0.8
-    angle_deg = int(max(min(90+(angle_deg-90)*muiltNum, 180), 0))
-
     fps = round(1.0/(time.time()-lastTime), 2)
     lastTime = time.time()
     fpsText.setText("Fps: "+str(fps))
-    angleText.setText("Angle: "+str(angle_deg))
-    # print("fps= %.2f, angle= %4d"%(fps, angle_deg), end='\r')
-    if angle_deg > 120 or angle_deg < 60:
-        speed = 100
-    else:
-        speed = 150
+    
+    if len(points) > 8:
+        points_array = np.array(points, dtype=np.int32)
+        if site == 0 or site == 4:
+            points_array = points_array[:15]
+        elif site == 2:
+            points_array = points_array[:20]
 
-    if openSerial:
-        global ser
-        ser.write((str(int(angle_deg))+'\n').encode())
-        # send to arduino speedStr format is "40speed" ex: "4050" and "4100" mean 50 and 100 speed
-        speedStr = "4"+str(speed).zfill(3)+"\n"
-        print(speedStr)
-        time.sleep(0.02)
-        ser.write(speedStr.encode())
+        cv2.polylines(frame, [points_array], isClosed=False, color=(235, 99, 169), thickness=40)
+        if blockPercent[0]+blockPercent[1] < 10:
+            rectColor = (200, 0, 0)
+        coords = points_array
+        if site == 0 or site == 4:
+            median_coords = np.median(coords, axis=0)
+        elif site == 1 or site == 3:
+            median_coords = np.mean(coords, axis=0)
+            points_arrayNum = len(points_array)
+            # print(points_arrayNum)
+            if points_arrayNum > 8:
+                subLine1 = np.mean(points_array[:int(points_arrayNum/2)], axis=0)
+                subLine2 = np.mean(points_array[int(points_arrayNum/2+1):int(points_arrayNum-3)], axis=0)
+                line1Angle = np.arctan2(points_array[0][1]-points_array[int(points_arrayNum/2)][1], points_array[0][0]-points_array[int(points_arrayNum/2)][0])
+                line1Angle = np.degrees(line1Angle)
+                median_coords = np.mean([subLine1, subLine2], axis=0)
+                if site == 1 and line1Angle < 55:
+                    median_coords = np.mean([points_array[2], points_array[-3]], axis=0)
+                    cv2.line(frame, (points_array[2][0], points_array[2][1]), (points_array[int(points_arrayNum/2)][0], points_array[int(points_arrayNum/2)][1]), (0, 0, 255), 40)
+                    cv2.line(frame, (points_array[int(points_arrayNum/2+1)][0], points_array[int(points_arrayNum/2)+1][1]), (points_array[-3][0], points_array[-3][1]), (0, 0, 255), 40)
+                elif site == 1 and line1Angle >= 55:
+                    median_coords = subLine1
+                elif site == 3 and line1Angle > 125:
+                    median_coords = np.mean([points_array[2], points_array[-3]], axis=0)
+                    cv2.line(frame, (points_array[2][0], points_array[2][1]), (points_array[int(points_arrayNum/2)][0], points_array[int(points_arrayNum/2)][1]), (0, 0, 255), 40)
+                    cv2.line(frame, (points_array[int(points_arrayNum/2+1)][0], points_array[int(points_arrayNum/2)+1][1]), (points_array[-3][0], points_array[-3][1]), (0, 0, 255), 40)
+                elif site == 3 and line1Angle <= 125:
+                    median_coords = np.median(points_array[:int(points_arrayNum/2+4)], axis=0)
+        else:
+            maxCdn = np.max(coords, axis=0)
+            minCdn = np.min(coords, axis=0)
+            if abs(maxCdn[0]-959) > abs(minCdn[0]-959):
+                median_coords = maxCdn
+            else:
+                median_coords = minCdn
+            
+        cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
+        if site >= 3:
+            point_coords = np.array([1200, 1079])
+        elif site <= 1:
+            point_coords = np.array([718, 1079])
+        else:
+            point_coords = np.array([959, 1079])
+        cv2.circle(frame, (int(point_coords[0]), int(point_coords[1])), 15, (0, 0, 255), -1)
+        relative_coords = point_coords - median_coords
+        angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
+        angle_deg = np.degrees(angle_rad)
+        rawAngleText.setText("Angle(raw): "+str(int(angle_deg)))
+
+        if site == 1 or site == 3:
+            if angle_deg >= 130 or angle_deg <= 50:
+                muiltNum = 1.1
+            else:
+                muiltNum = 1.0
+        elif site == 2:
+            muiltNum = 1.0
+        elif site == 4:
+            if angle_deg >= 130:
+                muiltNum = 1.1
+            elif angle_deg <= 80:
+                muiltNum = 1.3
+            else:
+                muiltNum = 1.0
+        elif site == 0:
+            if angle_deg <= 50:
+                muiltNum = 1.1
+            elif angle_deg >= 100:
+                muiltNum = 1.3
+            else:
+                muiltNum = 1.0
+        angle_deg = int(max(min(90+(angle_deg-90)*muiltNum, 180), 0))
+
+        angleText.setText("Angle: "+str(angle_deg))
+        # print("fps= %.2f, angle= %4d"%(fps, angle_deg), end='\r')
+        if angle_deg > 120 or angle_deg < 60:
+            speed = 100
+        else:
+            speed = 150
+
+        if openSerial:
+            global ser
+            ser.write((str(int(angle_deg))+'\n').encode())
+            # send to arduino speedStr format is "40speed" ex: "4050" and "4100" mean 50 and 100 speed
+            speedStr = "4"+str(speed).zfill(3)+"\n"
+            # print(speedStr)
+            time.sleep(0.02)
+            # ser.write(speedStr.encode())
     
 
     return frame
@@ -638,10 +695,10 @@ for gpu in gpus:
     
 deeplab = DeeplabV3()
 
-video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1413.MOV"
+video_path      = "/Users/sam/Documents/MyProject/mixProject/TYAIcar/MLtraning/visualIdentityVideo/IMG_1420.MOV"
 #filename format is time ex: 2023_01_12_13_23_30
 fileName  = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
-video_save_path = "visionLogRaw/"+fileName+".mp4"
+video_save_path = ""
 video_fps       = 30.0
 
 # mapImg = output = np.zeros((150, 150, 3), dtype="uint8")
@@ -737,6 +794,7 @@ def startMap():
                 y = int((node[0] - min_y) * scale_y - 1)
                 cv2.circle(img, (x, y), 3, (134, 171, 212), -1)
     startX, startY = 121.32167, 24.99179
+    startX, startY = 121.32162, 24.99230
     endX, endY = 121.31989, 24.99412
 
     origin = ox.distance.nearest_nodes(G, startX, startY)
@@ -834,8 +892,9 @@ def startMap():
         print("distance: ", distance)
 
         if len(routeList) > 2:
-            if routeList[1] > routeList[0]:
-                cv2.circle(lastImg, routeList[0], 6, (255, 0, 0), -1)
+            distance2 = cv2.norm(nowCdn, routeList[1])
+            if distance > distance2:
+                cv2.circle(lastImg, routeList[0], 6, (0, 0, 255), -1)
                 routeList.pop(0)
                 print("delete one pass point")
 
@@ -845,9 +904,6 @@ def startMap():
                 turnAngle = np.arctan2(routeList[1][1]-routeList[0][1], routeList[1][0]-routeList[0][0])
                 turnAngle = np.degrees(turnAngle)
                 print("turnAngle: ", turnAngle)
-            if routeList[0] == (222, 73):
-                turnSite = ""
-                recommandSite = "straight"
             elif routeList[0] == (178, 98) or routeList[0] == (168, 112):
                 turnSite = ""
                 recommandSite = "littleRight"
@@ -870,6 +926,10 @@ def startMap():
                 recommandSite = "littleRight"
             routeList.pop(0)
             print("pass one point")
+
+        if routeList[0] == (222, 73):
+            turnSite = ""
+            recommandSite = "straight"
 
         siteStr = ""
         if turnSite == "west" or turnSite == "east":
@@ -962,7 +1022,8 @@ def startMap():
 
         # nowCdn = (convertCdn(121.32164781214851, "x"), convertCdn(24.99193515292301, "y"))
         sideDict = {"Left": 0,"littleLeft": 1,"straight": 2,"littleRight": 3,"Right": 4}
-        siteValue.setValue(sideDict[turnMode])
+        if mapControl:
+            siteValue.setValue(sideDict[turnMode])
         image = QImage(cv2.flip(img, 0), 500, 500, 1500, QImage.Format_RGB888)
         mapLabel.setPixmap(QPixmap.fromImage(image))
         time.sleep(0.3)
@@ -985,9 +1046,10 @@ def opencv():
     while(ocv):
         for _ in range(1 if cameraUse else 9):
             ref, frame = capture.read()
-            if cameraUse:
-                frame = cv2.flip(frame, 0)
-                frame = cv2.flip(frame, 1)
+            frame = cv2.resize(frame, (1920, 1080))
+            # if cameraUse:
+            #     frame = cv2.flip(frame, 0)
+            #     frame = cv2.flip(frame, 1)
             if not ref:
                 ocv = False
                 capture.release()
