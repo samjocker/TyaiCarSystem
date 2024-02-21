@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 import tensorflow as tf
 from PIL import Image
+import json
+from datetime import datetime
+import os
 
 import colorsys
 import copy
@@ -24,14 +27,16 @@ import requests
 import simpleaudio as sa
 
 import xml.etree.ElementTree as ET
-import osmnx as ox
-import networkx as nx
 
 autoPilot = False
 
-openSerial = False
-cameraUse = False
+develeperMode = True
+
+openSerial = True
+cameraUse = True
 mapControl = False
+
+controlAngle = 90     
 
 if openSerial:
     print("Wait connect")
@@ -42,7 +47,7 @@ if openSerial:
             ser = serial.Serial(port.device)
             ser.close()
             open_ports.append(port.device)
-            if "/dev/cu.usbmodem" in port.device:
+            if "/dev/cu.usb" in port.device:
                 arduinoPorts = port.device
         except serial.SerialException:
             pass
@@ -50,6 +55,8 @@ if openSerial:
     COM_PORT = arduinoPorts
     BAUD_RATES = 9600
     ser = serial.Serial(COM_PORT, BAUD_RATES)
+    ser.timeout = 2
+    _ = ser.read_all()
     print("Connect successfuly")
     time.sleep(2)
     print("start!")
@@ -61,12 +68,12 @@ MainWindow.setWindowTitle("TYAI car")
 MainWindow.resize(1220, 685)
 
 label = QtWidgets.QLabel(MainWindow)
-label.setGeometry(0, 0, 720, 405)
+label.setGeometry(0, 0, 16*45, 9*45)
 
 mapLabel = QtWidgets.QLabel(MainWindow)
-mapLabel.setGeometry(720, 0, 500, 500)
+mapLabel.setGeometry(16*45, 0, 500, 500)
 
-y = 435
+y = 530
 fpsText = QtWidgets.QLabel(MainWindow)
 fpsText.setGeometry(70, y, 120, 30)
 font = QFont() 
@@ -94,6 +101,17 @@ font = QFont()
 font.setPointSize(24)
 speedText.setFont(font)
 speedText.setText("km/h: "+str(0))
+
+screenSpeed = QtWidgets.QLabel(label)
+screenSpeed.setGeometry(16*21, 15, 100, 60)
+# font color should be white and 60 px
+font = QFont()
+font.setPointSize(60)
+font.setBold(True)
+font.setWeight(75)
+screenSpeed.setFont(font)
+screenSpeed.setText("0")
+screenSpeed.setStyleSheet("color: white")
 
 y += 50
 rectWidthValue = QtWidgets.QSlider(MainWindow)
@@ -185,49 +203,6 @@ def play_sound(sound_file, end=False):
     if end:
         play_obj.wait_done()
 
-lastPlay = time.time()
-def keyPressEvent(event):
-    global autoPilot, lastPlay
-    # event.key() 會返回被按下的按鍵的鍵碼
-    commandNum = 0
-    if event.key() == QtCore.Qt.Key_A:
-        siteValue.setValue(0)
-    elif event.key() == QtCore.Qt.Key_S:
-        siteValue.setValue(1)
-    elif event.key() == QtCore.Qt.Key_D:
-        siteValue.setValue(2)
-    elif event.key() == QtCore.Qt.Key_F:
-        siteValue.setValue(3)
-    elif event.key() == QtCore.Qt.Key_G:
-        siteValue.setValue(4)
-    elif event.key() == QtCore.Qt.Key_Escape:
-        commandNum = 300
-        autoPilot = False
-        play_sound("sound/autoPilotOFF.wav")
-    elif event.key() == QtCore.Qt.Key_Q:
-        commandNum = 301
-        autoPilot = True
-        play_sound("sound/autoPilotON.wav")
-    elif event.key() == QtCore.Qt.Key_U:
-        commandNum = 411
-    elif event.key() == QtCore.Qt.Key_I:
-        commandNum = 410
-    elif event.key() == QtCore.Qt.Key_O:
-        commandNum = 421
-    elif event.key() == QtCore.Qt.Key_P:
-        commandNum = 420
-    elif event.key() == QtCore.Qt.Key_T:
-        if time.time() - lastPlay >= 2:
-            lastPlay = time.time()
-            play_sound("sound/warning.wav")
-
-    if commandNum != 0:
-        global ser, openSerial
-        print("motor command sended")
-        if openSerial:
-            ser.write((str(commandNum)+"\n").encode())
-            print("Command "+str(commandNum)+"sended\n")
-
 def rectWidthChange(value):
     data["rectWidth"] = value
     rectWidthNum.setText(str(value))
@@ -242,11 +217,6 @@ def siteChange(value):
 siteValue.valueChanged.connect(siteChange)
 
 ocv = True            
-def closeOpenCV():
-    global ocv
-    ocv = False        
-
-MainWindow.closeEvent = closeOpenCV  
 
 def save():
     # data = {"middlePointX": data["middlePointX"], "middlePointY": data["middlePointY"]}
@@ -255,6 +225,13 @@ def save():
     print("saved")
 shortcut1 = QtWidgets.QShortcut(QKeySequence("Ctrl+S"), MainWindow)
 shortcut1.activated.connect(save)
+
+lastPlay = time.time()
+def playWarning():
+    global lastPlay
+    if time.time() - lastPlay >= 1.5:
+        lastPlay = time.time()
+        play_sound("sound/warning.wav")
 
 def map(value, from_low, from_high, to_low, to_high):
     return (value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low
@@ -319,8 +296,9 @@ def mask_image(imgdata, angle, size = 150):
 lastTime = time.time()
 lastRoute = []
 speed = 150
+slidingJsonData = {}
 def slidingWindow(frame):
-    global data, colors, site, openSerial, lastTime, autoPilot, lastRoute, rawAngleText, speed
+    global data, colors, site, openSerial, lastTime, autoPilot, lastRoute, rawAngleText, speed, slidingJsonData  
     rectColor = (0, 200 ,0)
 
     cdnY = 1079
@@ -370,7 +348,7 @@ def slidingWindow(frame):
                             block = lastBlock
                             break
                         else:
-                            x1 = int((1919-rectWidth)/2)
+                            # x1 = int((1919-rectWidth)/2)
                             addNum = abs(addNum)*-1
                     elif block[1][1] > 1919:
                         if lastBlock != []:
@@ -401,7 +379,7 @@ def slidingWindow(frame):
                             points.append([block[0][1], cdnY-rectHeight])
                             break
                         else:
-                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"]:
+                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"] and blockPercent[1] > 20 :
                                 if biggest["cdn"] != []:
                                     if block[1][0] < biggest["cdn"][1][0]:
                                         biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
@@ -443,7 +421,8 @@ def slidingWindow(frame):
                             block = lastBlock
                             break
                         else:
-                            x1 = int((1919-rectWidth)/2)
+                            # x1 = int((1919-rectWidth)/2)
+                            # x1 = 960
                             addNum = abs(addNum)*-1
                     elif block[0][0] < 0:
                         # print("\nout\n")
@@ -475,7 +454,7 @@ def slidingWindow(frame):
                             points.append([block[0][1], cdnY-rectHeight])
                             break
                         else:
-                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"] and blockPercent[0] > 5:
+                            if abs(blockPercent[0]-blockPercent[1]) < biggest["dist"] and blockPercent[0] > 20:
                                 if biggest["cdn"] != []:
                                     if block[1][0] > biggest["cdn"][1][0]:
                                         biggest["dist"] = abs(blockPercent[0]-blockPercent[1])
@@ -491,7 +470,7 @@ def slidingWindow(frame):
                     print("break", blockPercent[0], blockPercent[1], site)
             # testPoints_array = np.array(testPoints, dtype=np.int32)
             # cv2.polylines(frame, [testPoints_array], isClosed=False, color=(235, 0, 0), thickness=20)
-            if autoPilot:
+            if autoPilot and develeperMode:
                 cv2.rectangle(frame, (block[0][0], cdnY-rectHeight), (block[1][1], cdnY), rectColor, 4, cv2.LINE_AA)
         #     cv2.putText(frame, str(blockPercent[0]), (block[0][0]-130, cdnY-10), cv2.FONT_HERSHEY_SIMPLEX,
         # 2, (0, 255, 255), 4, cv2.LINE_AA)
@@ -506,13 +485,14 @@ def slidingWindow(frame):
     fpsText.setText("Fps: "+str(fps))
     
     if len(points) > 8:
-        points_array = np.array(points, dtype=np.int32)
+        points_array = np.array(points[:-1], dtype=np.int32)
         if site == 0 or site == 4:
-            points_array = points_array[:15]
+            points_array = points_array[:11]
         elif site == 2:
-            points_array = points_array[:20]
+            points_array = points_array[:11]
 
-        cv2.polylines(frame, [points_array], isClosed=False, color=(235, 99, 169), thickness=40)
+        if develeperMode or autoPilot:
+            cv2.polylines(frame, [points_array], isClosed=False, color=(100, 157 ,236), thickness=40)
         if blockPercent[0]+blockPercent[1] < 10:
             rectColor = (200, 0, 0)
         coords = points_array
@@ -530,14 +510,16 @@ def slidingWindow(frame):
                 median_coords = np.mean([subLine1, subLine2], axis=0)
                 if site == 1 and line1Angle < 55:
                     median_coords = np.mean([points_array[2], points_array[-3]], axis=0)
-                    cv2.line(frame, (points_array[2][0], points_array[2][1]), (points_array[int(points_arrayNum/2)][0], points_array[int(points_arrayNum/2)][1]), (0, 0, 255), 40)
-                    cv2.line(frame, (points_array[int(points_arrayNum/2+1)][0], points_array[int(points_arrayNum/2)+1][1]), (points_array[-3][0], points_array[-3][1]), (0, 0, 255), 40)
+                    if develeperMode:
+                        cv2.line(frame, (points_array[2][0], points_array[2][1]), (points_array[int(points_arrayNum/2)][0], points_array[int(points_arrayNum/2)][1]), (0, 0, 255), 40)
+                        cv2.line(frame, (points_array[int(points_arrayNum/2+1)][0], points_array[int(points_arrayNum/2)+1][1]), (points_array[-3][0], points_array[-3][1]), (0, 0, 255), 40)
                 elif site == 1 and line1Angle >= 55:
                     median_coords = subLine1
                 elif site == 3 and line1Angle > 125:
                     median_coords = np.mean([points_array[2], points_array[-3]], axis=0)
-                    cv2.line(frame, (points_array[2][0], points_array[2][1]), (points_array[int(points_arrayNum/2)][0], points_array[int(points_arrayNum/2)][1]), (0, 0, 255), 40)
-                    cv2.line(frame, (points_array[int(points_arrayNum/2+1)][0], points_array[int(points_arrayNum/2)+1][1]), (points_array[-3][0], points_array[-3][1]), (0, 0, 255), 40)
+                    if develeperMode:
+                        cv2.line(frame, (points_array[2][0], points_array[2][1]), (points_array[int(points_arrayNum/2)][0], points_array[int(points_arrayNum/2)][1]), (0, 0, 255), 40)
+                        cv2.line(frame, (points_array[int(points_arrayNum/2+1)][0], points_array[int(points_arrayNum/2)+1][1]), (points_array[-3][0], points_array[-3][1]), (0, 0, 255), 40)
                 elif site == 3 and line1Angle <= 125:
                     median_coords = np.median(points_array[:int(points_arrayNum/2+4)], axis=0)
         else:
@@ -547,15 +529,15 @@ def slidingWindow(frame):
                 median_coords = maxCdn
             else:
                 median_coords = minCdn
-            
-        cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
         if site >= 3:
             point_coords = np.array([1200, 1079])
         elif site <= 1:
             point_coords = np.array([718, 1079])
         else:
             point_coords = np.array([959, 1079])
-        cv2.circle(frame, (int(point_coords[0]), int(point_coords[1])), 15, (0, 0, 255), -1)
+        if develeperMode:
+            cv2.circle(frame, (int(median_coords[0]), int(median_coords[1])), 15, (181, 99, 235), -1)
+            cv2.circle(frame, (int(point_coords[0]), int(point_coords[1])), 15, (0, 0, 255), -1)
         relative_coords = point_coords - median_coords
         angle_rad = np.arctan2(relative_coords[1], relative_coords[0])
         angle_deg = np.degrees(angle_rad)
@@ -565,23 +547,23 @@ def slidingWindow(frame):
             if angle_deg >= 130 or angle_deg <= 50:
                 muiltNum = 1.1
             else:
-                muiltNum = 1.0
+                muiltNum = 0.8
         elif site == 2:
             muiltNum = 1.0
         elif site == 4:
             if angle_deg >= 130:
-                muiltNum = 1.1
+                muiltNum = 1.2
             elif angle_deg <= 80:
-                muiltNum = 1.3
+                muiltNum = 1.2
             else:
-                muiltNum = 1.0
+                muiltNum = 0.8
         elif site == 0:
             if angle_deg <= 50:
-                muiltNum = 1.1
+                muiltNum = 1.2
             elif angle_deg >= 100:
-                muiltNum = 1.3
+                muiltNum = 1.2
             else:
-                muiltNum = 1.0
+                muiltNum = 0.8
         angle_deg = int(max(min(90+(angle_deg-90)*muiltNum, 180), 0))
 
         angleText.setText("Angle: "+str(angle_deg))
@@ -592,14 +574,31 @@ def slidingWindow(frame):
             speed = 150
 
         if openSerial:
-            global ser
+            global ser, controlAngle
             ser.write((str(int(angle_deg))+'\n').encode())
             # send to arduino speedStr format is "40speed" ex: "4050" and "4100" mean 50 and 100 speed
             speedStr = "4"+str(speed).zfill(3)+"\n"
+            # time.sleep(0.1)
             # print(speedStr)
-            time.sleep(0.02)
+            # time.sleep(0.02)
             # ser.write(speedStr.encode())
-    
+
+        # if openSerial:
+        #     serData = ser.readline().decode()
+        #     print("serData: "+serData)
+        #     if serData == "apon\r\n":
+        #         autoPilot = True
+        #         play_sound("sound/autoPilotON.wav")
+        #     elif serData == "apoff\r\n":
+        #         autoPilot = False
+        #         play_sound("sound/autoPilotOFF.wav")
+        #     elif serData == "apfail\r\n":
+        #         autoPilot = False
+        #         play_sound("sound/autoPilotOFF.wav")
+
+        slidingJsonData = {"angle": angle_deg, "points":points, "fps":fps, "mode":site, "APstate": autoPilot}
+    else:
+        playWarning()
 
     return frame
 class DeeplabV3(object):
@@ -609,7 +608,7 @@ class DeeplabV3(object):
         "backbone"          : "mobilenet",
         "input_shape"       : [387, 688],
         "downsample_factor" : 16,
-        "mix_type"          : 0,
+        "mix_type"          : 1,
     }
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
@@ -679,6 +678,7 @@ class DeeplabV3(object):
         elif self.mix_type == 1:
             
             seg_img = np.reshape(np.array(self.colors, np.uint8)[np.reshape(pr, [-1])], [orininal_h, orininal_w, -1])
+            slidingWindow(seg_img)
 
             image   = Image.fromarray(np.uint8(seg_img))
 
@@ -703,8 +703,10 @@ video_fps       = 30.0
 
 # mapImg = output = np.zeros((150, 150, 3), dtype="uint8")
 
+json_Data = {}
 def startMap():
-    global mapLabel, siteValue, speedText
+    global mapLabel, siteValue, speedText, autoPilot, ser
+
     # 讀取OSM檔案
     osm_file_path = "test/TYAIcampus3.osm"
     G = ox.graph_from_point((24.99250, 121.32032), dist=200, network_type='drive_service')
@@ -818,14 +820,24 @@ def startMap():
     cv2.circle(img, (convertCdn(endX, "x"), convertCdn(endY, "y")), 6, (242, 97, 1), 2)
     
     def get_coordinates():
+        global json_Data, screenSpeed, autoPilot
         api_url = "https://6c96-60-251-221-219.ngrok-free.app/getData"
         response = requests.get(api_url)
+        APvalue = 1 if autoPilot else 0
+        APurl = "https://6c96-60-251-221-219.ngrok-free.app/update/"+str(APvalue)
+        response = requests.get(APurl)
         data = response.json()
-        print(data)
+        # print(data)
         latitude = data["latitude"]
         longitude = data["longitude"]
         site = int(float(data["site"]))
         speed = int(float(data["speed"]))
+        if speed >= 0:
+            screenSpeed.setText(str(speed))
+        else:
+            screenSpeed.setText(str(0))
+        json_Data = {}
+        json_Data = {"latitude": latitude, "longitude": longitude, "site": site, "speed": speed}
         return latitude, longitude, site, speed
     
     def point_to_line_distance(point, line):
@@ -864,6 +876,23 @@ def startMap():
             speedText.setText("km/h: "+str(gpsSpeed))
         except Exception as e:
             print(e)
+
+        if openSerial:
+            serData = ser.readline().decode()
+            print(serData, end="\n\n")
+            if serData == "apon\r\n":
+                autoPilot = True
+                play_sound("sound/autoPilotON.wav")
+            elif serData == "apoff\r\n":
+                autoPilot = False
+                play_sound("sound/autoPilotOFF.wav")
+            elif serData == "apoffw\r\n":
+                autoPilot = False
+                playWarning()
+            elif serData == "apfail\r\n":
+                autoPilot = False
+                play_sound("sound/autoPilotOFF.wav")
+
         myCdn = [convertCdn(myCdn[0], "x"), convertCdn(myCdn[1], "y")]
 
         # 找出距離最近的線條
@@ -880,7 +909,7 @@ def startMap():
         if closest_way is not None:
             u, v, recommandSite = closest_way
             # cv2.line(img, u, v, (0, 255, 0), 4)
-            print("Closest way:", u, "-", v, "Distance:", closest_distance, "Site:", recommandSite)
+            # print("Closest way:", u, "-", v, "Distance:", closest_distance, "Site:", recommandSite)
         else:
             print("No closest way found.")
 
@@ -889,7 +918,7 @@ def startMap():
         cv2.circle(img, nowCdn, 4, (223, 251, 252), -1)
         cv2.circle(img, nowCdn, 6, (61, 91, 129), 2)
         distance = cv2.norm(nowCdn, routeList[0])
-        print("distance: ", distance)
+        # print("distance: ", distance)
 
         if len(routeList) > 2:
             distance2 = cv2.norm(nowCdn, routeList[1])
@@ -903,7 +932,7 @@ def startMap():
             if len(routeList) > 2:
                 turnAngle = np.arctan2(routeList[1][1]-routeList[0][1], routeList[1][0]-routeList[0][0])
                 turnAngle = np.degrees(turnAngle)
-                print("turnAngle: ", turnAngle)
+                # print("turnAngle: ", turnAngle)
             elif routeList[0] == (178, 98) or routeList[0] == (168, 112):
                 turnSite = ""
                 recommandSite = "littleRight"
@@ -1028,8 +1057,15 @@ def startMap():
         mapLabel.setPixmap(QPixmap.fromImage(image))
         time.sleep(0.3)
 
+
+folder_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+folder_name = "testLog/"+folder_name
+os.makedirs(folder_name)
+frame_count = 0
+frames_info = []
+
 def opencv():
-    global ocv,video_path,video_save_path,video_fps, sideButtonState, openSerial
+    global ocv,video_path,video_save_path,video_fps, sideButtonState, openSerial, frame_count, frames_info, folder_name, json_Data, slidingJsonData
     
     capture=cv2.VideoCapture(0 if cameraUse else video_path)
     if video_save_path!="":
@@ -1040,27 +1076,32 @@ def opencv():
     ref, frame = capture.read()
     if not ref:
         raise ValueError("Video source Error")
-    
-    # getMap()
 
     while(ocv):
         for _ in range(1 if cameraUse else 9):
             ref, frame = capture.read()
             frame = cv2.resize(frame, (1920, 1080))
-            # if cameraUse:
+            if cameraUse:
             #     frame = cv2.flip(frame, 0)
-            #     frame = cv2.flip(frame, 1)
+                frame = cv2.flip(frame, 1)
             if not ref:
                 ocv = False
                 capture.release()
                 break
+
+        frame_name = f"{folder_name}/frame_{frame_count:04d}.jpg"
+        cv2.imwrite(frame_name, frame)
+        readyToWriteJson = {"file_name": frame_name, "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")}
+        readyToWriteJson.update(json_Data)
+        readyToWriteJson.update(slidingJsonData)
+
         if video_save_path!="" and cameraUse:
             out.write(frame)
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
         frame = Image.fromarray(np.uint8(frame))
         frame = np.array(deeplab.detect_image(frame))
 
-        height, width, channel = 405, 720, 3
+        height, width, channel = 9*47, 16*47, 3
         frame = cv2.resize(frame, (width, height))
         bytesPerline = channel * width
 
@@ -1068,11 +1109,84 @@ def opencv():
         label.setPixmap(QPixmap.fromImage(img))
         # print("fps= %.2f, angle= %4d"%(fps, 90), end='\r')
 
+        frames_info.append(readyToWriteJson)
+        frame_count += 1
+
+        json_data = readyToWriteJson
+        with open(f"{frame_name}.json", "w") as json_file:
+            json.dump(json_data, json_file, indent=4)
+
         c= cv2.waitKey(1) & 0xff 
 
         if c==27:
             capture.release()
             break
+
+def closeOpenCV():
+    global ocv, folder_name, frames_info
+    ocv = False 
+    print("saved")
+    fName = folder_name.split(".")[0]
+    with open(f"{fName}/frames_info.json", "w") as json_file:
+        json.dump(frames_info, json_file, indent=4)       
+
+MainWindow.closeEvent = closeOpenCV  
+
+def keyPressEvent(event):
+    global autoPilot, lastPlay, folder_name, frames_info, controlAngle
+    # event.key() 會返回被按下的按鍵的鍵碼
+    commandNum = 0
+    if event.key() == QtCore.Qt.Key_A:
+        controlAngle = 40
+        siteValue.setValue(0)
+    elif event.key() == QtCore.Qt.Key_S:
+        controlAngle = 70
+        siteValue.setValue(1)
+    elif event.key() == QtCore.Qt.Key_D:
+        controlAngle = 90
+        siteValue.setValue(2)
+    elif event.key() == QtCore.Qt.Key_F:
+        controlAngle = 110
+        siteValue.setValue(3)
+    elif event.key() == QtCore.Qt.Key_G:
+        controlAngle = 140
+        siteValue.setValue(4)
+    elif event.key() == QtCore.Qt.Key_Escape:
+        commandNum = 300
+        autoPilot = False
+        play_sound("sound/autoPilotOFF.wav")
+    elif event.key() == QtCore.Qt.Key_Q:
+        commandNum = 301
+        autoPilot = True
+        play_sound("sound/autoPilotON.wav")
+    elif event.key() == QtCore.Qt.Key_U:
+        commandNum = 411
+    elif event.key() == QtCore.Qt.Key_I:
+        commandNum = 410
+    elif event.key() == QtCore.Qt.Key_O:
+        commandNum = 421
+    elif event.key() == QtCore.Qt.Key_P:
+        commandNum = 420
+    elif event.key() == QtCore.Qt.Key_T:
+        playWarning()
+    elif event.key() == QtCore.Qt.Key_W:
+        commandNum = 501
+    elif event.key() == QtCore.Qt.Key_E:
+        commandNum = 500
+    # elif event.key() == QtCore.Qt.Key_M:
+    #     print("saved")
+    #     print(frames_info)
+    #     with open(f"{folder_name}/frames_info.json", "w") as json_file:
+    #         json.dump(frames_info, json_file, indent=4)  
+    #     time.sleep(4)
+    #     QtWidgets.QCoreApplication.quit()
+
+    if commandNum != 0:
+        global ser, openSerial
+        print("motor command sended")
+        if openSerial:
+            ser.write((str(commandNum)+"\n").encode())
+            print("Command "+str(commandNum)+"sended\n")
 
 video = threading.Thread(target=opencv)
 video.start()
@@ -1083,4 +1197,5 @@ mapThread.start()
 MainWindow.keyPressEvent = keyPressEvent
 MainWindow.show()
 # TrapezoidWindow.show()
+
 sys.exit(app.exec_())
