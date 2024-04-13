@@ -1,8 +1,8 @@
 # TYAI self driving car system
-##### Team consist of **SamJiang, Yeehuan, Mrs.Weng, JoeZhong**
-##### update: 2024/04/12
+> Team consist of **SamJiang, Yeehuan, Mrs.Weng, JoeZhong**  
+> update: 2024/04/12
 
-> ## 製作方法
+## 製作方法
 
 ### 車體動力系統改裝
 
@@ -13,7 +13,23 @@
 
 接著在我們實際驗證模型時道路準確率基本上有達90%以上，但在辨識三角錐上準確率欠佳，於是我們後續又增加了600張數據，針對不同天色、路況加強訓練來排除此問題並提高整體準確率，而為了增加安全性此模型數據量也持續增長中。
 
+![lebelingDemo](https://hackmd.io/_uploads/rykPPnweC.jpg =300x)
+![deeplabModelDemo](https://hackmd.io/_uploads/Hk1Dw2PxA.jpg =330x)
+
+### 高精度校園地圖
+
+我校道路歸類為私人土地道路，所以在標線、行駛邏輯上與法定道路略有不同，為了因地制宜我們利用了開放街圖(OpenStreetMap)簡稱OSM地圖的線上圖資下載成離線OSM檔案來編輯防止影響線上圖資增加不必要的數據，在這訂製校園地圖中我們首先先將不易駕駛道路(如廢棄教學區等年久失修路面)做標記，防止導航算法可能因行駛距離較短而規劃至危險道路，並且於各路段標記適合行駛方向(靠左靠右等)來遠離籃球場、農田等易有突發狀況區，增加整體行駛穩定及安全性。地圖顯示及導航算法由python函式庫osmnx及networkx製作。
+
+$$
+感覺我們可以放一下數學式看起來好帥＿y = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$
+
+![osmEditer](https://hackmd.io/_uploads/rJQI-pvgC.png)
+
 ### 路徑規劃
+
+路徑規劃部分我們參考了著名資料演算法『Sliding Window』的大致原理來
+>＠賴先生剩下交給你了
 
 ### 車電系統
 
