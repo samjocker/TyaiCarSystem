@@ -30,9 +30,9 @@ import xml.etree.ElementTree as ET
 
 autoPilot = False
 
-develeperMode = True
+develeperMode = False
 
-openSerial = True
+openSerial = False
 cameraUse = True
 mapControl = False
 
@@ -545,23 +545,23 @@ def slidingWindow(frame):
 
         if site == 1 or site == 3:
             if angle_deg >= 130 or angle_deg <= 50:
-                muiltNum = 1.1
+                muiltNum = 0.9
             else:
                 muiltNum = 0.8
         elif site == 2:
             muiltNum = 1.0
         elif site == 4:
             if angle_deg >= 130:
-                muiltNum = 1.2
+                muiltNum = 1
             elif angle_deg <= 80:
-                muiltNum = 1.2
+                muiltNum = 1
             else:
                 muiltNum = 0.8
         elif site == 0:
             if angle_deg <= 50:
-                muiltNum = 1.2
+                muiltNum = 1
             elif angle_deg >= 100:
-                muiltNum = 1.2
+                muiltNum = 1
             else:
                 muiltNum = 0.8
         angle_deg = int(max(min(90+(angle_deg-90)*muiltNum, 180), 0))
@@ -1089,11 +1089,12 @@ def opencv():
                 capture.release()
                 break
 
-        frame_name = f"{folder_name}/frame_{frame_count:04d}.jpg"
-        cv2.imwrite(frame_name, frame)
-        readyToWriteJson = {"file_name": frame_name, "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")}
-        readyToWriteJson.update(json_Data)
-        readyToWriteJson.update(slidingJsonData)
+        if cameraUse:
+            frame_name = f"{folder_name}/frame_{frame_count:04d}.jpg"
+            cv2.imwrite(frame_name, frame)
+            readyToWriteJson = {"file_name": frame_name, "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")}
+            readyToWriteJson.update(json_Data)
+            readyToWriteJson.update(slidingJsonData)
 
         if video_save_path!="" and cameraUse:
             out.write(frame)
@@ -1112,9 +1113,10 @@ def opencv():
         frames_info.append(readyToWriteJson)
         frame_count += 1
 
-        json_data = readyToWriteJson
-        with open(f"{frame_name}.json", "w") as json_file:
-            json.dump(json_data, json_file, indent=4)
+        if cameraUse:
+            json_data = readyToWriteJson
+            with open(f"{frame_name}.json", "w") as json_file:
+                json.dump(json_data, json_file, indent=4)
 
         c= cv2.waitKey(1) & 0xff 
 
