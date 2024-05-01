@@ -128,7 +128,7 @@ class DeeplabV3(object):
                 classes_nums[i] = num
             print("classes_nums:", classes_nums)
 
-        self.mix_type = 0
+        self.mix_type = 1
 
         if self.mix_type == 0:
             # seg_img = np.zeros((np.shape(pr)[0], np.shape(pr)[1], 3))
@@ -165,7 +165,7 @@ class DeeplabV3(object):
             #------------------------------------------------#
             image = Image.fromarray(np.uint8(seg_img))
 
-        return image,pr
+        return image
 
     def get_FPS(self, image, test_interval):
         #---------------------------------------------------------#
