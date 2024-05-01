@@ -130,7 +130,7 @@ class DeeplabV3(object):
                 classes_nums[i] = num
             print("classes_nums:", classes_nums)
 
-        self.mix_type = 1
+        self.mix_type = 0
 
         if self.mix_type == 0:
             # seg_img = np.zeros((np.shape(pr)[0], np.shape(pr)[1], 3))
