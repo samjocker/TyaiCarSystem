@@ -8,11 +8,18 @@ from deeplab import DeeplabV3
 
 app = Flask(__name__)
 # camera = cv2.VideoCapture(0)
-camera = cv2.VideoCapture("/Volumes/yihuanMissd/missd1t/IMG_1463.MOV")
+
+video_path = r"D:\Data\project\tyaiCar\TyaiCarSystem\IMG_1461.MOV"
+camera = cv2.VideoCapture(video_path)
 deeplab = DeeplabV3()
 
-speed = 20
+speed = 3
 mode = "original"
+
+
+AutoPilot = False
+turnAngle = 0
+carSpeed = 0
 
 def gen_frames():
 
@@ -26,25 +33,35 @@ def gen_frames():
             break
         else:
                 
-            if mode == "color" or mode == "sliding":
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                pil_frame = Image.fromarray(frame_rgb)
-                processed_frame = deeplab.detect_image(pil_frame)
-                processed_frame = np.array(processed_frame)
-                processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_RGB2BGR)
-
-                if mode == "sliding":
-                    pass
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            pil_frame = Image.fromarray(frame_rgb)
+            processed_frame = deeplab.detect_image(pil_frame)
+            processed_frame = np.array(processed_frame)
+            processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_RGB2BGR)
 
 
             if mode == "original":
-                processed_frame = frame
 
-            ret, buffer = cv2.imencode('.jpg', processed_frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                ret, buffer = cv2.imencode('.jpg', frame)
+                frame = buffer.tobytes()
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+            elif mode == "color":
+
+                ret, buffer = cv2.imencode('.jpg', processed_frame)
+                frame = buffer.tobytes()
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+            elif mode == "sliding":
+
+
+
+                ret, buffer = cv2.imencode('.jpg', frame)
+                frame = buffer.tobytes()
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
 
@@ -71,6 +88,17 @@ def switch_mode():
 
     return "sam is small"
 
+@app.route('/status')
+def status():
+    global AutoPilot
+    global turnAngle
+    global carSpeed 
+
+    return {
+        "AutoPilot": AutoPilot,
+        "turnAngle": turnAngle,
+        "carSpeed": carSpeed
+    }
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5001)
