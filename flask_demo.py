@@ -35,9 +35,12 @@ def gen_frames():
                 
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             pil_frame = Image.fromarray(frame_rgb)
-            processed_frame = deeplab.detect_image(pil_frame)
+            processed_frame,pr = deeplab.detect_image(pil_frame)
             processed_frame = np.array(processed_frame)
             processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_RGB2BGR)
+
+
+            print(pr[500,500])
 
 
             if mode == "original":
