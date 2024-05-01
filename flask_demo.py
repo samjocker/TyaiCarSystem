@@ -45,6 +45,10 @@ def gen_frames():
             processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_RGB2BGR)
 
 
+            
+
+
+
             if mode == "original":
 
                 ret, buffer = cv2.imencode('.jpg', frame)

@@ -1,27 +1,9 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>OpenCV + Flask</title>
+  <title>Flask</title>
 </head>
 <body>
-    <video id="video" autoplay></video>
-
-    <script>
-        var video = document.getElementById('video');
-
-        var source = new MediaSource();
-        video.srcObject = source;
-
-        fetch('/video')
-            .then(function(response) {
-                return response.blob();
-            })
-            .then(function(blob) {
-                source.addSource(blob);
-                source.addEventListener('sourceopen', function() {
-                    video.play();
-                });
-            });
-    </script>
+  <img src="{{ url_for('video_feed') }}">
 </body>
 </html>
